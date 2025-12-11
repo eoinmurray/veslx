@@ -1,0 +1,49 @@
+{
+  "type": "directory",
+  "name": "test-content",
+  "path": ".",
+  "children": [
+    {
+      "type": "file",
+      "name": "README.md",
+      "path": "README.md",
+      "size": 472
+    },
+    {
+      "type": "directory",
+      "name": "test-slides",
+      "path": "test-slides",
+      "children": [
+        {
+          "type": "file",
+          "name": "SLIDES.mdx",
+          "path": "test-slides/SLIDES.mdx",
+          "size": 122,
+          "frontmatter": {
+            "title": "Test Slides",
+            "description": "These are test slides for testing purposes.",
+            "date": "2024-06-15"
+          }
+        }
+      ]
+    },
+    {
+      "type": "directory",
+      "name": "test-post",
+      "path": "test-post",
+      "children": [
+        {
+          "type": "file",
+          "name": "README.mdx",
+          "path": "test-post/README.mdx",
+          "size": 115,
+          "frontmatter": {
+            "title": "Test Post",
+            "description": "This is a test post for testing purposes.",
+            "date": "2024-06-15"
+          }
+        }
+      ]
+    }
+  ]
+}
