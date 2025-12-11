@@ -5,11 +5,33 @@ import { buildAll } from './lib'
 import chokidar from 'chokidar'
 import type { IncomingMessage, ServerResponse } from 'http'
 
-export default function contentPlugin(dir: string): Plugin {
-  
-  if (!dir) {
+/**
+ * Recursively copy a directory
+ */
+function copyDirSync(src: string, dest: string) {
+  fs.mkdirSync(dest, { recursive: true })
+  const entries = fs.readdirSync(src, { withFileTypes: true })
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+
+    if (entry.isDirectory()) {
+      copyDirSync(srcPath, destPath)
+    } else {
+      fs.copyFileSync(srcPath, destPath)
+    }
+  }
+}
+
+export default function contentPlugin(inputDir: string): Plugin {
+
+  if (!inputDir) {
     throw new Error('Content directory must be specified.')
   }
+
+  // Resolve dir to absolute path from user's cwd
+  const dir = path.isAbsolute(inputDir) ? inputDir : path.resolve(process.cwd(), inputDir)
 
   const buildFn = () => buildAll([dir])
 
@@ -104,6 +126,20 @@ export default function contentPlugin(dir: string): Plugin {
     async buildEnd() {
       await Promise.all(watchers.map(w => w.close()))
       watchers = []
+    },
+    writeBundle(options) {
+      // Copy content directory to dist/raw during production build
+      const outDir = options.dir || 'dist'
+      const destDir = path.join(outDir, 'raw')
+
+      console.log(`Copying content from ${dir} to ${destDir}`)
+
+      if (fs.existsSync(dir)) {
+        copyDirSync(dir, destDir)
+        console.log(`Content copied successfully`)
+      } else {
+        console.warn(`Content directory not found: ${dir}`)
+      }
     },
   }
 }

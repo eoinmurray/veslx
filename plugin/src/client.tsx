@@ -179,7 +179,7 @@ export function useFileContent(path: string) {
         if (err instanceof Error && err.name === 'AbortError') {
           return; // Ignore abort errors
         }
-        setError(err instanceof Error ? err : new Error('Unknown error'));
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }

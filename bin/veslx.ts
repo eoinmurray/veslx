@@ -6,14 +6,15 @@ import init from "./lib/init";
 import serve from "./lib/serve";
 import start from "./lib/start";
 import stop from "./lib/stop";
+import build from "./lib/build";
 
 const cli = cac("veslx");
 
-console.log(`▗▖  ▗▖▗▄▄▄▖ ▗▄▄▖▗▖   
-▐▌  ▐▌▐▌   ▐▌   ▐▌   
-▐▌  ▐▌▐▛▀▀▘ ▝▀▚▖▐▌   
- ▝▚▞▘ ▐▙▄▄▖▗▄▄▞▘▐▙▄▄▖
-  `);
+console.log(`▗▖  ▗▖▗▄▄▄▖ ▗▄▄▖▗▖   ▗▖  ▗▖
+▐▌  ▐▌▐▌   ▐▌   ▐▌    ▝▚▞▘ 
+▐▌  ▐▌▐▛▀▀▘ ▝▀▚▖▐▌     ▐▌  
+ ▝▚▞▘ ▐▙▄▄▖▗▄▄▞▘▐▙▄▄▖▗▞▘▝▚▖
+`);
 
 cli
   .command("init", "Initialize a new veslx project")
@@ -30,6 +31,10 @@ cli
 cli
   .command("stop", "Stop the veslx deamon")
   .action(stop);
+
+cli
+  .command("build", "Build the veslx app")
+  .action(build)
 
 cli.help();
 cli.version(pkg.version);

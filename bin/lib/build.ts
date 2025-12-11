@@ -1,12 +1,13 @@
 
-import { createServer } from 'vite'
+import { build } from 'vite'
+import path from 'path'
 import importConfig from "./import-config";
 import veslxPlugin from '../../plugin/src/plugin'
 
-export default async function start() {
+export default async function buildApp() {
   const cwd = process.cwd()
 
-  console.log(`Starting veslx server in ${cwd}`);
+  console.log(`Building veslx app in ${cwd}`);
 
   const config = await importConfig(cwd);
 
@@ -16,17 +17,19 @@ export default async function start() {
   }
 
   const veslxRoot = new URL('../..', import.meta.url).pathname;
+  const outDir = path.join(cwd, 'dist')
 
-  const server = await createServer({
+  await build({
     root: veslxRoot,
     configFile: new URL('../../vite.config.ts', import.meta.url).pathname,
+    build: {
+      outDir,
+      emptyOutDir: true,
+    },
     plugins: [
       veslxPlugin(config.dir)
     ],
   })
 
-  await server.listen()
-
-  server.printUrls()
-  server.bindCLIShortcuts({ print: true })
+  console.log(`\nBuild complete: ${outDir}`)
 }
