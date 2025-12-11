@@ -81,11 +81,11 @@ export function useDirectory(path: string = ".") {
 
     (async () => {
       try {
-        const response = await fetch(`/raw/.vesl.json`);
+        const response = await fetch(`/raw/.veslx.json`);
 
         if (!response.ok) {
           if (response.status === 404) {
-            setError({ type: 'config_not_found', message: '.vesl.json not found' });
+            setError({ type: 'config_not_found', message: '.veslx.json not found' });
           } else {
             setError({ type: 'fetch_error', message: `Failed to fetch: ${response.status} ${response.statusText}` });
           }
@@ -96,7 +96,7 @@ export function useDirectory(path: string = ".") {
         try {
           json = await response.json();
         } catch {
-          setError({ type: 'parse_error', message: 'Failed to parse .vesl.json' });
+          setError({ type: 'parse_error', message: 'Failed to parse .veslx.json' });
           return;
         }
 

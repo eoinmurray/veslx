@@ -11,10 +11,10 @@ export function ErrorDisplay({ error, path }: { error: DirectoryError; path: str
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-semibold tracking-tight">Setup Required</h1>
             <p className="text-muted-foreground">
-              Could not find <code className="font-mono text-sm bg-muted px-2 py-1">.vesl.json</code>
+              Could not find <code className="font-mono text-sm bg-muted px-2 py-1">.veslx.json</code>
             </p>
             <p className="text-muted-foreground/70 text-sm">
-              Run the vesl build script to generate the directory index.
+              Run the veslx build script to generate the directory index.
             </p>
           </div>
         </main>
@@ -39,7 +39,7 @@ export function ErrorDisplay({ error, path }: { error: DirectoryError; path: str
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-semibold text-destructive">Configuration Error</h1>
             <p className="text-muted-foreground">
-              Failed to parse <code className="font-mono text-sm bg-muted px-2 py-1">.vesl.json</code>
+              Failed to parse <code className="font-mono text-sm bg-muted px-2 py-1">.veslx.json</code>
             </p>
           </div>
         </main>

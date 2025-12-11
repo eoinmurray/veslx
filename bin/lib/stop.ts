@@ -2,7 +2,7 @@ import pm2 from "pm2";
 
 export default async function start() {
   const cwd = process.cwd();
-  const name = `vesl-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
+  const name = `veslx-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
 
   pm2.connect((err) => {
     if (err) {
@@ -18,7 +18,7 @@ export default async function start() {
         return;
       }
 
-      console.log(`Vesl daemon stopped as "${name}" in ${cwd}`);
+      console.log(`veslx daemon stopped as "${name}" in ${cwd}`);
     });
   })
 }

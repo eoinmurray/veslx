@@ -68,7 +68,7 @@ export default function contentPlugin(dir: string): Plugin {
       // Watch all content directories and rebuild on changes
       watchers = [dir].map(dir => {
         const watcher = chokidar.watch(dir, {
-          ignored: (path: string) => path.endsWith('.vesl.json'),
+          ignored: (path: string) => path.endsWith('.veslx.json'),
           persistent: true,
         })
 

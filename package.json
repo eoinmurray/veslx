@@ -1,10 +1,9 @@
 {
-  "name": "vesl",
-  "private": true,
-  "version": "0.0.1",
+  "name": "veslx",
+  "version": "0.0.2",
   "type": "module",
   "bin": {
-    "vesl": "bin/vesl.ts"
+    "veslx": "bin/veslx.ts"
   },
   "scripts": {
     "dev": "vite",

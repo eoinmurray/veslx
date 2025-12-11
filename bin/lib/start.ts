@@ -5,12 +5,12 @@ export default async function start() {
   const config = await importConfig(process.cwd());
 
   if (!config) {
-    console.error("Configuration file 'vesl.config.ts' not found in the current directory.");
+    console.error("Configuration file 'veslx.config.ts' not found in the current directory.");
     return
   }
 
   const cwd = process.cwd();
-  const name = `vesl-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
+  const name = `veslx-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
 
   pm2.connect((err) => {
     if (err) {
@@ -21,7 +21,7 @@ export default async function start() {
     pm2.start({
       name: name,
       script: 'bunx',
-      args: ['vesl', 'serve'],
+      args: ['veslx', 'serve'],
       cwd: cwd,
       autorestart: true,
       watch: false,
@@ -34,7 +34,7 @@ export default async function start() {
         return;
       }
 
-      console.log(`vesl daemon started in ${cwd}`);
+      console.log(`veslx daemon started in ${cwd}`);
     });
   })
 }

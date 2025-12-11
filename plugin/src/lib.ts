@@ -250,7 +250,7 @@ async function buildTarget(target: string): Promise<void> {
   console.log(`   Found ${counts.dirs} directories and ${counts.files} files`);
 
   // Write output
-  const outputFile = join(target, '.vesl.json');
+  const outputFile = join(target, '.veslx.json');
   await writeFile(outputFile, JSON.stringify(index, null, 2));
 
   console.log(`   Generated ${outputFile}`);

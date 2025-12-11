@@ -7,7 +7,7 @@ import serve from "./lib/serve";
 import start from "./lib/start";
 import stop from "./lib/stop";
 
-const cli = cac("vesl");
+const cli = cac("veslx");
 
 console.log(`▗▖  ▗▖▗▄▄▄▖ ▗▄▄▖▗▖   
 ▐▌  ▐▌▐▌   ▐▌   ▐▌   
@@ -16,19 +16,19 @@ console.log(`▗▖  ▗▖▗▄▄▄▖ ▗▄▄▖▗▖
   `);
 
 cli
-  .command("init", "Initialize a new Vesl project")
+  .command("init", "Initialize a new veslx project")
   .action(init)
 
 cli
-  .command("serve", "Start the Vesl server")
+  .command("serve", "Start the veslx server")
   .action(serve);
 
 cli
-  .command("start", "Start the Vesl server as a deamon")
+  .command("start", "Start the veslx server as a deamon")
   .action(start);
 
 cli
-  .command("stop", "Stop the Vesl deamon")
+  .command("stop", "Stop the veslx deamon")
   .action(stop);
 
 cli.help();
