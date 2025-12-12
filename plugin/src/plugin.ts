@@ -135,8 +135,23 @@ export const posts = import.meta.glob('@content/**/*.mdx', {
 export const allMdx = import.meta.glob('@content/**/*.mdx');
 export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/*.slides.mdx']);
 
-// All files for directory tree building (images, mdx, etc.)
-export const files = import.meta.glob('@content/**/*.*', { eager: false });
+// All files for directory tree building (web-compatible files only)
+// Note: yaml/json excluded as they require plugins or are config files
+export const files = import.meta.glob([
+  '@content/**/*.mdx',
+  '@content/**/*.md',
+  '@content/**/*.tsx',
+  '@content/**/*.ts',
+  '@content/**/*.jsx',
+  '@content/**/*.js',
+  '@content/**/*.png',
+  '@content/**/*.jpg',
+  '@content/**/*.jpeg',
+  '@content/**/*.gif',
+  '@content/**/*.svg',
+  '@content/**/*.webp',
+  '@content/**/*.css',
+], { eager: false });
 
 // Frontmatter for all MDX files (eager loaded for directory listing)
 export const frontmatters = import.meta.glob('@content/**/*.mdx', {
