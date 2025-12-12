@@ -9,7 +9,7 @@ import { Group } from '@visx/group'
 import { Bar, Line, LinePath, AreaClosed, Circle } from '@visx/shape'
 import { scaleLinear, scaleBand, scaleTime } from '@visx/scale'
 import { AxisBottom, AxisLeft } from '@visx/axis'
-import { LinearGradient, GradientDarkgreenGreen, GradientPinkRed, GradientTealBlue } from '@visx/gradient'
+import { LinearGradient } from '@visx/gradient'
 import { curveMonotoneX, curveCardinal } from '@visx/curve'
 import { GridRows, GridColumns } from '@visx/grid'
 import { Text } from '@visx/text'
@@ -49,11 +49,10 @@ export const BarChart = () => {
   const yScale = scaleLinear({ domain: [0, Math.max(...data.map(d => d.value))], range: [yMax, 0], nice: true })
   return (
     <svg width={width} height={height}>
-      <GradientTealBlue id="bar-gradient" />
       <Group left={margin.left} top={margin.top}>
         <GridRows scale={yScale} width={xMax} stroke="currentColor" strokeOpacity={0.1} />
         {data.map(d => (
-          <Bar key={d.label} x={xScale(d.label)} y={yScale(d.value)} width={xScale.bandwidth()} height={yMax - yScale(d.value)} fill="url(#bar-gradient)" rx={4} />
+          <Bar key={d.label} x={xScale(d.label)} y={yScale(d.value)} width={xScale.bandwidth()} height={yMax - yScale(d.value)} fill="currentColor" fillOpacity={0.8} />
         ))}
         <AxisBottom top={yMax} scale={xScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'middle' }} />
         <AxisLeft scale={yScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'end', dx: -4 }} />
@@ -82,13 +81,12 @@ export const LineChart = () => {
   const yScale = scaleLinear({ domain: [0, 100], range: [yMax, 0] })
   return (
     <svg width={width} height={height}>
-      <GradientPinkRed id="line-gradient" />
       <Group left={margin.left} top={margin.top}>
         <GridRows scale={yScale} width={xMax} stroke="currentColor" strokeOpacity={0.1} />
         <GridColumns scale={xScale} height={yMax} stroke="currentColor" strokeOpacity={0.1} />
-        <LinePath data={data} x={d => xScale(d.x)} y={d => yScale(d.y)} stroke="url(#line-gradient)" strokeWidth={3} curve={curveMonotoneX} />
+        <LinePath data={data} x={d => xScale(d.x)} y={d => yScale(d.y)} stroke="currentColor" strokeWidth={1.5} curve={curveMonotoneX} />
         {data.map((d, i) => (
-          <Circle key={i} cx={xScale(d.x)} cy={yScale(d.y)} r={4} fill="url(#line-gradient)" />
+          <Circle key={i} cx={xScale(d.x)} cy={yScale(d.y)} r={3} fill="currentColor" />
         ))}
         <AxisBottom top={yMax} scale={xScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'middle' }} />
         <AxisLeft scale={yScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'end', dx: -4 }} />
@@ -117,10 +115,10 @@ export const AreaChart = () => {
   const yScale = scaleLinear({ domain: [0, Math.max(...data.map(d => d.y))], range: [yMax, 0], nice: true })
   return (
     <svg width={width} height={height}>
-      <LinearGradient id="area-gradient" from="#43e97b" to="#38f9d7" fromOpacity={0.8} toOpacity={0.2} />
+      <LinearGradient id="area-gradient" from="currentColor" to="currentColor" fromOpacity={0.3} toOpacity={0.05} />
       <Group left={margin.left} top={margin.top}>
         <AreaClosed data={data} x={d => xScale(d.x)} y={d => yScale(d.y)} yScale={yScale} fill="url(#area-gradient)" curve={curveCardinal} />
-        <LinePath data={data} x={d => xScale(d.x)} y={d => yScale(d.y)} stroke="#43e97b" strokeWidth={2} curve={curveCardinal} />
+        <LinePath data={data} x={d => xScale(d.x)} y={d => yScale(d.y)} stroke="currentColor" strokeWidth={1.5} curve={curveCardinal} />
         <AxisBottom top={yMax} scale={xScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'middle' }} />
         <AxisLeft scale={yScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'end', dx: -4 }} />
       </Group>
@@ -139,11 +137,11 @@ export const AreaChart = () => {
 export const InteractiveChart = () => {
   const [hoveredBar, setHoveredBar] = useState(null)
   const data = [
-    { label: 'React', value: 85, color: '#61dafb' },
-    { label: 'Vue', value: 62, color: '#42b883' },
-    { label: 'Angular', value: 45, color: '#dd1b16' },
-    { label: 'Svelte', value: 38, color: '#ff3e00' },
-    { label: 'Solid', value: 28, color: '#2c4f7c' },
+    { label: 'React', value: 85 },
+    { label: 'Vue', value: 62 },
+    { label: 'Angular', value: 45 },
+    { label: 'Svelte', value: 38 },
+    { label: 'Solid', value: 28 },
   ]
   const width = 500, height = 300, margin = { top: 20, right: 20, bottom: 50, left: 50 }
   const xMax = width - margin.left - margin.right
@@ -161,9 +159,8 @@ export const InteractiveChart = () => {
               y={yScale(d.value)}
               width={xScale.bandwidth()}
               height={yMax - yScale(d.value)}
-              fill={d.color}
-              opacity={hoveredBar === null || hoveredBar === d.label ? 1 : 0.3}
-              rx={4}
+              fill="currentColor"
+              opacity={hoveredBar === null || hoveredBar === d.label ? 0.8 : 0.2}
               onMouseEnter={() => setHoveredBar(d.label)}
               onMouseLeave={() => setHoveredBar(null)}
               style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
@@ -194,9 +191,9 @@ export const InteractiveChart = () => {
 
 export const MultiSeriesChart = () => {
   const series = [
-    { name: 'Revenue', color: '#8b5cf6', data: [30, 45, 55, 70, 65, 80, 95] },
-    { name: 'Users', color: '#06b6d4', data: [20, 35, 40, 50, 60, 75, 85] },
-    { name: 'Sessions', color: '#f59e0b', data: [10, 25, 35, 40, 45, 55, 60] },
+    { name: 'Revenue', opacity: 1, dash: '', data: [30, 45, 55, 70, 65, 80, 95] },
+    { name: 'Users', opacity: 0.6, dash: '4,4', data: [20, 35, 40, 50, 60, 75, 85] },
+    { name: 'Sessions', opacity: 0.35, dash: '2,2', data: [10, 25, 35, 40, 45, 55, 60] },
   ]
   const width = 500, height = 300, margin = { top: 20, right: 100, bottom: 40, left: 50 }
   const xMax = width - margin.left - margin.right
@@ -209,9 +206,9 @@ export const MultiSeriesChart = () => {
         <GridRows scale={yScale} width={xMax} stroke="currentColor" strokeOpacity={0.1} />
         {series.map(s => (
           <g key={s.name}>
-            <LinePath data={s.data.map((y, x) => ({ x, y }))} x={d => xScale(d.x)} y={d => yScale(d.y)} stroke={s.color} strokeWidth={3} curve={curveMonotoneX} />
+            <LinePath data={s.data.map((y, x) => ({ x, y }))} x={d => xScale(d.x)} y={d => yScale(d.y)} stroke="currentColor" strokeOpacity={s.opacity} strokeWidth={1.5} strokeDasharray={s.dash} curve={curveMonotoneX} />
             {s.data.map((y, x) => (
-              <Circle key={x} cx={xScale(x)} cy={yScale(y)} r={4} fill={s.color} />
+              <Circle key={x} cx={xScale(x)} cy={yScale(y)} r={3} fill="currentColor" fillOpacity={s.opacity} />
             ))}
           </g>
         ))}
@@ -219,7 +216,7 @@ export const MultiSeriesChart = () => {
         <AxisLeft scale={yScale} stroke="currentColor" strokeOpacity={0.3} tickStroke="currentColor" tickLabelProps={{ fill: 'currentColor', fontSize: 12, textAnchor: 'end', dx: -4 }} />
         {series.map((s, i) => (
           <g key={s.name} transform={`translate(${xMax + 15}, ${i * 22 + 10})`}>
-            <rect width={12} height={12} fill={s.color} rx={2} />
+            <line x1={0} y1={6} x2={12} y2={6} stroke="currentColor" strokeOpacity={s.opacity} strokeWidth={2} strokeDasharray={s.dash} />
             <Text x={18} y={10} fill="currentColor" fontSize={12}>{s.name}</Text>
           </g>
         ))}

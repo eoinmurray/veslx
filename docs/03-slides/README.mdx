@@ -1,0 +1,70 @@
+---
+title: "Creating Slides"
+description: "Markdown presentations"
+---
+
+<FrontMatter />
+
+# Creating Slides
+
+Files named `SLIDES.mdx` or ending in `.slides.mdx` render as slide decks.
+
+## Example
+
+Create `my-talk/SLIDES.mdx`:
+
+```mdx
+---
+title: "My Presentation"
+---
+
+# Welcome
+
+First slide.
+
+---
+
+# Second Slide
+
+Use `---` to separate slides.
+
+---
+
+# Final Slide
+
+Done.
+```
+
+## Separator
+
+Three dashes on their own line:
+
+```mdx
+Content for slide 1
+
+---
+
+Content for slide 2
+```
+
+## Navigation
+
+- **Arrow keys** - Next/previous slide
+- **Space** - Next slide
+- **Number keys** - Jump to slide
+- **Escape** - Exit fullscreen
+
+## Live Example
+
+See the [example slides](./SLIDES.mdx) in this folder.
+
+## Notes
+
+- One idea per slide
+- Code blocks work
+- Math works
+- Images work
+
+## Print
+
+Slides print in landscape. Use Cmd+P / Ctrl+P to export PDF.

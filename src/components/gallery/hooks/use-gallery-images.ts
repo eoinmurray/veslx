@@ -82,11 +82,15 @@ export function useGalleryImages({
   page?: number;
 }) {
   const { resolvedTheme } = useTheme();
-  const { path: routePath = "" } = useParams();
+  const { "*": routePath = "" } = useParams();
 
   // Get the current post's directory from the route
-  // Route is like "gallery-examples/README.mdx" -> "gallery-examples"
-  const currentDir = routePath.replace(/\/?(README|SLIDES)\.mdx?$/i, "").replace(/\/$/, "") || ".";
+  // Route is like "04-components/README.mdx" -> "04-components"
+  // Or "gallery-examples" -> "gallery-examples"
+  const currentDir = routePath
+    .replace(/\/[^/]+\.mdx$/i, "")  // Remove /filename.mdx
+    .replace(/\/$/, "")              // Remove trailing slash
+    || ".";
 
   // Resolve the path relative to current directory
   let resolvedPath = path;

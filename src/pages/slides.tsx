@@ -9,11 +9,14 @@ import { slidesMdxComponents } from "@/components/slides-renderer";
 
 
 export function SlidesPage() {
-  const { "path": path = "." } = useParams();
+  const { "*": rawPath = "." } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // The path includes the .mdx extension from the route
+  const mdxPath = rawPath;
+
   // Load the compiled MDX module (now includes slideCount export)
-  const { Content, frontmatter, slideCount, loading, error } = useMDXSlides(path);
+  const { Content, frontmatter, slideCount, loading, error } = useMDXSlides(mdxPath);
 
   // Total slides = 1 (title) + content slides
   const totalSlides = (slideCount || 0) + 1;

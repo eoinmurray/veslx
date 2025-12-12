@@ -1,0 +1,68 @@
+---
+title: "Getting Started"
+description: "Install and run veslx"
+---
+
+<FrontMatter />
+
+# Getting Started
+
+veslx serves MDX files as a documentation site. No config required.
+
+## Installation
+
+```bash
+bun install -g veslx
+```
+
+## Quick Start
+
+```bash
+cd your-docs-folder
+veslx serve
+```
+
+Open http://localhost:3000.
+
+## What Happens
+
+veslx scans your folder for `.mdx` files and:
+
+- Lists them on a homepage
+- Renders MDX with syntax highlighting and math support
+- Treats `SLIDES.mdx` files as presentations
+- Hot-reloads on changes
+
+## File Structure
+
+Any folder structure works:
+
+```
+my-docs/
+├── getting-started.mdx     # A page
+├── api-reference.mdx       # Another page
+├── tutorials/
+│   ├── 01-basics.mdx       # Numbered for ordering
+│   ├── 02-advanced.mdx
+│   └── SLIDES.mdx          # A slide deck
+└── images/
+    └── diagram.png         # Referenced in MDX
+```
+
+## Frontmatter
+
+Add metadata to any MDX file:
+
+```yaml
+---
+title: "My Page Title"
+description: "Shows in the listing"
+date: "2025-01-15"
+---
+```
+
+## Next
+
+- [Writing Content](./02-writing-content.mdx) - MDX syntax
+- [Creating Slides](./03-slides/README.mdx) - Presentations
+- [Components](./04-components/README.mdx) - Gallery, FrontMatter

@@ -8,11 +8,16 @@ import { useMDXContent } from "@/hooks/use-mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 
 export function Post() {
-  const { "path": path = "." } = useParams();
+  const { "*": rawPath = "." } = useParams();
 
-  const filePath = `${path}/README.mdx`
-  const { directory, loading: dirLoading } = useDirectory(filePath)
-  const { Content, frontmatter, loading: mdxLoading, error } = useMDXContent(path);
+  // The path includes the .mdx extension from the route
+  const mdxPath = rawPath;
+
+  // Extract directory path for finding sibling files (slides, etc.)
+  const dirPath = mdxPath.replace(/\/[^/]+\.mdx$/, '') || '.';
+
+  const { directory, loading: dirLoading } = useDirectory(dirPath)
+  const { Content, frontmatter, loading: mdxLoading, error } = useMDXContent(mdxPath);
   const isRunning = isSimulationRunning();
 
   let slides: FileEntry | null = null;

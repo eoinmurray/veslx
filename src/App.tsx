@@ -1,17 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "./components/theme-provider"
-import { Home } from "./pages/home"
-import { Post } from "./pages/post"
-import { SlidesPage } from "./pages/slides"
+import { ContentRouter } from "./pages/content-router"
 
 function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <BrowserRouter>
           <Routes>
-            <Route path=":path/SLIDES.mdx" element={<SlidesPage />} />
-            <Route path=":path/README.mdx" element={<Post />} />
-            <Route path="/*" element={<Home />} />
+            {/* Single catch-all route - ContentRouter determines page type */}
+            <Route path="/*" element={<ContentRouter />} />
           </Routes>
       </BrowserRouter>
     </ThemeProvider>

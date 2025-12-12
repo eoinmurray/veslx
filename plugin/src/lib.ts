@@ -13,6 +13,8 @@ export type FileEntry = {
     title?: string;
     description?: string;
     date?: string;
+    draft?: boolean;
+    visibility?: string;
   };
 }
 

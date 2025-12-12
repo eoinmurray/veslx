@@ -1,0 +1,91 @@
+---
+title: "Configuration"
+description: "veslx.config.ts options"
+---
+
+<FrontMatter />
+
+# Configuration
+
+veslx works without config. Optionally use `veslx.config.ts`.
+
+## Generate
+
+```bash
+veslx init
+```
+
+## Config File
+
+```typescript
+// veslx.config.ts
+export default {
+  dir: './docs',
+  site: {
+    name: 'My Project',
+    shortName: 'mp',
+    description: 'Project docs',
+    github: 'user/repo',
+  }
+}
+```
+
+## Options
+
+### `dir`
+
+Content directory.
+
+```typescript
+dir: './docs'
+```
+
+Default: `.`
+
+### `site.name`
+
+Site name for header and title.
+
+```typescript
+site: { name: 'My Docs' }
+```
+
+Default: folder name
+
+### `site.shortName`
+
+Header logo text.
+
+```typescript
+site: { shortName: 'MD' }
+```
+
+Default: first 2 chars of name
+
+### `site.description`
+
+Homepage subtitle.
+
+```typescript
+site: { description: 'Documentation' }
+```
+
+Default: none
+
+### `site.github`
+
+GitHub link in header.
+
+```typescript
+site: { github: 'user/repo' }
+```
+
+Default: none
+
+## CLI Overrides
+
+```bash
+veslx serve --port 8080
+veslx serve ./my-docs
+veslx build --outDir ./public
+```

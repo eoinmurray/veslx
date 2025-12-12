@@ -13,7 +13,7 @@ export function Slide({ index, children }: SlideProps) {
   return (
     <>
       {index > 0 && (
-        <hr className="border-t border-border mx-auto max-w-xl" />
+        <hr className="border-t border-border w-full" />
       )}
       <div
         className="slide-section min-h-screen flex items-center justify-center py-8 sm:py-12 md:py-16 px-4"

@@ -1,0 +1,203 @@
+{
+  "type": "directory",
+  "name": "docs",
+  "path": ".",
+  "children": [
+    {
+      "type": "directory",
+      "name": "03-slides",
+      "path": "03-slides",
+      "children": [
+        {
+          "type": "file",
+          "name": "SLIDES.mdx",
+          "path": "03-slides/SLIDES.mdx",
+          "size": 689,
+          "frontmatter": {
+            "title": "Example Slides",
+            "description": "Demo presentation"
+          }
+        },
+        {
+          "type": "file",
+          "name": "README.mdx",
+          "path": "03-slides/README.mdx",
+          "size": 847,
+          "frontmatter": {
+            "title": "Creating Slides",
+            "description": "Markdown presentations"
+          }
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "08-cli.mdx",
+      "path": "08-cli.mdx",
+      "size": 586,
+      "frontmatter": {
+        "title": "CLI",
+        "description": "Command reference"
+      }
+    },
+    {
+      "type": "file",
+      "name": "02-writing-content.mdx",
+      "path": "02-writing-content.mdx",
+      "size": 1662,
+      "frontmatter": {
+        "title": "Writing Content",
+        "description": "MDX syntax and formatting"
+      }
+    },
+    {
+      "type": "directory",
+      "name": "04-components",
+      "path": "04-components",
+      "children": [
+        {
+          "type": "directory",
+          "name": "images",
+          "path": "04-components/images",
+          "children": [
+            {
+              "type": "file",
+              "name": "image8.png",
+              "path": "04-components/images/image8.png",
+              "size": 1664150
+            },
+            {
+              "type": "file",
+              "name": "image9.png",
+              "path": "04-components/images/image9.png",
+              "size": 1437277
+            },
+            {
+              "type": "file",
+              "name": "image7.png",
+              "path": "04-components/images/image7.png",
+              "size": 2266930
+            },
+            {
+              "type": "file",
+              "name": "image6.png",
+              "path": "04-components/images/image6.png",
+              "size": 2633864
+            },
+            {
+              "type": "file",
+              "name": "image4.png",
+              "path": "04-components/images/image4.png",
+              "size": 2267605
+            },
+            {
+              "type": "file",
+              "name": "image5.png",
+              "path": "04-components/images/image5.png",
+              "size": 1508314
+            },
+            {
+              "type": "file",
+              "name": "image1.png",
+              "path": "04-components/images/image1.png",
+              "size": 1966199
+            },
+            {
+              "type": "file",
+              "name": "image2.png",
+              "path": "04-components/images/image2.png",
+              "size": 1434248
+            },
+            {
+              "type": "file",
+              "name": "image3.png",
+              "path": "04-components/images/image3.png",
+              "size": 1301702
+            }
+          ]
+        },
+        {
+          "type": "file",
+          "name": "README.mdx",
+          "path": "04-components/README.mdx",
+          "size": 1135,
+          "frontmatter": {
+            "title": "Components",
+            "description": "Built-in MDX components"
+          }
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "01-getting-started.mdx",
+      "path": "01-getting-started.mdx",
+      "size": 1269,
+      "frontmatter": {
+        "title": "Getting Started",
+        "description": "Install and run veslx"
+      }
+    },
+    {
+      "type": "directory",
+      "name": "05-imports",
+      "path": "05-imports",
+      "children": [
+        {
+          "type": "file",
+          "name": "Counter.tsx",
+          "path": "05-imports/Counter.tsx",
+          "size": 696
+        },
+        {
+          "type": "file",
+          "name": "README.mdx",
+          "path": "05-imports/README.mdx",
+          "size": 1286,
+          "frontmatter": {
+            "title": "Imports",
+            "description": "React components and npm packages in MDX"
+          }
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "07-configuration.mdx",
+      "path": "07-configuration.mdx",
+      "size": 1067,
+      "frontmatter": {
+        "title": "Configuration",
+        "description": "veslx.config.ts options"
+      }
+    },
+    {
+      "type": "directory",
+      "name": "visx-demo",
+      "path": "visx-demo",
+      "children": [
+        {
+          "type": "file",
+          "name": "SLIDES.mdx",
+          "path": "visx-demo/SLIDES.mdx",
+          "size": 10471,
+          "frontmatter": {
+            "title": "Data Visualization with visx",
+            "description": "Beautiful, expressive charts for React applications",
+            "date": "2025-12-12"
+          }
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "06-math.mdx",
+      "path": "06-math.mdx",
+      "size": 1152,
+      "frontmatter": {
+        "title": "Math",
+        "description": "LaTeX math with KaTeX"
+      }
+    }
+  ]
+}

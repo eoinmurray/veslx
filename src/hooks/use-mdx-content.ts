@@ -8,12 +8,68 @@ interface MDXModule {
     description?: string
     date?: string
     visibility?: string
+    draft?: boolean
   }
   slideCount?: number // Exported by remark-slides plugin for SLIDES.mdx files
 }
 
 type ModuleLoader = () => Promise<MDXModule>
 type ModuleMap = Record<string, ModuleLoader>
+
+/**
+ * Find MDX module by path. Supports:
+ * - Full path: "docs/intro.mdx" -> matches exactly
+ * - Folder path: "docs" -> matches "docs/index.mdx", "docs/README.mdx", or "docs.mdx"
+ */
+function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
+  const keys = Object.keys(modules)
+
+  // Normalize path - remove leading slash if present
+  const normalizedPath = path.replace(/^\//, '')
+
+  // If path already ends with .mdx, match exactly
+  if (normalizedPath.endsWith('.mdx')) {
+    // Try multiple matching strategies for different Vite glob formats
+    const matchingKey = keys.find(key => {
+      // Strategy 1: Key ends with /path (e.g., @content/docs/foo.mdx matches docs/foo.mdx)
+      if (key.endsWith(`/${normalizedPath}`)) return true
+      // Strategy 2: Key equals @content/path (alias form)
+      if (key === `@content/${normalizedPath}`) return true
+      // Strategy 3: Key equals /@content/path (with leading slash)
+      if (key === `/@content/${normalizedPath}`) return true
+      // Strategy 4: Key equals path directly
+      if (key === normalizedPath) return true
+      // Strategy 5: Key equals /path (with leading slash)
+      if (key === `/${normalizedPath}`) return true
+      return false
+    })
+    return matchingKey ? modules[matchingKey] : null
+  }
+
+  // Otherwise, try folder conventions in order of preference:
+  // 1. folder/index.mdx (modern convention)
+  // 2. folder/README.mdx (current convention)
+  // 3. folder.mdx (file alongside folders)
+  const candidates = [
+    `${normalizedPath}/index.mdx`,
+    `${normalizedPath}/README.mdx`,
+    `${normalizedPath}.mdx`,
+  ]
+
+  for (const candidate of candidates) {
+    const matchingKey = keys.find(key => {
+      if (key.endsWith(`/${candidate}`)) return true
+      if (key === `@content/${candidate}`) return true
+      if (key === candidate) return true
+      return false
+    })
+    if (matchingKey) {
+      return modules[matchingKey]
+    }
+  }
+
+  return null
+}
 
 export function useMDXContent(path: string) {
   const [Content, setContent] = useState<MDXModule['default'] | null>(null)
@@ -29,10 +85,7 @@ export function useMDXContent(path: string) {
     // Dynamic import to avoid pre-bundling issues
     import('virtual:content-modules')
       .then(({ modules }) => {
-        const matchingKey = Object.keys(modules).find(key =>
-          key.endsWith(`/${path}/README.mdx`)
-        )
-        const loader = matchingKey ? (modules as ModuleMap)[matchingKey] : null
+        const loader = findMdxModule(modules as ModuleMap, path)
 
         if (!loader) {
           throw new Error(`MDX module not found for path: ${path}`)
@@ -62,6 +115,38 @@ export function useMDXContent(path: string) {
   return { Content, frontmatter, loading, error }
 }
 
+/**
+ * Find slides module by path. Supports:
+ * - Full path: "docs/intro.slides.mdx" or "docs/SLIDES.mdx" -> matches exactly
+ * - Folder path: "docs" -> matches "docs/SLIDES.mdx" or "docs/index.slides.mdx"
+ */
+function findSlidesModule(modules: ModuleMap, path: string): ModuleLoader | null {
+  const keys = Object.keys(modules)
+
+  // If path already ends with .mdx, match exactly
+  if (path.endsWith('.mdx')) {
+    const matchingKey = keys.find(key => key.endsWith(`/${path}`))
+    return matchingKey ? modules[matchingKey] : null
+  }
+
+  // Otherwise, try folder conventions:
+  // 1. folder/SLIDES.mdx (current convention)
+  // 2. folder/index.slides.mdx (alternative)
+  const candidates = [
+    `/${path}/SLIDES.mdx`,
+    `/${path}/index.slides.mdx`,
+  ]
+
+  for (const suffix of candidates) {
+    const matchingKey = keys.find(key => key.endsWith(suffix))
+    if (matchingKey) {
+      return modules[matchingKey]
+    }
+  }
+
+  return null
+}
+
 export function useMDXSlides(path: string) {
   const [Content, setContent] = useState<MDXModule['default'] | null>(null)
   const [frontmatter, setFrontmatter] = useState<MDXModule['frontmatter']>(undefined)
@@ -77,10 +162,7 @@ export function useMDXSlides(path: string) {
     // Dynamic import to avoid pre-bundling issues
     import('virtual:content-modules')
       .then(({ slides }) => {
-        const matchingKey = Object.keys(slides).find(key =>
-          key.endsWith(`/${path}/SLIDES.mdx`)
-        )
-        const loader = matchingKey ? (slides as ModuleMap)[matchingKey] : null
+        const loader = findSlidesModule(slides as ModuleMap, path)
 
         if (!loader) {
           throw new Error(`Slides module not found for path: ${path}`)

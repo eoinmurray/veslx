@@ -129,10 +129,19 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig):
     load(id) {
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
         // Generate virtual module with import.meta.glob for MDX files
+        // - posts: all .mdx files except slides
+        // - slides: SLIDES.mdx and *.slides.mdx files
         return `
-export const modules = import.meta.glob('@content/**/README.mdx');
-export const slides = import.meta.glob('@content/**/SLIDES.mdx');
+export const posts = import.meta.glob('@content/**/*.mdx', {
+  import: 'default',
+  query: { skipSlides: true }
+});
+export const allMdx = import.meta.glob('@content/**/*.mdx');
+export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/*.slides.mdx']);
 export const index = import.meta.glob('@content/.veslx.json', { eager: true });
+
+// Legacy aliases for backwards compatibility
+export const modules = import.meta.glob('@content/**/*.mdx');
 `
       }
       if (id === RESOLVED_VIRTUAL_CONFIG_ID) {

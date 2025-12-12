@@ -1,8 +1,62 @@
-
+import { Link, useLocation } from 'react-router-dom'
 import Gallery from '@/components/gallery'
 import { ParameterTable } from '@/components/parameter-table'
 import { ParameterBadge } from '@/components/parameter-badge'
 import { FrontMatter } from './front-matter'
+
+/**
+ * Smart link component that uses React Router for internal links
+ * and regular anchor tags for external links.
+ */
+function SmartLink({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const location = useLocation()
+
+  // External links: absolute URLs, mailto, tel, etc.
+  const isExternal = href?.startsWith('http') || href?.startsWith('mailto:') || href?.startsWith('tel:')
+
+  // Hash-only links stay as anchors for in-page navigation
+  const isHashOnly = href?.startsWith('#')
+
+  if (isExternal || isHashOnly || !href) {
+    return (
+      <a
+        href={href}
+        className="text-primary hover:underline underline-offset-2"
+        {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        {...props}
+      >
+        {children}
+      </a>
+    )
+  }
+
+  // Resolve relative paths (./foo.mdx, ../bar.mdx) against current location
+  let resolvedHref = href
+  if (href.startsWith('./') || href.startsWith('../')) {
+    // Get current directory from pathname
+    const currentPath = location.pathname
+    const currentDir = currentPath.replace(/\/[^/]+\.mdx$/, '') || currentPath.replace(/\/[^/]*$/, '') || '/'
+
+    // Simple relative path resolution
+    if (href.startsWith('./')) {
+      resolvedHref = `${currentDir}/${href.slice(2)}`.replace(/\/+/g, '/')
+    } else if (href.startsWith('../')) {
+      const parentDir = currentDir.replace(/\/[^/]+$/, '') || '/'
+      resolvedHref = `${parentDir}/${href.slice(3)}`.replace(/\/+/g, '/')
+    }
+  }
+
+  // Internal link - use React Router Link
+  return (
+    <Link
+      to={resolvedHref}
+      className="text-primary hover:underline underline-offset-2"
+      {...props}
+    >
+      {children}
+    </Link>
+  )
+}
 
 function generateId(children: unknown): string {
   return children
@@ -114,13 +168,8 @@ export const mdxComponents = {
     <li className="mt-1.5" {...props} />
   ),
 
-  // Links
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
-    <a
-      className="text-primary hover:underline underline-offset-2"
-      {...props}
-    />
-  ),
+  // Links - uses React Router for internal navigation
+  a: SmartLink,
 
   // Tables
   table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (

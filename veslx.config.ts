@@ -1,5 +1,5 @@
 export default {
-  dir: 'test-content',
+  dir: 'docs',
   site: {
     name: 'veslx',
     shortName: 'veslx',

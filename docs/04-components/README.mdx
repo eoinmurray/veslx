@@ -1,0 +1,76 @@
+---
+title: "Components"
+description: "Built-in MDX components"
+---
+
+<FrontMatter />
+
+# Components
+
+Available in any MDX file.
+
+## FrontMatter
+
+Displays page metadata:
+
+```mdx
+---
+title: "My Page"
+description: "Page description"
+date: "2025-01-15"
+---
+
+<FrontMatter />
+```
+
+## Gallery
+
+Displays images from a folder:
+
+```mdx
+<Gallery path="./images" />
+```
+
+<Gallery path="./images" limit={4} />
+
+### Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `path` | string | Path to images folder |
+| `globs` | string[] | Glob patterns to filter |
+| `limit` | number | Max images to show |
+| `title` | string | Gallery title |
+| `caption` | string | Caption text |
+
+### Glob Patterns
+
+Filter images:
+
+```mdx
+<Gallery path="./images" globs={["**/image[1-3].*"]} />
+```
+
+<Gallery path="./images" globs={["**/image[1-3].*"]} />
+
+### With Title
+
+```mdx
+<Gallery
+  path="./images"
+  limit={3}
+  title="Sample Gallery"
+  caption="Example images"
+/>
+```
+
+<Gallery
+  path="./images"
+  limit={3}
+  title="Sample Gallery"
+  caption="Example images"
+/>
+
+## Custom Components
+
+Import your own. See [Imports](../05-imports/README.mdx).

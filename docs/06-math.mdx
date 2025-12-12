@@ -1,0 +1,95 @@
+---
+title: "Math"
+description: "LaTeX math with KaTeX"
+---
+
+<FrontMatter />
+
+# Math
+
+LaTeX math via KaTeX.
+
+## Inline
+
+Wrap with `$`:
+
+```
+The equation $E = mc^2$ changed physics.
+```
+
+The equation $E = mc^2$ changed physics.
+
+## Block
+
+Wrap with `$$`:
+
+```
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+```
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+$$
+
+## Examples
+
+### Quadratic Formula
+
+$$
+x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$
+
+### Matrix
+
+$$
+\begin{pmatrix}
+a & b \\
+c & d
+\end{pmatrix}
+\begin{pmatrix}
+x \\
+y
+\end{pmatrix}
+=
+\begin{pmatrix}
+ax + by \\
+cx + dy
+\end{pmatrix}
+$$
+
+### Sum
+
+$$
+\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}
+$$
+
+### Greek
+
+$\alpha, \beta, \gamma, \delta, \epsilon, \theta, \lambda, \mu, \pi, \sigma, \omega$
+
+### Calculus
+
+$$
+\frac{d}{dx}\left[\int_a^x f(t)\,dt\right] = f(x)
+$$
+
+### Bayes
+
+$$
+P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}
+$$
+
+## Reference
+
+| Syntax | Result |
+|--------|--------|
+| `\frac{a}{b}` | $\frac{a}{b}$ |
+| `\sqrt{x}` | $\sqrt{x}$ |
+| `x^2` | $x^2$ |
+| `x_i` | $x_i$ |
+| `\sum` | $\sum$ |
+| `\int` | $\int$ |
+
+See [KaTeX docs](https://katex.org/docs/supported.html).

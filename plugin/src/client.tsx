@@ -38,16 +38,51 @@ async function parsePath(directory: DirectoryEntry, path: string): Promise<{ dir
   return { directory: currentDir, file };
 }
 
+/**
+ * Find the main content file for a directory.
+ * Supports (in order of preference):
+ * - index.mdx / index.md (modern convention)
+ * - README.mdx / README.md (traditional convention)
+ */
 export function findReadme(directory: DirectoryEntry): FileEntry | null {
-  const readme = directory.children.find((child) => 
-    child.type === "file" && 
-    [
-      "README.md", "Readme.md", "readme.md",
-      "README.mdx", "Readme.mdx", "readme.mdx"
-    ].includes(child.name)
-  ) as FileEntry | undefined;
+  const indexFiles = [
+    "index.mdx", "index.md",
+    "README.mdx", "Readme.mdx", "readme.mdx",
+    "README.md", "Readme.md", "readme.md",
+  ];
 
-  return readme || null;
+  for (const filename of indexFiles) {
+    const found = directory.children.find((child) =>
+      child.type === "file" && child.name === filename
+    ) as FileEntry | undefined;
+    if (found) return found;
+  }
+
+  return null;
+}
+
+/**
+ * Find all MDX files in a directory (excluding index/README and slides)
+ */
+export function findMdxFiles(directory: DirectoryEntry): FileEntry[] {
+  const indexFiles = [
+    "index.mdx", "index.md",
+    "README.mdx", "Readme.mdx", "readme.mdx",
+    "README.md", "Readme.md", "readme.md",
+  ];
+  const slideFiles = [
+    "SLIDES.mdx", "Slides.mdx", "slides.mdx",
+    "SLIDES.md", "Slides.md", "slides.md",
+  ];
+  const excludeFiles = [...indexFiles, ...slideFiles];
+
+  return directory.children.filter((child): child is FileEntry =>
+    child.type === "file" &&
+    (child.name.endsWith('.mdx') || child.name.endsWith('.md')) &&
+    !excludeFiles.includes(child.name) &&
+    !child.name.endsWith('.slides.mdx') &&
+    !child.name.endsWith('.slides.md')
+  );
 }
 
 export function findSlides(directory: DirectoryEntry): FileEntry | null {
