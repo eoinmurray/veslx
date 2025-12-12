@@ -3,6 +3,48 @@ import path from 'path'
 import fs from 'fs'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { type VeslxConfig, type ResolvedSiteConfig, DEFAULT_SITE_CONFIG } from './types'
+import matter from 'gray-matter'
+
+/**
+ * Extract frontmatter from all MDX files in a directory
+ */
+function extractFrontmatters(dir: string): Record<string, { title?: string; description?: string; date?: string }> {
+  const frontmatters: Record<string, { title?: string; description?: string; date?: string }> = {};
+
+  function scanDir(currentDir: string, relativePath: string = '') {
+    if (!fs.existsSync(currentDir)) return;
+
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+      const relPath = relativePath ? `${relativePath}/${entry.name}` : entry.name;
+
+      if (entry.isDirectory()) {
+        // Skip hidden directories and node_modules
+        if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
+          scanDir(fullPath, relPath);
+        }
+      } else if (entry.name.endsWith('.mdx') || entry.name.endsWith('.md')) {
+        try {
+          const content = fs.readFileSync(fullPath, 'utf-8');
+          const { data } = matter(content);
+          // Use @content prefix to match glob keys
+          const key = `@content/${relPath}`;
+          frontmatters[key] = {
+            title: data.title,
+            description: data.description,
+            date: data.date instanceof Date ? data.date.toISOString() : data.date,
+          };
+        } catch {
+          // Skip files that can't be parsed
+        }
+      }
+    }
+  }
+
+  scanDir(dir);
+  return frontmatters;
+}
 
 const VIRTUAL_MODULE_ID = 'virtual:content-modules'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
@@ -122,11 +164,10 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig):
 
     load(id) {
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
+        // Extract frontmatter from MDX files at build time (avoids MDX hook issues)
+        const frontmatterData = extractFrontmatters(dir);
+
         // Generate virtual module with import.meta.glob for MDX files
-        // - posts: all .mdx files except slides
-        // - slides: SLIDES.mdx and *.slides.mdx files
-        // - files: all files for directory tree building
-        // - frontmatters: eager-loaded frontmatter for all MDX files
         return `
 export const posts = import.meta.glob('@content/**/*.mdx', {
   import: 'default',
@@ -136,7 +177,6 @@ export const allMdx = import.meta.glob('@content/**/*.mdx');
 export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/*.slides.mdx']);
 
 // All files for directory tree building (web-compatible files only)
-// Note: yaml/json excluded as they require plugins or are config files
 export const files = import.meta.glob([
   '@content/**/*.mdx',
   '@content/**/*.md',
@@ -153,11 +193,8 @@ export const files = import.meta.glob([
   '@content/**/*.css',
 ], { eager: false });
 
-// Frontmatter for all MDX files (eager loaded for directory listing)
-export const frontmatters = import.meta.glob('@content/**/*.mdx', {
-  import: 'frontmatter',
-  eager: true
-});
+// Frontmatter extracted at build time (no MDX execution required)
+export const frontmatters = ${JSON.stringify(frontmatterData)};
 
 // Legacy aliases for backwards compatibility
 export const modules = import.meta.glob('@content/**/*.mdx');
