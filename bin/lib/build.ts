@@ -52,6 +52,8 @@ export default async function buildApp() {
     root: veslxRoot,
     configFile,
     mode: 'production',
+    // Cache in user's project so it persists across bunx runs
+    cacheDir: path.join(cwd, 'node_modules/.vite'),
     build: {
       outDir: tempOutDir,
       emptyOutDir: true,

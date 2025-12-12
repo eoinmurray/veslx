@@ -26,6 +26,8 @@ export default async function start() {
   const server = await createServer({
     root: veslxRoot,
     configFile,
+    // Cache in user's project so it persists across bunx runs
+    cacheDir: path.join(cwd, 'node_modules/.vite'),
     plugins: [
       veslxPlugin(contentDir)
     ],
