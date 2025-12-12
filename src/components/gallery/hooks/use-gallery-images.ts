@@ -113,11 +113,11 @@ export function useGalleryImages({
     let imagePaths: string[];
 
     if (globs && globs.length > 0) {
-      // When globs provided, collect all images recursively and match against full path
+      // When globs provided, collect all images recursively and match against filename
       const allImages = collectAllImages(directory);
       imagePaths = allImages
         .map(img => img.path)
-        .filter(p => globs.some(glob => minimatch(p, glob)));
+        .filter(p => globs.some(glob => minimatch(p, glob, { matchBase: true })));
     } else {
       // No globs - just get images from the specified directory
       const imageChildren = directory.children.filter((child): child is FileEntry => {
