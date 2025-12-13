@@ -1,11 +1,12 @@
 import importConfig from "./import-config"
 import pm2 from "pm2";
+import { log } from './log'
 
 export default async function start() {
   const config = await importConfig(process.cwd());
 
   if (!config) {
-    console.error("Configuration file 'veslx.config.ts' not found in the current directory.");
+    log.error("veslx.yaml not found");
     return
   }
 
@@ -14,7 +15,7 @@ export default async function start() {
 
   pm2.connect((err) => {
     if (err) {
-      console.error('PM2 connect error:', err);
+      log.error('pm2 connection failed');
       return;
     }
 
@@ -26,15 +27,15 @@ export default async function start() {
       autorestart: true,
       watch: false,
       max_memory_restart: '200M'
-    }, (err, apps) => {
-      pm2.disconnect();   // Disconnects from PM2
+    }, (err) => {
+      pm2.disconnect();
 
       if (err) {
-        console.error('Failed to start daemon:', err);
+        log.error('daemon failed to start');
         return;
       }
 
-      console.log(`veslx daemon started in ${cwd}`);
+      log.success('daemon started');
     });
   })
 }

@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import importConfig from "./import-config";
 import veslxPlugin from '../../plugin/src/plugin'
+import { log } from './log'
 
 /**
  * Recursively copy a directory
@@ -67,8 +68,6 @@ async function getDefaultConfig(cwd: string) {
 export default async function buildApp(dir?: string) {
   const cwd = process.cwd()
 
-  console.log(`Building veslx app in ${cwd}`);
-
   // Resolve content directory from CLI arg
   const contentDir = dir
     ? (path.isAbsolute(dir) ? dir : path.resolve(cwd, dir))
@@ -129,5 +128,5 @@ export default async function buildApp(dir?: string) {
   // Clean up temp build directory
   fs.rmSync(tempOutDir, { recursive: true })
 
-  console.log(`\nBuild complete: ${finalOutDir}`)
+  log.success(`dist/`)
 }

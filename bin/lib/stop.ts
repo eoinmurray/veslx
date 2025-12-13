@@ -1,24 +1,25 @@
 import pm2 from "pm2";
+import { log } from './log'
 
-export default async function start() {
+export default async function stop() {
   const cwd = process.cwd();
   const name = `veslx-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
 
   pm2.connect((err) => {
     if (err) {
-      console.error('PM2 connect error:', err);
+      log.error('pm2 connection failed');
       return;
     }
 
-    pm2.stop(name, (err, apps) => {
-      pm2.disconnect();   // Disconnects from PM2
+    pm2.stop(name, (err) => {
+      pm2.disconnect();
 
       if (err) {
-        console.error('Failed to stop daemon:', err);
+        log.error('daemon failed to stop');
         return;
       }
 
-      console.log(`veslx daemon stopped as "${name}" in ${cwd}`);
+      log.success('daemon stopped');
     });
   })
 }

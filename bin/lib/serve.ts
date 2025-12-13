@@ -3,6 +3,7 @@ import { execSync } from 'child_process'
 import importConfig from "./import-config";
 import veslxPlugin from '../../plugin/src/plugin'
 import path from 'path'
+import { log } from './log'
 
 interface PackageJson {
   name?: string;
@@ -45,10 +46,8 @@ async function getDefaultConfig(cwd: string) {
   };
 }
 
-export default async function start(dir?: string) {
+export default async function serve(dir?: string) {
   const cwd = process.cwd()
-
-  console.log(`Starting veslx dev server in ${cwd}`);
 
   // Resolve content directory - CLI arg takes precedence
   const contentDir = dir
@@ -88,6 +87,11 @@ export default async function start(dir?: string) {
   })
 
   await server.listen()
-  server.printUrls()
-  server.bindCLIShortcuts({ print: true })
+
+  const info = server.resolvedUrls
+  if (info?.local[0]) {
+    log.url(info.local[0])
+  }
+
+  server.bindCLIShortcuts({ print: false })
 }

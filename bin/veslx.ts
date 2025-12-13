@@ -7,14 +7,11 @@ import serve from "./lib/serve";
 import start from "./lib/start";
 import stop from "./lib/stop";
 import build from "./lib/build";
+import { banner } from "./lib/log";
 
 const cli = cac("veslx");
 
-console.log(`▗▖  ▗▖▗▄▄▄▖ ▗▄▄▖▗▖   ▗▖  ▗▖
-▐▌  ▐▌▐▌   ▐▌   ▐▌    ▝▚▞▘ 
-▐▌  ▐▌▐▛▀▀▘ ▝▀▚▖▐▌     ▐▌  
- ▝▚▞▘ ▐▙▄▄▖▗▄▄▞▘▐▙▄▄▖▗▞▘▝▚▖
-`);
+banner();
 
 cli
   .command("init", "Initialize a new veslx project")
