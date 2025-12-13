@@ -109,5 +109,8 @@
     "typescript-eslint": "^8.46.3",
     "vite-plugin-dts": "^4.5.4"
   },
-  "overrides": {}
+  "overrides": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
 }
