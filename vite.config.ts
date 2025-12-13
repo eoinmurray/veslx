@@ -37,12 +37,17 @@ function reactResolverPlugin(): Plugin {
 
   return {
     name: 'veslx-react-resolver',
-    enforce: 'pre',
-    resolveId(id) {
-      if (resolved.has(id)) {
-        return resolved.get(id)
+    // Only resolve for user content MDX files (outside veslx's own src)
+    async resolveId(id, importer, options) {
+      if (!resolved.has(id)) return null
+      // Only intercept if importer is outside veslx (user content)
+      if (!importer || importer.includes('/veslx/') || importer.includes('node_modules')) {
+        return null
       }
-      return null
+      // Let Vite try first, only fallback to our resolution
+      const resolution = await this.resolve(id, importer, { ...options, skipSelf: true })
+      if (resolution) return null
+      return resolved.get(id)
     },
   }
 }
