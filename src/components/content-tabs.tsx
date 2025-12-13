@@ -10,7 +10,7 @@ interface ContentTabsProps {
 const views: { key: ContentView; label: string; path: string }[] = [
   { key: "posts", label: "posts", path: "/posts" },
   { key: "docs", label: "docs", path: "/docs" },
-  { key: "all", label: "all", path: "/" },
+  { key: "all", label: "all", path: "/all" },
 ];
 
 export function ContentTabs({ value, counts }: ContentTabsProps) {

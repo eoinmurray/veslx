@@ -22,8 +22,8 @@ export function Home({ view }: HomeProps) {
   const { "*": path = "." } = useParams();
   const config = siteConfig;
 
-  // Normalize path - "posts" and "docs" are view routes, not directories
-  const isViewRoute = path === "posts" || path === "docs";
+  // Normalize path - "posts", "docs", and "all" are view routes, not directories
+  const isViewRoute = path === "posts" || path === "docs" || path === "all";
   const directoryPath = isViewRoute ? "." : path;
 
   const { directory, loading, error } = useDirectory(directoryPath)

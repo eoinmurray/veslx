@@ -21,6 +21,9 @@ export function ContentRouter() {
   if (path === 'docs') {
     return <Home view="docs" />
   }
+  if (path === 'all') {
+    return <Home view="all" />
+  }
 
   // Check if this is a slides file
   if (path.endsWith('.slides.mdx') || path.endsWith('SLIDES.mdx')) {
