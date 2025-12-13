@@ -20,13 +20,18 @@ interface HomeProps {
 
 export function Home({ view }: HomeProps) {
   const { "*": path = "." } = useParams();
-  const { directory, loading, error } = useDirectory(path)
   const config = siteConfig;
+
+  // Normalize path - "posts" and "docs" are view routes, not directories
+  const isViewRoute = path === "posts" || path === "docs";
+  const directoryPath = isViewRoute ? "." : path;
+
+  const { directory, loading, error } = useDirectory(directoryPath)
 
   // Use prop view, fallback to config default
   const activeView = view ?? config.defaultView;
 
-  const isRoot = path === "." || path === "" || path === "posts" || path === "docs";
+  const isRoot = path === "." || path === "" || isViewRoute;
 
   // Calculate counts for tabs (only meaningful on root)
   const counts = directory
