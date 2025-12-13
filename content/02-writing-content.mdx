@@ -95,3 +95,32 @@ docs/
 ├── my-post.mdx             → Has date, sorts by date
 └── zebra.mdx               → Alphabetical
 ```
+
+---
+
+## Posts vs Docs
+
+Content is classified based on the `date` frontmatter field:
+
+- **Posts** - Content with a `date` field (blog posts, articles, changelog entries)
+- **Docs** - Content without a `date` field (documentation, guides, reference)
+
+### Direct URLs
+
+Filter content by visiting:
+
+- `/posts` - Show only dated content
+- `/docs` - Show only undated content
+- `/` - Show all content (or configured default)
+
+### Default View
+
+Set the default view in `veslx.yaml`:
+
+```yaml
+site:
+  name: My Site
+  defaultView: posts  # or 'docs' or 'all'
+```
+
+When both posts and docs exist, tabs appear on the homepage to switch views.
