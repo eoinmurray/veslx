@@ -1,3 +1,4 @@
+
 I as a developer should be able to:
   - develop locally with `bun run dev` with hmr.
   - release this package on npm with github actions.
@@ -11,4 +12,8 @@ I as a developer should be able to:
   take up more width
   - have a beautiful gallery
   - use imports in mdx files
-  - use npm imports in mdx files and veslx still build 
+  - use npm imports in mdx files and veslx still build
+
+Tests:
+  - that `veslx serve` works
+  - that `veslx build` works
