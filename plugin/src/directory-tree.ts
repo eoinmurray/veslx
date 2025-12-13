@@ -110,8 +110,18 @@ export function buildDirectoryTree(
     );
     if (exists) continue;
 
-    // Look up frontmatter using the original key (before prefix stripping)
-    const frontmatter = frontmatters?.[key];
+    // Look up frontmatter - try multiple key formats since Vite resolves paths differently
+    // Plugin stores keys as "@content/path", but glob keys may be resolved paths
+    let frontmatter = frontmatters?.[key];
+    if (!frontmatter) {
+      // Try with @content prefix using the relative path
+      frontmatter = frontmatters?.[`@content/${relativePath}`];
+    }
+    if (!frontmatter) {
+      // Try without leading slash
+      const keyWithoutSlash = key.startsWith('/') ? key.slice(1) : key;
+      frontmatter = frontmatters?.[keyWithoutSlash];
+    }
 
     const fileEntry: FileEntry = {
       type: 'file',
