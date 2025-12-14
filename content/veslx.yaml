@@ -1,6 +1,6 @@
 dir: .
 site:
   name: veslx
-  description: A zero config markdown based static site generator for technical content, for bun.
+  description: A zero config mdx based static site generator for technical content.
   github: "eoinmurray/veslx"
   defaultView: "docs"

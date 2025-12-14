@@ -1,0 +1,32 @@
+import { useState } from "react";
+
+export function Component() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <div>
+      <button
+        className="px-4 py-2 bg-blue-500 text-white rounded"
+        disabled={loading}
+        onClick={async () => {
+          setLoading(true);
+          setData(
+            await fetch("https://jsonplaceholder.typicode.com/posts", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ title: "foo", body: "bar", userId: 1 }),
+            }).then(r => r.json())
+          );
+          setLoading(false);
+        }}
+      >
+        {loading ? "Loading…" : "Click to POST to API"}
+      </button>
+
+      {data && <pre className="mt-4 p-3 bg-gray-100 rounded">
+        {JSON.stringify(data, null, 2)}
+      </pre>}
+    </div>
+  );
+}

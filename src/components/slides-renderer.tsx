@@ -15,7 +15,7 @@ export const slidesMdxComponents = {
  */
 export function SlideContent({ children }: { children: ReactNode }) {
   return (
-    <div className="slide-content prose dark:prose-invert prose-headings:tracking-tight prose-p:leading-relaxed max-w-xl">
+    <div className="slide-content prose dark:prose-invert prose-headings:tracking-tight prose-p:leading-relaxed">
       {children}
     </div>
   )

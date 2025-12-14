@@ -4,7 +4,7 @@ export function FigureCaption({ caption, label }: { caption?: string; label?: st
   if (!caption && !label) return null;
 
   return (
-    <figcaption className="px-[calc((var(--gallery-width)-var(--content-width))/2)] mt-4">
+    <figcaption className="mt-4">
       <p className="text-[13px] leading-[1.6] text-muted-foreground">
         {label && (
           <span className="font-semibold text-foreground tracking-tight">

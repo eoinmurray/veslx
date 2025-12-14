@@ -1,0 +1,17 @@
+---
+title: "Example: Watching a JSON file"
+description: "Live rendering the contents of a JSON file."
+date: "2025-12-12"
+---
+
+# Watching a JSON file
+
+import data from './data.json';
+
+<pre>
+  {JSON.stringify(data, null, 2)}
+</pre>
+
+Edit the `data.json` file to see live updates here!
+
+Note this only works with the `veslx serve` command, not with static exports.

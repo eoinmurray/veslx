@@ -1,0 +1,163 @@
+---
+title: "Example: Slide types and styling"
+description: "Showing the main types of slides veslx supports."
+date: "2025-12-12"
+---
+
+# Tailwind css classes
+
+<div className='text-blue-500'>
+  Blue text
+</div>
+
+<div className='text-red-500'>
+  Red text
+</div>
+
+<div className='text-green-500'>
+  Green text
+</div>
+
+---
+
+# Tailwind css classes usage
+
+```jsx
+<div className='text-blue-500'>
+  Blue text
+</div>
+
+<div className='text-red-500'>
+  Red text
+</div>
+
+<div className='text-green-500'>
+  Green text
+</div>
+```
+
+---
+
+---
+
+<HeroSlide 
+  title="Hero Slide"
+  subtitle="This is a subtitle for the hero slide."
+  author="Jane Doe"
+  date="December 12, 2025"
+/>
+
+---
+
+# HeroSlide Usage
+
+```jsx
+<HeroSlide 
+  title="Hero Slide"
+  subtitle="This is a subtitle for the hero slide."
+  author="Jane Doe"
+  date="December 12, 2025"
+/>
+```
+
+---
+
+<TextSlide
+  title="Text Slide"
+  subtitle="This is a subtitle for the text slide."
+>
+  This is a text slide. 
+  
+  - You can put any content you like here, including paragraphs, lists, images, and more.
+  - Even math: $E = mc^2$
+</TextSlide>
+
+---
+
+# TextSlide Usage
+
+```jsx
+<TextSlide
+  title="Text Slide"
+  subtitle="This is a subtitle for the text slide."
+>
+  This is a text slide. 
+  
+  - You can put any content you like here, including paragraphs, lists, images, and more.
+  - Even math: $E = mc^2$
+</TextSlide>
+```
+
+---
+
+<Gallery
+  title="Single Image with Child Text"
+  subtitle="A collection of images. And a long subtitle to see how it breaks."
+  path="12-slide-types/images"
+  globs={["image.png"]}
+  caption="An example image gallery."
+  captionLabel="Figure 1: Sample Images"
+  childAlign="right"
+>
+  This is some child text positioned next to the image.
+</Gallery>
+
+---
+
+```jsx
+<Gallery
+  title="Single Image with Child Text"
+  subtitle="A collection of images. And a long subtitle to see how it breaks."
+  path="12-slide-types/images"
+  globs={["image.png"]}
+  caption="An example image gallery."
+  captionLabel="Figure 1: Sample Images"
+/>
+```
+
+---
+
+<Gallery
+  title="Multiple Images"
+  subtitle="A collection of images. And a long subtitle to see how it breaks."
+  path="12-slide-types/images"
+  globs={["image.png", "image1.png", "image2.png"]}
+  caption="An example image gallery with multiple images."
+  captionLabel="Figure 2: Sample Images"
+  childAlign="left"
+/>
+
+---
+
+# Gallery Usage
+
+```jsx
+<Gallery
+  title="Image Gallery"
+  subtitle="A collection of images. And a long subtitle to see how it breaks."
+  path="12-slide-types/images"
+  globs={["image.png", "image2.png", "image3.png"]}
+  caption="An example image gallery with multiple images."
+  captionLabel="Figure 2: Sample Images"
+/>
+```
+
+---
+
+<div className="relative left-1/2 -translate-x-1/2 w-[90vw] h-[80vh]">
+  <div className="border rounded w-full h-full p-4">
+  Position items not in the center
+  </div>
+</div>
+
+---
+
+# Positioning Usage
+
+```jsx
+<div className="relative left-1/2 -translate-x-1/2 w-[90vw] h-[80vh]">
+  <div className="border rounded w-full h-full p-4">
+  Position items not in the center
+  </div>
+</div>
+```

@@ -19,8 +19,7 @@ export function SlidesPage() {
   // Load the compiled MDX module (now includes slideCount export)
   const { Content, frontmatter, slideCount, loading, error } = useMDXSlides(mdxPath);
 
-  // Total slides = 1 (title) + content slides
-  const totalSlides = (slideCount || 0) + 1;
+  const totalSlides = slideCount || 0;
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const titleSlideRef = useRef<HTMLDivElement>(null);
@@ -30,7 +29,7 @@ export function SlidesPage() {
   useEffect(() => {
     const slideParam = parseInt(searchParams.get("slide") || "0", 10);
     if (slideParam > 0 && contentRef.current) {
-      const slideEl = contentRef.current.querySelector(`[data-slide-index="${slideParam - 1}"]`);
+      const slideEl = contentRef.current.querySelector(`[data-slide-index="${slideParam}"]`);
       if (slideEl) {
         slideEl.scrollIntoView({ behavior: "auto" });
       }
@@ -45,7 +44,7 @@ export function SlidesPage() {
           if (entry.isIntersecting) {
             const index = entry.target.getAttribute("data-slide-index");
             if (index !== null) {
-              const slideNum = index === "title" ? 0 : parseInt(index, 10) + 1;
+              const slideNum = index === "title" ? 0 : parseInt(index, 10);
               setCurrentSlide(slideNum);
               setSearchParams(slideNum > 0 ? { slide: String(slideNum) } : {}, { replace: true });
             }
@@ -72,20 +71,16 @@ export function SlidesPage() {
   // Keyboard/scroll navigation helpers
   const goToPrevious = useCallback(() => {
     const prev = Math.max(0, currentSlide - 1);
-    if (prev === 0 && titleSlideRef.current) {
-      titleSlideRef.current.scrollIntoView({ behavior: "smooth" });
-    } else if (contentRef.current) {
-      const slideEl = contentRef.current.querySelector(`[data-slide-index="${prev - 1}"]`);
+    if (contentRef.current) {
+      const slideEl = contentRef.current.querySelector(`[data-slide-index="${prev}"]`);
       slideEl?.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentSlide]);
 
   const goToNext = useCallback(() => {
     const next = Math.min(totalSlides - 1, currentSlide + 1);
-    if (next === 0 && titleSlideRef.current) {
-      titleSlideRef.current.scrollIntoView({ behavior: "smooth" });
-    } else if (contentRef.current) {
-      const slideEl = contentRef.current.querySelector(`[data-slide-index="${next - 1}"]`);
+    if (contentRef.current) {
+      const slideEl = contentRef.current.querySelector(`[data-slide-index="${next}"]`);
       slideEl?.scrollIntoView({ behavior: "smooth" });
     }
   }, [currentSlide, totalSlides]);

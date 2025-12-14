@@ -3,6 +3,10 @@ import Gallery from '@/components/gallery'
 import { ParameterTable } from '@/components/parameter-table'
 import { ParameterBadge } from '@/components/parameter-badge'
 import { FrontMatter } from './front-matter'
+import { HeroSlide } from './slides/hero-slide'
+import { FigureSlide } from './slides/figure-slide'
+import { TextSlide } from './slides/text-slide'
+import { SlideOutline } from './slides/slide-outline'
 
 /**
  * Smart link component that uses React Router for internal links
@@ -76,6 +80,14 @@ export const mdxComponents = {
   ParameterTable,
 
   ParameterBadge,
+
+  HeroSlide,
+
+  FigureSlide,
+
+  TextSlide,
+
+  SlideOutline,
 
   // Headings - clean sans-serif
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {

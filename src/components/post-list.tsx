@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import type { DirectoryEntry } from "../../plugin/src/lib";
 import { formatDate } from "@/lib/format-date";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Presentation } from "lucide-react";
 import {
   type ContentView,
   type PostEntry,
@@ -117,6 +117,8 @@ export default function PostList({ directory, view = 'all' }: PostListProps) {
           linkPath = `/${post.path}`;
         }
 
+        const isSlides = linkPath.endsWith('SLIDES.mdx');
+
         return (
           <Link
             key={post.path}
@@ -126,15 +128,7 @@ export default function PostList({ directory, view = 'all' }: PostListProps) {
               "transition-colors duration-150",
             )}
           >
-            <article className="flex items-start gap-4">
-              {/* Date - left side, fixed width */}
-              <time
-                dateTime={date?.toISOString()}
-                className="font-mono text-xs text-muted-foreground tabular-nums w-20 flex-shrink-0 pt-0.5"
-              >
-                {date ? formatDate(date) : <span className="text-muted-foreground/30">—</span>}
-              </time>
-
+            <article className="flex items-center gap-4">
               {/* Main content */}
               <div className="flex-1 min-w-0">
                 <h3 className={cn(
@@ -152,6 +146,16 @@ export default function PostList({ directory, view = 'all' }: PostListProps) {
                   </p>
                 )}
               </div>
+
+              {isSlides && (
+                <Presentation className="h-3 w-3 text-muted-foreground" />
+              )}
+              <time
+                dateTime={date?.toISOString()}
+                className="font-mono text-xs text-muted-foreground tabular-nums w-20 flex-shrink-0"
+              >
+                {date && formatDate(date)}
+              </time>
             </article>
           </Link>
         );
