@@ -199,5 +199,4 @@ The `VESLX_DEV=1` env var forces using source files instead of pre-built dist.
 - **katex** / **rehype-katex** - Math rendering
 - **shiki** - Syntax highlighting
 - **embla-carousel-react** - Gallery carousel
-- **@visx/** - Data visualization (optional, for demos)
 - **minimatch** - Glob pattern matching for galleries
