@@ -8,9 +8,9 @@ interface ContentTabsProps {
 }
 
 const views: { key: ContentView; label: string; path: string }[] = [
-  { key: "posts", label: "posts", path: "/posts" },
-  { key: "docs", label: "docs", path: "/docs" },
-  { key: "all", label: "all", path: "/all" },
+  { key: "posts", label: "Posts", path: "/posts" },
+  { key: "docs", label: "Docs", path: "/docs" },
+  // { key: "all", label: "All", path: "/all" },
 ];
 
 export function ContentTabs({ value, counts }: ContentTabsProps) {
@@ -28,7 +28,7 @@ export function ContentTabs({ value, counts }: ContentTabsProps) {
   };
 
   return (
-    <nav className="flex justify-end items-center gap-3 font-mono font-medium text-xs text-muted-foreground">
+    <nav className="flex items-center gap-3 font-mono font-medium text-xs text-muted-foreground">
       {views.map((view) => {
         const disabled = isDisabled(view.key);
 

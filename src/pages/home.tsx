@@ -68,12 +68,12 @@ export function Home({ view }: HomeProps) {
             </div>
           )}
 
-          <div className="">
-            {isRoot && directory && (
+          <div className="flex flex-col gap-2">
+            {/* {isRoot && directory && (
               <div className="animate-fade-in">
                 <ContentTabs value={activeView} counts={counts} />
               </div>
-            )}
+            )} */}
             {directory && (
               <div className="animate-fade-in">
                 <PostList directory={directory} view={isRoot ? activeView : 'all'} />

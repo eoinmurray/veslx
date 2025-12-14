@@ -54,7 +54,19 @@ export function Header({ slideControls }: HeaderProps = {}) {
         )}
 
         {/* Navigation */}
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-4">
+          <Link
+            to={`/docs`}
+            className="font-medium text-muted-foreground/70 hover:text-foreground transition-colors duration-300"
+          >
+            Docs
+          </Link>
+          <Link
+            to={`/posts`}
+            className="font-medium text-muted-foreground/70 hover:text-foreground transition-colors duration-300"
+          >
+            Posts
+          </Link>
           {config.github && (
             <Link
               to={`https://github.com/${config.github}`}
