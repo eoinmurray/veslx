@@ -57,7 +57,21 @@ export default async function serve(dir?: string) {
   // Get defaults first, then merge with config file if it exists
   // Look for config in content directory first, then fall back to cwd
   const defaults = await getDefaultConfig(contentDir);
-  const fileConfig = await importConfig(contentDir) || await importConfig(cwd);
+
+  // Track which config file was found for hot reload
+  let configPath: string | undefined;
+  const contentConfigPath = path.join(contentDir, 'veslx.yaml');
+  const cwdConfigPath = path.join(cwd, 'veslx.yaml');
+
+  let fileConfig = await importConfig(contentDir);
+  if (fileConfig) {
+    configPath = contentConfigPath;
+  } else {
+    fileConfig = await importConfig(cwd);
+    if (fileConfig) {
+      configPath = cwdConfigPath;
+    }
+  }
 
   // CLI argument takes precedence over config file
   const config = {
@@ -82,7 +96,7 @@ export default async function serve(dir?: string) {
     // Cache in user's project so it persists across bunx runs
     cacheDir: path.join(cwd, 'node_modules/.vite'),
     plugins: [
-      veslxPlugin(finalContentDir, config)
+      veslxPlugin(finalContentDir, config, { configPath })
     ],
   })
 

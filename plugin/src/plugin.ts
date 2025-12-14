@@ -1,6 +1,7 @@
-import { type Plugin, type Connect } from 'vite'
+import { type Plugin, type Connect, type ViteDevServer } from 'vite'
 import path from 'path'
 import fs from 'fs'
+import yaml from 'js-yaml'
 import type { IncomingMessage, ServerResponse } from 'http'
 import { type VeslxConfig, type ResolvedSiteConfig, DEFAULT_SITE_CONFIG } from './types'
 import matter from 'gray-matter'
@@ -71,7 +72,11 @@ function copyDirSync(src: string, dest: string) {
   }
 }
 
-export default function contentPlugin(contentDir: string, config?: VeslxConfig): Plugin {
+interface PluginOptions {
+  configPath?: string
+}
+
+export default function contentPlugin(contentDir: string, config?: VeslxConfig, options?: PluginOptions): Plugin {
 
   if (!contentDir) {
     throw new Error('Content directory must be specified.')
@@ -82,11 +87,29 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig):
   }
 
   const dir = contentDir
+  const configPath = options?.configPath
 
-  // Resolve site config with defaults
-  const siteConfig: ResolvedSiteConfig = {
+  // Mutable site config that can be updated on hot reload
+  let siteConfig: ResolvedSiteConfig = {
     ...DEFAULT_SITE_CONFIG,
     ...config?.site,
+  }
+
+  // Helper to reload config from file
+  function reloadConfig(): boolean {
+    if (!configPath || !fs.existsSync(configPath)) return false
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8')
+      const parsed = yaml.load(content) as VeslxConfig
+      siteConfig = {
+        ...DEFAULT_SITE_CONFIG,
+        ...parsed?.site,
+      }
+      return true
+    } catch (e) {
+      console.error('[veslx] Failed to reload config:', e)
+      return false
+    }
   }
 
   // Server middleware for serving content files
@@ -209,6 +232,28 @@ export const modules = import.meta.glob('@content/**/*.mdx');
     configureServer(server) {
       // Add middleware for serving content files
       server.middlewares.use(middleware)
+
+      // Watch config file for hot reload
+      if (configPath && fs.existsSync(configPath)) {
+        server.watcher.add(configPath)
+      }
+    },
+
+    handleHotUpdate({ file, server }) {
+      // Check if the changed file is our config
+      if (configPath && file === configPath) {
+        console.log('[veslx] Config changed, reloading...')
+        if (reloadConfig()) {
+          // Invalidate the virtual config module
+          const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_CONFIG_ID)
+          if (mod) {
+            server.moduleGraph.invalidateModule(mod)
+          }
+          // Full reload since config affects the entire app
+          server.ws.send({ type: 'full-reload' })
+          return [] // Prevent default HMR handling
+        }
+      }
     },
     configurePreviewServer(server) {
       // Add middleware for preview server too
