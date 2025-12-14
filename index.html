@@ -9,14 +9,28 @@
     <script>
       (function() {
         var theme = localStorage.getItem('theme');
-        var isDark = theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var isDark = theme === 'dark' || (theme !== 'light' && prefersDark);
         if (isDark) document.documentElement.classList.add('dark');
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
       })();
     </script>
     <style>
-      html { background: hsl(0 0% 100%); }
-      html.dark { background: hsl(0 0% 7%); }
+      /* Critical theme variables to prevent FOUC */
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 240 10% 10%;
+      }
+      .dark {
+        --background: 0 0% 7%;
+        --foreground: 0 0% 93%;
+      }
+      html, body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        margin: 0;
+      }
+      body { visibility: hidden; }
     </style>
     <!-- Google Fonts: DM Sans + DM Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

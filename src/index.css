@@ -435,3 +435,8 @@
     break-inside: avoid !important;
   }
 }
+
+/* FOUC prevention: CSS loaded, reveal content */
+body {
+  visibility: visible;
+}

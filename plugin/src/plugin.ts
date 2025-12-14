@@ -141,19 +141,30 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       return a.path.localeCompare(b.path)
     })
 
-    const lines: string[] = [`# ${siteConfig.name}`, '']
+    const lines: string[] = [`# ${siteConfig.name}`]
     if (siteConfig.description) {
-      lines.push(siteConfig.description, '')
+      lines.push(siteConfig.description)
     }
-    lines.push('> This is a veslx documentation site. Content is served as raw MDX files.', '', '## Content', '')
+    lines.push('')
+
+    // Links section
+    if (siteConfig.homepage) {
+      lines.push(`Homepage: ${siteConfig.homepage}`)
+    }
+    if (siteConfig.github) {
+      lines.push(`GitHub: https://github.com/${siteConfig.github}`)
+    }
+    lines.push('Install: bun install -g veslx')
+    lines.push('')
+
+    lines.push('Content is served as raw MDX files at /raw/{path}.')
+    lines.push('')
 
     for (const entry of entries) {
       const type = entry.isSlides ? '[slides]' : entry.date ? '[post]' : '[doc]'
       const title = entry.title || entry.path.replace(/\.mdx?$/, '').split('/').pop()
-      lines.push(`- ${type} ${title}: /raw/${entry.path}`)
-      if (entry.description) {
-        lines.push(`  ${entry.description}`)
-      }
+      const desc = entry.description ? ` - ${entry.description}` : ''
+      lines.push(`${type} ${title}: /raw/${entry.path}${desc}`)
     }
     lines.push('')
     return lines.join('\n')
@@ -320,62 +331,9 @@ export const modules = import.meta.glob('@content/**/*.mdx');
         console.log(`Content copied successfully`)
 
         // Generate llms.txt for CLI tools and LLMs
-        const frontmatters = extractFrontmatters(dir)
-        const entries: { path: string; title?: string; description?: string; date?: string; isSlides: boolean }[] = []
-
-        for (const [key, fm] of Object.entries(frontmatters)) {
-          // Key format: @content/path/to/file.mdx
-          const relativePath = key.replace('@content/', '')
-          const isSlides = relativePath.endsWith('SLIDES.mdx') || relativePath.endsWith('.slides.mdx')
-          entries.push({
-            path: relativePath,
-            title: fm.title,
-            description: fm.description,
-            date: fm.date,
-            isSlides,
-          })
-        }
-
-        // Sort: dated content (posts) first by date desc, then undated (docs) alphabetically
-        entries.sort((a, b) => {
-          if (a.date && b.date) return b.date.localeCompare(a.date)
-          if (a.date) return -1
-          if (b.date) return 1
-          return a.path.localeCompare(b.path)
-        })
-
-        // Build llms.txt content
-        const lines: string[] = [
-          `# ${siteConfig.name}`,
-          '',
-        ]
-
-        if (siteConfig.description) {
-          lines.push(siteConfig.description, '')
-        }
-
-        lines.push(
-          '> This is a veslx documentation site. Content is served as raw MDX files.',
-          '',
-          '## Content',
-          '',
-        )
-
-        for (const entry of entries) {
-          const type = entry.isSlides ? '[slides]' : entry.date ? '[post]' : '[doc]'
-          const title = entry.title || entry.path.replace(/\.mdx?$/, '').split('/').pop()
-          const url = `/raw/${entry.path}`
-          lines.push(`- ${type} ${title}: ${url}`)
-          if (entry.description) {
-            lines.push(`  ${entry.description}`)
-          }
-        }
-
-        lines.push('')
-
         const llmsTxtPath = path.join(outDir, 'llms.txt')
-        fs.writeFileSync(llmsTxtPath, lines.join('\n'))
-        console.log(`Generated llms.txt with ${entries.length} entries`)
+        fs.writeFileSync(llmsTxtPath, generateLlmsTxt())
+        console.log(`Generated llms.txt`)
       } else {
         console.warn(`Content directory not found: ${dir}`)
       }
