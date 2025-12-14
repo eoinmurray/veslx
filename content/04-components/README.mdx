@@ -25,13 +25,13 @@ date: "2025-01-15"
 
 ## Gallery
 
-Displays images from a folder:
+Displays images from a folder with lightbox support.
 
 ```mdx
 <Gallery path="./images" />
 ```
 
-<Gallery path="./images" limit={4} />
+<Gallery path="./images" limit={3} />
 
 ### Props
 
@@ -41,11 +41,37 @@ Displays images from a folder:
 | `globs` | string[] | Glob patterns to filter |
 | `limit` | number | Max images to show |
 | `title` | string | Gallery title |
+| `subtitle` | string | Gallery subtitle |
 | `caption` | string | Caption text |
+| `captionLabel` | string | Bold label before caption |
+| `children` | ReactNode | Content beside single image |
+| `childAlign` | "left" \| "right" | Side for children (default: "right") |
+
+### With Title and Caption
+
+```mdx
+<Gallery
+  path="./images"
+  limit={3}
+  title="Sample Gallery"
+  subtitle="A collection of images"
+  caption="Example images from the project"
+  captionLabel="Figure 1"
+/>
+```
+
+<Gallery
+  path="./images"
+  limit={3}
+  title="Sample Gallery"
+  subtitle="A collection of images"
+  caption="Example images from the project"
+  captionLabel="Figure 1"
+/>
 
 ### Glob Patterns
 
-Filter images:
+Filter images with glob patterns:
 
 ```mdx
 <Gallery path="./images" globs={["**/image[1-3].*"]} />
@@ -53,24 +79,74 @@ Filter images:
 
 <Gallery path="./images" globs={["**/image[1-3].*"]} />
 
-### With Title
+### Single Image with Text
+
+For a single image, add content beside it:
 
 ```mdx
-<Gallery
-  path="./images"
-  limit={3}
-  title="Sample Gallery"
-  caption="Example images"
+<Gallery path="./images" limit={1} title="Architecture" childAlign="right">
+  This diagram shows the system architecture.
+
+  - Component A handles input
+  - Component B processes data
+</Gallery>
+```
+
+## Slide Components
+
+Components for building presentations. Use in `SLIDES.mdx` files.
+
+### HeroSlide
+
+Opening slide for presentations:
+
+```mdx
+<HeroSlide
+  title="My Presentation"
+  subtitle="An introduction to the topic"
+  author="Jane Smith"
+  date="December 2024"
 />
 ```
 
-<Gallery
-  path="./images"
-  limit={3}
-  title="Sample Gallery"
-  caption="Example images"
-/>
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | string | Main heading (required) |
+| `subtitle` | string | Supporting text |
+| `author` | string | Author name |
+| `date` | string | Date string |
+
+### TextSlide
+
+Content slide with title and body:
+
+```mdx
+<TextSlide title="Key Points" subtitle="What we learned">
+  - First important point
+  - Second important point
+  - Third important point
+</TextSlide>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | string | Slide heading |
+| `subtitle` | string | Subheading |
+| `children` | ReactNode | Slide content |
+
+### FigureSlide
+
+Image-focused slide:
+
+```mdx
+<FigureSlide title="System Diagram" src="./diagram.png" />
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | string | Figure caption (required) |
+| `src` | string | Image path (required) |
 
 ## Custom Components
 
-Import your own. See [Imports](../05-imports/README.mdx).
+Import your own React components. See [Imports](../05-imports/README.mdx).

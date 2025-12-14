@@ -11,7 +11,7 @@ veslx serves MDX files as a documentation site. No config required.
 
 ## Prerequisites
 
-veslx requires [Bun](https://bun.sh) to be installed. If you don't have it yet:
+veslx requires [Bun](https://bun.sh) to be installed:
 
 ```bash
 curl -fsSL https://bun.sh/install | bash
@@ -21,8 +21,11 @@ curl -fsSL https://bun.sh/install | bash
 
 ```bash
 bun install -g veslx
+```
 
-# or, without installing, just use 
+Or run without installing:
+
+```bash
 bunx veslx serve
 ```
 
@@ -39,9 +42,10 @@ Open http://localhost:3000.
 
 veslx scans your folder for `.mdx` files and:
 
-- Lists them on a homepage
+- Lists them on a homepage with Posts/Docs filtering
 - Renders MDX with syntax highlighting and math support
 - Treats `SLIDES.mdx` files as presentations
+- Provides dark/light theme toggle
 - Hot-reloads on changes
 
 ## File Structure
@@ -68,12 +72,16 @@ Add metadata to any MDX file:
 ---
 title: "My Page Title"
 description: "Shows in the listing"
-date: "2025-01-15"
+date: "2025-01-15"        # Makes it a "post"
+draft: true               # Hide from listings
 ---
 ```
 
+Content with a `date` field appears under Posts. Content without appears under Docs.
+
 ## Next
 
-- [Writing Content](./02-writing-content.mdx) - MDX syntax
+- [Writing Content](./02-writing-content.mdx) - MDX syntax and formatting
 - [Creating Slides](./03-slides/README.mdx) - Presentations
-- [Components](./04-components/README.mdx) - Gallery, FrontMatter
+- [Components](./04-components/README.mdx) - Gallery, FrontMatter, slide components
+- [Configuration](./07-configuration.mdx) - Customization options
