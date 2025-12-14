@@ -1,17 +1,19 @@
-import importConfig from "./import-config"
 import pm2 from "pm2";
+import path from "path";
 import { log } from './log'
 
-export default async function start() {
-  const config = await importConfig(process.cwd());
-
-  if (!config) {
-    log.error("veslx.yaml not found");
-    return
-  }
-
+export default async function start(dir?: string) {
   const cwd = process.cwd();
-  const name = `veslx-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
+
+  // Resolve content directory the same way as serve
+  const contentDir = dir
+    ? (path.isAbsolute(dir) ? dir : path.resolve(cwd, dir))
+    : cwd;
+
+  const name = `veslx-${contentDir.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
+
+  // Build args for veslx serve
+  const args = dir ? ['veslx', 'serve', dir] : ['veslx', 'serve'];
 
   pm2.connect((err) => {
     if (err) {
@@ -22,7 +24,7 @@ export default async function start() {
     pm2.start({
       name: name,
       script: 'bunx',
-      args: ['veslx', 'serve'],
+      args: args,
       cwd: cwd,
       autorestart: true,
       watch: false,

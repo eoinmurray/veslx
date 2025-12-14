@@ -22,7 +22,7 @@ cli
   .action(serve);
 
 cli
-  .command("start", "Start the veslx server as a deamon")
+  .command("start [dir]", "Start the veslx server as a daemon")
   .action(start);
 
 cli

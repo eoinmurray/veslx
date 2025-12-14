@@ -325,8 +325,7 @@
   .slides-container > .running-bar,
   .slides-container hr,
   .slides-container > title,
-  header.print\\:hidden,
-  [class*="print:hidden"] {
+  body > header {
     display: none !important;
     height: 0 !important;
     width: 0 !important;

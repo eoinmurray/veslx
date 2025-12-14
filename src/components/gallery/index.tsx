@@ -104,7 +104,7 @@ export default function Gallery({
                 className={`pl-2 md:pl-3 md:basis-1/2 lg:basis-1/3 cursor-pointer group ${images.length < 3 ? 'flex-none' : ''}`}
                 onClick={() => lightbox.open(index)}
               >
-                <div className="aspect-square overflow-hidden rounded-sm ring-1 ring-border/50 transition-all duration-300 group-hover:ring-border group-hover:shadow-lg bg-muted/10">
+                <div className="aspect-square overflow-hidden rounded-sm bg-muted/10">
                   <LoadingImage
                     src={img.src}
                     alt={img.label}
