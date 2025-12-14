@@ -125,3 +125,24 @@ site:
   github: myorg/myproject
   defaultView: docs
 ```
+
+## LLM Access
+
+veslx generates an `llms.txt` file during build that makes your content accessible to CLI tools and LLMs. This file lists all MDX content with links to raw source files.
+
+Access at `/llms.txt` on your deployed site:
+
+```
+# My Project
+
+Project description here.
+
+> This is a veslx documentation site. Content is served as raw MDX files.
+
+## Content
+
+- [doc] Getting Started: /raw/getting-started.mdx
+- [slides] My Presentation: /raw/talk/SLIDES.mdx
+```
+
+Raw MDX files are served at `/raw/{path}` and can be fetched directly.
