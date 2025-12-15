@@ -6,13 +6,6 @@ import { useLightbox } from "./hooks/use-lightbox";
 import { LoadingImage } from "./components/loading-image";
 import { FigureHeader } from "./components/figure-header";
 import { FigureCaption } from "./components/figure-caption";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 
 function getImageLabel(path: string): string {
   const filename = path.split('/').pop() || path;
@@ -95,8 +88,12 @@ export default function Gallery({
     );
   }
 
+  const isSingle = images.length === 1;
+  const isTwo = images.length === 2;
   const isCompact = images.length <= 3;
   const isSingleWithChildren = images.length === 1 && children;
+  // 2-3 images should break out of the content width
+  const shouldBreakOut = images.length >= 2;
 
   const imageElement = (index: number, img: LightboxImage, className?: string) => (
     <div
@@ -114,8 +111,12 @@ export default function Gallery({
 
   return (
     <>
-      <figure className={`not-prose relative py-6 md:py-8 ${isCompact ? '' : '-mx-[calc((var(--gallery-width)-var(--content-width))/2+var(--page-padding))] px-[calc((var(--gallery-width)-var(--content-width))/2)]'}`}>
-        {!isSingleWithChildren && <FigureHeader title={title} subtitle={subtitle} />}
+      <figure className={`not-prose relative py-6 md:py-8 ${shouldBreakOut ? (isTwo ? 'w-[75vw] ml-[calc(-37.5vw+50%)]' : isCompact ? 'w-[96vw] ml-[calc(-48vw+50%)]' : 'w-[var(--gallery-width)] ml-[calc(-45vw+50%)]') : ''}`}>
+        {!isSingleWithChildren && !isSingle && (
+          <div className="max-w-[var(--content-width)] mx-auto px-[var(--page-padding)]">
+            <FigureHeader title={title} subtitle={subtitle} />
+          </div>
+        )}
 
         {isSingleWithChildren ? (
           <div className={`flex gap-6 ${childAlign === 'left' ? '' : 'flex-row-reverse'}`}>
@@ -129,40 +130,39 @@ export default function Gallery({
               <FigureCaption caption={caption} label={captionLabel} />
             </div>
           </div>
+        ) : isSingle ? (
+          <div className="max-w-[70%] mx-auto">
+            <FigureHeader title={title} subtitle={subtitle} />
+            {imageElement(0, images[0])}
+            <FigureCaption caption={caption} label={captionLabel} />
+          </div>
         ) : isCompact ? (
           <div className="flex gap-3">
             {images.map((img, index) => imageElement(index, img, 'flex-1'))}
           </div>
         ) : (
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-2 md:-ml-3">
-              {images.map((img, index) => (
-                <CarouselItem
-                  key={index}
-                  className="pl-2 md:pl-3 md:basis-1/2 lg:basis-1/3 cursor-pointer group"
-                  onClick={() => lightbox.open(index)}
-                >
-                  <div className="aspect-square overflow-hidden rounded-sm bg-muted/10">
-                    <LoadingImage
-                      src={img.src}
-                      alt={img.label}
-                      className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-
-            {images.length > 3 && (
-              <>
-                <CarouselPrevious className="left-4 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background hover:border-border" />
-                <CarouselNext className="right-4 bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background hover:border-border" />
-              </>
-            )}
-          </Carousel>
+          <div className="flex gap-3 overflow-x-auto pb-4">
+            {images.map((img, index) => (
+              <div
+                key={index}
+                className="flex-none w-[30%] min-w-[250px] aspect-square overflow-hidden rounded-sm bg-muted/10 cursor-pointer group"
+                onClick={() => lightbox.open(index)}
+              >
+                <LoadingImage
+                  src={img.src}
+                  alt={img.label}
+                  className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                />
+              </div>
+            ))}
+          </div>
         )}
 
-        {!isSingleWithChildren && <FigureCaption caption={caption} label={captionLabel} />}
+        {!isSingleWithChildren && !isSingle && (
+          <div className="max-w-[var(--content-width)] mx-auto px-[var(--page-padding)]">
+            <FigureCaption caption={caption} label={captionLabel} />
+          </div>
+        )}
       </figure>
 
       {lightbox.isOpen && lightbox.selectedIndex !== null && (

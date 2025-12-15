@@ -86,9 +86,9 @@ export function useGalleryImages({
 
   // Get the current post's directory from the route
   // Route is like "04-components/README.mdx" -> "04-components"
-  // Or "gallery-examples" -> "gallery-examples"
+  // Or "14-gallery.mdx" -> "." (root level file)
   const currentDir = routePath
-    .replace(/\/[^/]+\.mdx$/i, "")  // Remove /filename.mdx
+    .replace(/\/?[^/]+\.mdx$/i, "")  // Remove [/]filename.mdx (slash optional for root files)
     .replace(/\/$/, "")              // Remove trailing slash
     || ".";
 

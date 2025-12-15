@@ -43,7 +43,7 @@ export function Post() {
       <title>{frontmatter?.title}</title>
       <RunningBar />
       <Header />
-      <main className="flex-1 mx-auto w-full max-w-[var(--content-width)] px-[var(--page-padding)]">
+      <main className="flex-1 w-full overflow-x-clip">
         {isRunning && (
           <div className="sticky top-0 z-50 px-[var(--page-padding)] py-2 bg-red-500 text-primary-foreground font-mono text-xs text-center tracking-wide">
             <span className="inline-flex items-center gap-3">
@@ -56,7 +56,7 @@ export function Post() {
 
         {Content && (
           <FrontmatterProvider frontmatter={frontmatter}>
-            <article className="my-24 prose dark:prose-invert prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline max-w-[var(--prose-width)] animate-fade-in">
+            <article className="my-12 mx-auto px-[var(--page-padding)] prose dark:prose-invert prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline max-w-[var(--content-width)] animate-fade-in">
               <Content components={mdxComponents} />
             </article>
           </FrontmatterProvider>

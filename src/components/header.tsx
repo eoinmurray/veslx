@@ -20,8 +20,14 @@ export function Header({ slideControls }: HeaderProps = {}) {
   const { "*": path } = useParams()
 
   return (
-    <header className="print:hidden fixed top-0 left-0 right-0 z-40">
-      <div className="mx-auto w-full px-[var(--page-padding)] flex items-center gap-8 py-4">
+    <header className={cn(
+      "print:hidden",
+      slideControls && "fixed top-0 left-0 right-0 z-40"
+    )}>
+      <div className={cn(
+        "mx-auto w-full px-[var(--page-padding)] flex items-center gap-8 py-4",
+        !slideControls && "max-w-[var(--content-width)]"
+      )}>
         <nav className="flex items-center gap-1">
           <Link
             to="/"

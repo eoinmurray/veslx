@@ -54,7 +54,7 @@ export function Home({ view }: HomeProps) {
       <Header />
       <main className="flex-1 mx-auto w-full max-w-[var(--content-width)] px-[var(--page-padding)]">
         <title>{isRoot ? config.name : `${config.name} - ${path}`}</title>
-        <main className="flex flex-col gap-8 mb-32 mt-32">
+        <main className="flex flex-col gap-8 mb-32 mt-12">
           {isRoot && (
             <div className="animate-fade-in">
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
@@ -69,11 +69,6 @@ export function Home({ view }: HomeProps) {
           )}
 
           <div className="flex flex-col gap-2">
-            {/* {isRoot && directory && (
-              <div className="animate-fade-in">
-                <ContentTabs value={activeView} counts={counts} />
-              </div>
-            )} */}
             {directory && (
               <div className="animate-fade-in">
                 <PostList directory={directory} view={isRoot ? activeView : 'all'} />

@@ -85,13 +85,13 @@ export function SlidesPage() {
     }
   }, [currentSlide, totalSlides]);
 
-  // Keyboard navigation
+  // Keyboard navigation (up/down only - left/right reserved for horizontal scrolling)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "k") {
+      if (e.key === "ArrowUp") {
         e.preventDefault();
         goToPrevious();
-      } else if (e.key === "ArrowDown" || e.key === "ArrowRight" || e.key === "j") {
+      } else if (e.key === "ArrowDown") {
         e.preventDefault();
         goToNext();
       }

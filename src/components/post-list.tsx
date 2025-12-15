@@ -117,7 +117,7 @@ export default function PostList({ directory, view = 'all' }: PostListProps) {
           linkPath = `/${post.path}`;
         }
 
-        const isSlides = linkPath.endsWith('SLIDES.mdx');
+        const isSlides = linkPath.endsWith('SLIDES.mdx') || linkPath.endsWith('.slides.mdx');
 
         return (
           <Link
