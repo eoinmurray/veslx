@@ -2,11 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FULLSCREEN_DATA_ATTR } from "@/lib/constants";
 import { useParams, useSearchParams } from "react-router-dom"
 import Loading from "@/components/loading";
-import { RunningBar } from "@/components/running-bar";
 import { Header } from "@/components/header";
 import { useMDXSlides } from "@/hooks/use-mdx-content";
 import { slidesMdxComponents } from "@/components/slides-renderer";
 import { FrontmatterProvider } from "@/lib/frontmatter-context";
+import veslxConfig from "virtual:veslx-config";
+import { cn } from "@/lib/utils";
 
 
 export function SlidesPage() {
@@ -121,10 +122,11 @@ export function SlidesPage() {
     );
   }
 
+  const scrollSnap = veslxConfig.slides.scrollSnap;
+
   return (
-    <main className="slides-container">
+    <main className={cn("slides-container", scrollSnap && "slides-scroll-snap")}>
       <title>{frontmatter?.title}</title>
-      <RunningBar />
       <Header
         slideControls={{
           current: currentSlide,

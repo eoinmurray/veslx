@@ -3,16 +3,14 @@ import { useDirectory } from "../../plugin/src/client";
 import Loading from "@/components/loading";
 import PostList from "@/components/post-list";
 import { ErrorDisplay } from "@/components/page-error";
-import { RunningBar } from "@/components/running-bar";
 import { Header } from "@/components/header";
-import { ContentTabs } from "@/components/content-tabs";
 import {
   type ContentView,
   directoryToPostEntries,
   filterVisiblePosts,
   getViewCounts,
 } from "@/lib/content-classification";
-import siteConfig from "virtual:veslx-config";
+import veslxConfig from "virtual:veslx-config";
 
 interface HomeProps {
   view?: ContentView;
@@ -20,7 +18,7 @@ interface HomeProps {
 
 export function Home({ view }: HomeProps) {
   const { "*": path = "." } = useParams();
-  const config = siteConfig;
+  const config = veslxConfig.site;
 
   // Normalize path - "posts", "docs", and "all" are view routes, not directories
   const isViewRoute = path === "posts" || path === "docs" || path === "all";
@@ -50,7 +48,6 @@ export function Home({ view }: HomeProps) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background noise-overlay">
-      <RunningBar />
       <Header />
       <main className="flex-1 mx-auto w-full max-w-[var(--content-width)] px-[var(--page-padding)]">
         <title>{isRoot ? config.name : `${config.name} - ${path}`}</title>

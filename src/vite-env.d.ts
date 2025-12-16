@@ -9,6 +9,16 @@ declare module 'virtual:veslx-config' {
     github: string;
     defaultView: ContentView;
   }
-  const config: SiteConfig;
+
+  interface SlidesConfig {
+    scrollSnap: boolean;
+  }
+
+  interface Config {
+    site: SiteConfig;
+    slides: SlidesConfig;
+  }
+
+  const config: Config;
   export default config;
 }

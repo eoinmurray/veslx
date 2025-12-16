@@ -17,9 +17,9 @@ type ModuleLoader = () => Promise<MDXModule>
 type ModuleMap = Record<string, ModuleLoader>
 
 /**
- * Find MDX module by path. Supports:
- * - Full path: "docs/intro.mdx" -> matches exactly
- * - Folder path: "docs" -> matches "docs/index.mdx", "docs/README.mdx", or "docs.mdx"
+ * Find MDX/MD module by path. Supports:
+ * - Full path: "docs/intro.mdx" or "docs/intro.md" -> matches exactly
+ * - Folder path: "docs" -> matches "docs/index.mdx", "docs/README.mdx", or "docs.mdx" (and .md variants)
  */
 function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
   const keys = Object.keys(modules)
@@ -27,8 +27,8 @@ function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
   // Normalize path - remove leading slash if present
   const normalizedPath = path.replace(/^\//, '')
 
-  // If path already ends with .mdx, match exactly
-  if (normalizedPath.endsWith('.mdx')) {
+  // If path already ends with .mdx or .md, match exactly
+  if (normalizedPath.endsWith('.mdx') || normalizedPath.endsWith('.md')) {
     // Try multiple matching strategies for different Vite glob formats
     const matchingKey = keys.find(key => {
       // Strategy 1: Key ends with /path (e.g., @content/docs/foo.mdx matches docs/foo.mdx)
@@ -50,10 +50,14 @@ function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
   // 1. folder/index.mdx (modern convention)
   // 2. folder/README.mdx (current convention)
   // 3. folder.mdx (file alongside folders)
+  // Also try .md variants
   const candidates = [
     `${normalizedPath}/index.mdx`,
+    `${normalizedPath}/index.md`,
     `${normalizedPath}/README.mdx`,
+    `${normalizedPath}/README.md`,
     `${normalizedPath}.mdx`,
+    `${normalizedPath}.md`,
   ]
 
   for (const candidate of candidates) {
@@ -126,8 +130,8 @@ function findSlidesModule(modules: ModuleMap, path: string): ModuleLoader | null
   // Normalize path - remove leading slash if present
   const normalizedPath = path.replace(/^\//, '')
 
-  // If path already ends with .mdx, match exactly
-  if (normalizedPath.endsWith('.mdx')) {
+  // If path already ends with .mdx or .md, match exactly
+  if (normalizedPath.endsWith('.mdx') || normalizedPath.endsWith('.md')) {
     // Try multiple matching strategies for different Vite glob formats
     const matchingKey = keys.find(key => {
       // Strategy 1: Key ends with /path (e.g., @content/docs/foo.slides.mdx matches docs/foo.slides.mdx)
@@ -148,9 +152,12 @@ function findSlidesModule(modules: ModuleMap, path: string): ModuleLoader | null
   // Otherwise, try folder conventions:
   // 1. folder/SLIDES.mdx (current convention)
   // 2. folder/index.slides.mdx (alternative)
+  // Also try .md variants
   const candidates = [
     `${normalizedPath}/SLIDES.mdx`,
+    `${normalizedPath}/SLIDES.md`,
     `${normalizedPath}/index.slides.mdx`,
+    `${normalizedPath}/index.slides.md`,
   ]
 
   for (const candidate of candidates) {

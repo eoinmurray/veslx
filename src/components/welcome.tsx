@@ -1,7 +1,7 @@
-import siteConfig from "virtual:veslx-config";
+import veslxConfig from "virtual:veslx-config";
 
 export function Welcome() {
-  const config = siteConfig;
+  const config = veslxConfig.site;
 
   return (
     <div className="text-muted-foreground">

@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { ModeToggle } from "./mode-toggle";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import siteConfig from "virtual:veslx-config";
+import veslxConfig from "virtual:veslx-config";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -15,7 +15,7 @@ interface HeaderProps {
 }
 
 export function Header({ slideControls }: HeaderProps = {}) {
-  const config = siteConfig;
+  const config = veslxConfig.site;
 
   const { "*": path } = useParams()
 

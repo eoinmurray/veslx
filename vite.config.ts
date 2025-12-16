@@ -80,11 +80,11 @@ export default defineConfig(({ command }) => {
     reactResolverPlugin(),
     tailwindcss(),
     // MDX for slides - splits at --- into <Slide> components
-    // Matches: SLIDES.mdx, slides.mdx, *.slides.mdx
+    // Matches: SLIDES.mdx, SLIDES.md, slides.mdx, slides.md, *.slides.mdx, *.slides.md
     {
       enforce: 'pre',
       ...mdx({
-        include: /SLIDES\.mdx$|slides\.mdx$/i,
+        include: /SLIDES\.mdx?$|slides\.mdx?$/i,
         remarkPlugins: [
           ...commonRemarkPlugins,
           remarkSlides, // Transform --- into <Slide> wrappers
@@ -97,7 +97,8 @@ export default defineConfig(({ command }) => {
     {
       enforce: 'pre',
       ...mdx({
-        exclude: /SLIDES\.mdx$|slides\.mdx$/i,
+        include: /\.mdx?$/,
+        exclude: /SLIDES\.mdx?$|slides\.mdx?$/i,
         remarkPlugins: commonRemarkPlugins,
         rehypePlugins: [rehypeKatex],
         providerImportSource: '@mdx-js/react',

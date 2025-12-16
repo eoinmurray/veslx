@@ -1,5 +1,9 @@
 export type ContentView = 'posts' | 'docs' | 'all';
 
+export interface SlidesConfig {
+  scrollSnap?: boolean;
+}
+
 export interface SiteConfig {
   name?: string;
   description?: string;
@@ -11,6 +15,11 @@ export interface SiteConfig {
 export interface VeslxConfig {
   dir?: string;
   site?: SiteConfig;
+  slides?: SlidesConfig;
+}
+
+export interface ResolvedSlidesConfig {
+  scrollSnap: boolean;
 }
 
 export interface ResolvedSiteConfig {
@@ -21,10 +30,19 @@ export interface ResolvedSiteConfig {
   defaultView: ContentView;
 }
 
+export interface ResolvedConfig {
+  site: ResolvedSiteConfig;
+  slides: ResolvedSlidesConfig;
+}
+
 export const DEFAULT_SITE_CONFIG: ResolvedSiteConfig = {
   name: 'veslx',
   description: '',
   github: '',
   homepage: '',
   defaultView: 'all',
+};
+
+export const DEFAULT_SLIDES_CONFIG: ResolvedSlidesConfig = {
+  scrollSnap: true,
 };

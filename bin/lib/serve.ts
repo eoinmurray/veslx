@@ -79,7 +79,8 @@ export default async function serve(dir?: string) {
     site: {
       ...defaults.site,
       ...fileConfig?.site,
-    }
+    },
+    slides: fileConfig?.slides,
   };
 
   const veslxRoot = new URL('../..', import.meta.url).pathname;

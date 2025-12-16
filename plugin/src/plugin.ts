@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import yaml from 'js-yaml'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { type VeslxConfig, type ResolvedSiteConfig, DEFAULT_SITE_CONFIG } from './types'
+import { type VeslxConfig, type ResolvedSiteConfig, type ResolvedSlidesConfig, type ResolvedConfig, DEFAULT_SITE_CONFIG, DEFAULT_SLIDES_CONFIG } from './types'
 import matter from 'gray-matter'
 
 /**
@@ -89,10 +89,15 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
   const dir = contentDir
   const configPath = options?.configPath
 
-  // Mutable site config that can be updated on hot reload
+  // Mutable config that can be updated on hot reload
   let siteConfig: ResolvedSiteConfig = {
     ...DEFAULT_SITE_CONFIG,
     ...config?.site,
+  }
+
+  let slidesConfig: ResolvedSlidesConfig = {
+    ...DEFAULT_SLIDES_CONFIG,
+    ...config?.slides,
   }
 
   // Helper to reload config from file
@@ -104,6 +109,10 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       siteConfig = {
         ...DEFAULT_SITE_CONFIG,
         ...parsed?.site,
+      }
+      slidesConfig = {
+        ...DEFAULT_SLIDES_CONFIG,
+        ...parsed?.slides,
       }
       return true
     } catch (e) {
@@ -252,12 +261,12 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
         // Generate virtual module with import.meta.glob for MDX files
         return `
-export const posts = import.meta.glob('@content/**/*.mdx', {
+export const posts = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'], {
   import: 'default',
   query: { skipSlides: true }
 });
-export const allMdx = import.meta.glob('@content/**/*.mdx');
-export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/*.slides.mdx']);
+export const allMdx = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md']);
+export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/SLIDES.md', '@content/**/*.slides.mdx', '@content/**/*.slides.md']);
 
 // All files for directory tree building (web-compatible files only)
 export const files = import.meta.glob([
@@ -280,12 +289,13 @@ export const files = import.meta.glob([
 export const frontmatters = ${JSON.stringify(frontmatterData)};
 
 // Legacy aliases for backwards compatibility
-export const modules = import.meta.glob('@content/**/*.mdx');
+export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md']);
 `
       }
       if (id === RESOLVED_VIRTUAL_CONFIG_ID) {
-        // Generate virtual module with site config
-        return `export default ${JSON.stringify(siteConfig)};`
+        // Generate virtual module with full config
+        const fullConfig: ResolvedConfig = { site: siteConfig, slides: slidesConfig }
+        return `export default ${JSON.stringify(fullConfig)};`
       }
     },
 

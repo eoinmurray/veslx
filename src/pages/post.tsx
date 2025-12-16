@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { findSlides, isSimulationRunning, useDirectory } from "../../plugin/src/client";
 import Loading from "@/components/loading";
 import { FileEntry } from "plugin/src/lib";
-import { RunningBar } from "@/components/running-bar";
 import { Header } from "@/components/header";
 import { useMDXContent } from "@/hooks/use-mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
@@ -41,7 +40,6 @@ export function Post() {
   return (
     <div className="flex min-h-screen flex-col bg-background noise-overlay">
       <title>{frontmatter?.title}</title>
-      <RunningBar />
       <Header />
       <main className="flex-1 w-full overflow-x-clip">
         {isRunning && (

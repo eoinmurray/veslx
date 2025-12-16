@@ -48,7 +48,7 @@ veslx/
 │   └── hooks/
 │       └── use-mdx-content.ts  # Dynamic MDX loading
 ├── test-content/           # Example content for development
-└── veslx.config.ts        # Project config (optional)
+└── veslx.yaml             # Project config (optional)
 ```
 
 ## Key Concepts
@@ -103,17 +103,18 @@ Two separate MDX configurations in `vite.config.ts`:
 
 ## Configuration
 
-### veslx.config.ts (optional)
+### veslx.yaml (optional)
 
-```typescript
-export default {
-  dir: './content',  // Content directory (default: '.')
-  site: {
-    name: 'My Project',      // Site name (default: folder name)
-    description: 'A description',  // Homepage subtitle
-    github: 'user/repo',     // GitHub link in header
-  }
-}
+```yaml
+dir: ./content  # Content directory (default: '.')
+
+site:
+  name: My Project           # Site name (default: folder name)
+  description: A description # Homepage subtitle
+  github: user/repo          # GitHub link in header
+
+slides:
+  scrollSnap: true           # Snap to slides on scroll (default: true)
 ```
 
 Without a config file, veslx uses smart defaults based on the folder name.

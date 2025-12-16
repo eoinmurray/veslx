@@ -292,6 +292,18 @@
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+/* Scroll snap for slides - enabled by default, configurable via veslx.config */
+.slides-scroll-snap {
+  scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.slides-scroll-snap .slide-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 /* Print styles - slides landscape, posts portrait */
 @media print {
   /* Default page is portrait for posts */

@@ -84,7 +84,8 @@ export default async function buildApp(dir?: string) {
     site: {
       ...defaults.site,
       ...fileConfig?.site,
-    }
+    },
+    slides: fileConfig?.slides,
   };
 
   const veslxRoot = new URL('../..', import.meta.url).pathname;
