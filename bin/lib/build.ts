@@ -125,6 +125,13 @@ export default async function buildApp(dir?: string) {
   }
   copyDirSync(tempOutDir, finalOutDir)
 
+  // Copy index.html to 404.html for SPA fallback routing
+  // This works with GitHub Pages, Netlify, and many static servers
+  fs.copyFileSync(
+    path.join(finalOutDir, 'index.html'),
+    path.join(finalOutDir, '404.html')
+  )
+
   // Clean up temp build directory
   fs.rmSync(tempOutDir, { recursive: true })
 
