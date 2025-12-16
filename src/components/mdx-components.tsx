@@ -7,7 +7,7 @@ import { HeroSlide } from './slides/hero-slide'
 import { FigureSlide } from './slides/figure-slide'
 import { TextSlide } from './slides/text-slide'
 import { SlideOutline } from './slides/slide-outline'
-
+import { PostList } from '@/components/post-list'
 /**
  * Smart link component that uses React Router for internal links
  * and regular anchor tags for external links.
@@ -88,6 +88,8 @@ export const mdxComponents = {
   TextSlide,
 
   SlideOutline,
+
+  PostList,
 
   // Headings - clean sans-serif
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {

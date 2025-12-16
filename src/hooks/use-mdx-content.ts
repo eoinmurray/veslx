@@ -220,3 +220,85 @@ export function useMDXSlides(path: string) {
 
   return { Content, frontmatter, slideCount, loading, error }
 }
+
+/**
+ * Find only index.mdx or index.md in a directory (not README or other conventions)
+ */
+function findIndexModule(modules: ModuleMap, path: string): ModuleLoader | null {
+  const keys = Object.keys(modules)
+
+  // Normalize path - remove leading slash, handle root
+  const normalizedPath = path.replace(/^\//, '') || '.'
+
+  // Only look for index.mdx or index.md
+  const candidates = normalizedPath === '.'
+    ? ['index.mdx', 'index.md']
+    : [`${normalizedPath}/index.mdx`, `${normalizedPath}/index.md`]
+
+  for (const candidate of candidates) {
+    const matchingKey = keys.find(key => {
+      if (key.endsWith(`/${candidate}`)) return true
+      if (key === `@content/${candidate}`) return true
+      if (key === candidate) return true
+      return false
+    })
+    if (matchingKey) {
+      return modules[matchingKey]
+    }
+  }
+
+  return null
+}
+
+/**
+ * Hook for loading index.mdx/index.md content only.
+ * Returns notFound: true if no index file exists (instead of throwing an error).
+ */
+export function useIndexContent(path: string) {
+  const [Content, setContent] = useState<MDXModule['default'] | null>(null)
+  const [frontmatter, setFrontmatter] = useState<MDXModule['frontmatter']>(undefined)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setNotFound(false)
+
+    import('virtual:content-modules')
+      .then(({ modules }) => {
+        const loader = findIndexModule(modules as ModuleMap, path)
+
+        if (!loader) {
+          // No index file - this is not an error, just means fallback to directory listing
+          if (!cancelled) {
+            setNotFound(true)
+            setLoading(false)
+          }
+          return null
+        }
+
+        return loader()
+      })
+      .then((mod) => {
+        if (mod && !cancelled) {
+          setContent(() => mod.default)
+          setFrontmatter(mod.frontmatter)
+          setLoading(false)
+        }
+      })
+      .catch(() => {
+        // Treat load errors as not found
+        if (!cancelled) {
+          setNotFound(true)
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [path])
+
+  return { Content, frontmatter, loading, notFound }
+}

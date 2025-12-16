@@ -2,13 +2,15 @@ import { useParams } from "react-router-dom"
 import { Home } from "./home"
 import { Post } from "./post"
 import { SlidesPage } from "./slides"
+import { IndexPost } from "./index-post"
 
 /**
  * Routes to the appropriate page based on the URL path:
  * - /posts → Home with posts view
  * - /docs → Home with docs view
  * - *.slides.mdx or *SLIDES.mdx → SlidesPage
- * - *.mdx → Post
+ * - *.mdx or *.md → Post
+ * - directory with index.mdx/index.md → IndexPost (renders index file)
  * - everything else → Home (directory listing)
  */
 export function ContentRouter() {
@@ -36,11 +38,11 @@ export function ContentRouter() {
     return <SlidesPage />
   }
 
-  // Check if this is any MDX file
+  // Check if this is any MDX/MD file
   if (path.endsWith('.mdx') || path.endsWith('.md')) {
     return <Post />
   }
 
-  // Otherwise show directory listing
-  return <Home />
+  // For directories, try to render index.mdx/index.md, fallback to Home
+  return <IndexPost fallback={<Home />} />
 }

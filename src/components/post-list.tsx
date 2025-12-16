@@ -1,8 +1,4 @@
-import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import type { DirectoryEntry } from "../../plugin/src/lib";
-import { formatDate } from "@/lib/format-date";
-import { ArrowRight, Presentation } from "lucide-react";
+import { useParams } from "react-router-dom";
 import {
   type ContentView,
   type PostEntry,
@@ -11,6 +7,10 @@ import {
   filterByView,
   getFrontmatter,
 } from "@/lib/content-classification";
+import { useDirectory } from "../../plugin/src/client";
+import { ErrorDisplay } from "./page-error";
+import Loading from "./loading";
+import { PostListItem } from "./post-list-item";
 
 // Helper to extract numeric prefix from filename (e.g., "01-intro" → 1)
 function extractOrder(name: string): number | null {
@@ -26,12 +26,50 @@ function stripNumericPrefix(name: string): string {
     .replace(/\b\w/g, c => c.toUpperCase());
 }
 
+// Helper to get link path from post
+function getLinkPath(post: PostEntry): string {
+  if (post.file) {
+    // Standalone MDX file
+    return `/${post.file.path}`;
+  } else if (post.slides && !post.readme) {
+    // Folder with only slides
+    return `/${post.slides.path}`;
+  } else if (post.readme) {
+    // Folder with readme
+    return `/${post.readme.path}`;
+  } else {
+    // Fallback to folder path
+    return `/${post.path}`;
+  }
+}
+
 interface PostListProps {
-  directory: DirectoryEntry;
   view?: ContentView;
 }
 
-export default function PostList({ directory, view = 'all' }: PostListProps) {
+export function PostList({ view = 'all' }: PostListProps) {
+  const { "*": path = "." } = useParams();
+
+  const { directory, loading, error } = useDirectory(path)
+
+  if (error) {
+    return <ErrorDisplay error={error} path={path} />;
+  }
+
+  if (loading) {
+    return (
+      <Loading />
+    )
+  }
+
+  if (!directory) {
+    return (
+      <div className="py-24 text-center">
+        <p className="text-muted-foreground font-mono text-sm tracking-wide">no entries</p>
+      </div>
+    );
+  }
+
   let posts = directoryToPostEntries(directory);
 
   if (posts.length === 0) {
@@ -92,72 +130,24 @@ export default function PostList({ directory, view = 'all' }: PostListProps) {
   });
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 not-prose">
       {posts.map((post) => {
         const frontmatter = getFrontmatter(post);
-
-        // Title: explicit frontmatter > stripped numeric prefix > raw name
         const title = (frontmatter?.title as string) || stripNumericPrefix(post.name);
         const description = frontmatter?.description as string | undefined;
-        const date = frontmatter?.date ? new Date(frontmatter.date as string) : null;
-
-        // Determine the link path
-        let linkPath: string;
-        if (post.file) {
-          // Standalone MDX file
-          linkPath = `/${post.file.path}`;
-        } else if (post.slides && !post.readme) {
-          // Folder with only slides
-          linkPath = `/${post.slides.path}`;
-        } else if (post.readme) {
-          // Folder with readme
-          linkPath = `/${post.readme.path}`;
-        } else {
-          // Fallback to folder path
-          linkPath = `/${post.path}`;
-        }
-
+        const date = frontmatter?.date ? new Date(frontmatter.date as string) : undefined;
+        const linkPath = getLinkPath(post);
         const isSlides = linkPath.endsWith('SLIDES.mdx') || linkPath.endsWith('.slides.mdx');
 
         return (
-          <Link
+          <PostListItem
             key={post.path}
-            to={linkPath}
-            className={cn(
-              "group block py-3 px-3 -mx-3 rounded-md",
-              "transition-colors duration-150",
-            )}
-          >
-            <article className="flex items-center gap-4">
-              {/* Main content */}
-              <div className="flex-1 min-w-0">
-                <h3 className={cn(
-                  "text-sm font-medium text-foreground",
-                  "group-hover:underline",
-                  "flex items-center gap-2"
-                )}>
-                  <span>{title}</span>
-                  <ArrowRight className="h-3 w-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-primary" />
-                </h3>
-
-                {description && (
-                  <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
-                    {description}
-                  </p>
-                )}
-              </div>
-
-              {isSlides && (
-                <Presentation className="h-3 w-3 text-muted-foreground" />
-              )}
-              <time
-                dateTime={date?.toISOString()}
-                className="font-mono text-xs text-muted-foreground tabular-nums w-20 flex-shrink-0"
-              >
-                {date && formatDate(date)}
-              </time>
-            </article>
-          </Link>
+            title={title}
+            description={description}
+            date={date}
+            linkPath={linkPath}
+            isSlides={isSlides}
+          />
         );
       })}
     </div>

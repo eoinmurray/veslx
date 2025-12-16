@@ -1,40 +1,34 @@
+import { ReactNode } from "react";
 import { useParams } from "react-router-dom";
-import { findSlides, isSimulationRunning, useDirectory } from "../../plugin/src/client";
+import { isSimulationRunning } from "../../plugin/src/client";
 import Loading from "@/components/loading";
-import { FileEntry } from "plugin/src/lib";
 import { Header } from "@/components/header";
-import { useMDXContent } from "@/hooks/use-mdx-content";
+import { useIndexContent } from "@/hooks/use-mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { FrontmatterProvider } from "@/lib/frontmatter-context";
 
-export function Post() {
+interface IndexPostProps {
+  fallback: ReactNode;
+}
+
+/**
+ * Attempts to render an index.mdx or index.md file for a directory.
+ * Falls back to the provided component if no index file exists.
+ */
+export function IndexPost({ fallback }: IndexPostProps) {
   const { "*": rawPath = "." } = useParams();
 
-  // The path includes the .mdx extension from the route
-  const mdxPath = rawPath;
+  // Normalize path for index lookup
+  const dirPath = rawPath || ".";
 
-  // Extract directory path for finding sibling files (slides, etc.)
-  const dirPath = mdxPath.replace(/\/[^/]+\.mdx$/, '') || '.';
-
-  const { directory, loading: dirLoading } = useDirectory(dirPath)
-  const { Content, frontmatter, loading: mdxLoading, error } = useMDXContent(mdxPath);
+  const { Content, frontmatter, loading, notFound } = useIndexContent(dirPath);
   const isRunning = isSimulationRunning();
-
-  let slides: FileEntry | null = null;
-  if (directory) {
-    slides = findSlides(directory);
-  }
-
-  const loading = dirLoading || mdxLoading;
 
   if (loading) return <Loading />
 
-  if (error) {
-    return (
-      <main className="min-h-screen bg-background container mx-auto max-w-4xl py-12">
-        <p className="text-center text-red-600">{error.message}</p>
-      </main>
-    )
+  // No index file found - render fallback (usually Home)
+  if (notFound) {
+    return <>{fallback}</>;
   }
 
   return (
@@ -54,7 +48,7 @@ export function Post() {
 
         {Content && (
           <FrontmatterProvider frontmatter={frontmatter}>
-            <article className="mt-12 mb-64 mx-auto px-[var(--page-padding)] max-w-[var(--content-width)] animate-fade-in">
+            <article className="my-12 mx-auto px-[var(--page-padding)] max-w-[var(--content-width)] animate-fade-in">
               <Content components={mdxComponents} />
             </article>
           </FrontmatterProvider>

@@ -1,14 +1,8 @@
 import { useParams } from "react-router-dom"
-import { useDirectory } from "../../plugin/src/client";
-import Loading from "@/components/loading";
-import PostList from "@/components/post-list";
-import { ErrorDisplay } from "@/components/page-error";
+import { PostList } from "@/components/post-list";
 import { Header } from "@/components/header";
 import {
   type ContentView,
-  directoryToPostEntries,
-  filterVisiblePosts,
-  getViewCounts,
 } from "@/lib/content-classification";
 import veslxConfig from "virtual:veslx-config";
 
@@ -22,29 +16,11 @@ export function Home({ view }: HomeProps) {
 
   // Normalize path - "posts", "docs", and "all" are view routes, not directories
   const isViewRoute = path === "posts" || path === "docs" || path === "all";
-  const directoryPath = isViewRoute ? "." : path;
-
-  const { directory, loading, error } = useDirectory(directoryPath)
 
   // Use prop view, fallback to config default
   const activeView = view ?? config.defaultView;
 
   const isRoot = path === "." || path === "" || isViewRoute;
-
-  // Calculate counts for tabs (only meaningful on root)
-  const counts = directory
-    ? getViewCounts(filterVisiblePosts(directoryToPostEntries(directory)))
-    : { posts: 0, docs: 0, all: 0 };
-
-  if (error) {
-    return <ErrorDisplay error={error} path={path} />;
-  }
-
-  if (loading) {
-    return (
-      <Loading />
-    )
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background noise-overlay">
@@ -66,11 +42,9 @@ export function Home({ view }: HomeProps) {
           )}
 
           <div className="flex flex-col gap-2">
-            {directory && (
-              <div className="animate-fade-in">
-                <PostList directory={directory} view={isRoot ? activeView : 'all'} />
-              </div>
-            )}
+            <div className="animate-fade-in">
+              <PostList view={isRoot ? activeView : 'all'} />
+            </div>
           </div>
         </main>
       </main>

@@ -11,7 +11,7 @@ veslx works without config. Values are derived from `package.json` and git.
 
 ## Zero Config Defaults
 
-- `name` → from `package.json` or folder name
+- `name` → from folder name
 - `description` → from `package.json`
 - `github` → parsed from git remote
 - `defaultView` → "all"
@@ -95,6 +95,19 @@ Options:
 - `all` - Show all content (default)
 - `docs` - Show only undated content
 - `posts` - Show only dated content
+
+### `slides.scrollSnap`
+
+Enable or disable scroll snapping for slide presentations.
+
+```yaml
+slides:
+  scrollSnap: true
+```
+
+When enabled, scrolling will snap to each slide. Set to `false` for free scrolling.
+
+Default: `true`
 
 ## Navigation
 
