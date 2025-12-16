@@ -4,4 +4,3 @@ site:
   description: A zero config mdx based static site generator for technical content powered by Vite.
   github: "eoinmurray/veslx"
   homepage: "https://veslx.eoinmurray.info"
-  defaultView: "docs"
