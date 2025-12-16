@@ -6,8 +6,6 @@ import { IndexPost } from "./index-post"
 
 /**
  * Routes to the appropriate page based on the URL path:
- * - /posts → Home with posts view
- * - /docs → Home with docs view
  * - *.slides.mdx or *SLIDES.mdx → SlidesPage
  * - *.mdx or *.md → Post
  * - directory with index.mdx/index.md → IndexPost (renders index file)
@@ -15,17 +13,6 @@ import { IndexPost } from "./index-post"
  */
 export function ContentRouter() {
   const { "*": path = "" } = useParams()
-
-  // Check for content view routes
-  if (path === 'posts') {
-    return <Home view="posts" />
-  }
-  if (path === 'docs') {
-    return <Home view="docs" />
-  }
-  if (path === 'all') {
-    return <Home view="all" />
-  }
 
   // Check if this is a slides file
   const filename = path.split('/').pop()?.toLowerCase() || ''

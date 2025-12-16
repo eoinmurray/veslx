@@ -14,7 +14,6 @@ veslx works without config. Values are derived from `package.json` and git.
 - `name` → from folder name
 - `description` → from `package.json`
 - `github` → parsed from git remote
-- `defaultView` → "all"
 
 ## Optional Config
 
@@ -26,7 +25,6 @@ site:
   name: My Project
   description: Project documentation
   github: user/repo
-  defaultView: docs
 ```
 
 ## Generate Config
@@ -82,20 +80,6 @@ site:
 
 Default: parsed from `git remote get-url origin`
 
-### `site.defaultView`
-
-Default content view on homepage.
-
-```yaml
-site:
-  defaultView: docs
-```
-
-Options:
-- `all` - Show all content (default)
-- `docs` - Show only undated content
-- `posts` - Show only dated content
-
 ### `slides.scrollSnap`
 
 Enable or disable scroll snapping for slide presentations.
@@ -114,19 +98,8 @@ Default: `true`
 The header includes:
 
 - **Site name** - Links to homepage
-- **Posts** - Filter to dated content
-- **Docs** - Filter to undated content
 - **GitHub** - Link to repository (if configured)
 - **Theme toggle** - Dark/light mode
-
-## Content Views
-
-Navigate directly to filtered views:
-
-- `/` - Default view (configured via `defaultView`)
-- `/posts` - Only content with `date` frontmatter
-- `/docs` - Only content without `date` frontmatter
-- `/all` - All content
 
 ## Example Config
 
@@ -136,7 +109,6 @@ site:
   name: My Project
   description: Technical documentation and blog
   github: myorg/myproject
-  defaultView: docs
 ```
 
 ## LLM Access

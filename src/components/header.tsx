@@ -62,24 +62,6 @@ export function Header({ slideControls }: HeaderProps = {}) {
               </button>
             </>
           )}
-          <Link
-            to={`/posts`}
-            className={cn(
-              "font-medium text-muted-foreground/70 hover:text-foreground transition-colors duration-300",
-              path?.startsWith("posts") && "font-semibold text-foreground",
-            )}
-          >
-            Posts
-          </Link>
-          <Link
-            to={`/docs`}
-            className={cn(
-              "font-medium text-muted-foreground/70 hover:text-foreground transition-colors duration-300",
-              path?.startsWith("docs") && "font-semibold text-foreground",
-            )}
-          >
-            Docs
-          </Link>
           {config.github && (
             <Link
               to={`https://github.com/${config.github}`}

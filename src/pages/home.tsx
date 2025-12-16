@@ -1,26 +1,13 @@
 import { useParams } from "react-router-dom"
 import { PostList } from "@/components/post-list";
 import { Header } from "@/components/header";
-import {
-  type ContentView,
-} from "@/lib/content-classification";
 import veslxConfig from "virtual:veslx-config";
 
-interface HomeProps {
-  view?: ContentView;
-}
-
-export function Home({ view }: HomeProps) {
+export function Home() {
   const { "*": path = "." } = useParams();
   const config = veslxConfig.site;
 
-  // Normalize path - "posts", "docs", and "all" are view routes, not directories
-  const isViewRoute = path === "posts" || path === "docs" || path === "all";
-
-  // Use prop view, fallback to config default
-  const activeView = view ?? config.defaultView;
-
-  const isRoot = path === "." || path === "" || isViewRoute;
+  const isRoot = path === "." || path === "";
 
   return (
     <div className="flex min-h-screen flex-col bg-background noise-overlay">
@@ -43,7 +30,7 @@ export function Home({ view }: HomeProps) {
 
           <div className="flex flex-col gap-2">
             <div className="animate-fade-in">
-              <PostList view={isRoot ? activeView : 'all'} />
+              <PostList />
             </div>
           </div>
         </main>

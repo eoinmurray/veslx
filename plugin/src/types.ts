@@ -1,5 +1,3 @@
-export type ContentView = 'posts' | 'docs' | 'all';
-
 export interface SlidesConfig {
   scrollSnap?: boolean;
 }
@@ -9,7 +7,6 @@ export interface SiteConfig {
   description?: string;
   github?: string;
   homepage?: string;
-  defaultView?: ContentView;
 }
 
 export interface VeslxConfig {
@@ -27,7 +24,6 @@ export interface ResolvedSiteConfig {
   description: string;
   github: string;
   homepage: string;
-  defaultView: ContentView;
 }
 
 export interface ResolvedConfig {
@@ -40,7 +36,6 @@ export const DEFAULT_SITE_CONFIG: ResolvedSiteConfig = {
   description: '',
   github: '',
   homepage: '',
-  defaultView: 'all',
 };
 
 export const DEFAULT_SLIDES_CONFIG: ResolvedSlidesConfig = {
