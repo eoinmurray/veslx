@@ -82,15 +82,17 @@ export function PostList() {
 
   // Sort based on config
   const sortMode = veslxConfig.posts?.sort ?? 'alpha';
-  if (sortMode === 'date') {
-    // Sort by date descending (newest first), posts without dates go to the end
+  if (sortMode === 'date' || sortMode === 'date-asc') {
+    const ascending = sortMode === 'date-asc';
+    // Sort by date, posts without dates go to the top
     posts = posts.sort((a, b) => {
       const dateA = getFrontmatter(a)?.date;
       const dateB = getFrontmatter(b)?.date;
       if (!dateA && !dateB) return a.name.localeCompare(b.name);
-      if (!dateA) return 1;
-      if (!dateB) return -1;
-      return new Date(dateB as string).getTime() - new Date(dateA as string).getTime();
+      if (!dateA) return -1;
+      if (!dateB) return 1;
+      const diff = new Date(dateA as string).getTime() - new Date(dateB as string).getTime();
+      return ascending ? diff : -diff;
     });
   } else {
     // Alphanumeric sorting by name

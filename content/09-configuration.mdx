@@ -80,6 +80,28 @@ site:
 
 Default: parsed from `git remote get-url origin`
 
+### `site.homepage`
+
+Custom homepage URL. Used for external links.
+
+```yaml
+site:
+  homepage: https://myproject.dev
+```
+
+Default: empty
+
+### `site.llmsTxt`
+
+Enable generation of `llms.txt` file for LLM/CLI tool access.
+
+```yaml
+site:
+  llmsTxt: true
+```
+
+Default: `false`
+
 ### `slides.scrollSnap`
 
 Enable or disable scroll snapping for slide presentations.
@@ -92,6 +114,22 @@ slides:
 When enabled, scrolling will snap to each slide. Set to `false` for free scrolling.
 
 Default: `true`
+
+### `posts.sort`
+
+Control how posts are sorted on the homepage.
+
+```yaml
+posts:
+  sort: date
+```
+
+Options:
+- `alpha` - Sort alphabetically by folder/file name
+- `date` - Sort by date (newest first), using frontmatter `date` field
+- `date-asc` - Sort by date (oldest first)
+
+Default: `alpha`
 
 ## Navigation
 
@@ -109,6 +147,10 @@ site:
   name: My Project
   description: Technical documentation and blog
   github: myorg/myproject
+posts:
+  sort: date
+slides:
+  scrollSnap: true
 ```
 
 ## LLM Access

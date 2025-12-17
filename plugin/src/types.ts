@@ -3,7 +3,7 @@ export interface SlidesConfig {
 }
 
 export interface PostsConfig {
-  sort?: 'date' | 'alpha';
+  sort?: 'date' | 'date-asc' | 'alpha';
 }
 
 export interface SiteConfig {
@@ -26,7 +26,7 @@ export interface ResolvedSlidesConfig {
 }
 
 export interface ResolvedPostsConfig {
-  sort: 'date' | 'alpha';
+  sort: 'date' | 'date-asc' | 'alpha';
 }
 
 export interface ResolvedSiteConfig {

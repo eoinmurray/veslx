@@ -124,6 +124,7 @@ export default async function exportToPdf(
         ...fileConfig?.site,
       },
       slides: fileConfig?.slides,
+      posts: fileConfig?.posts,
     }
 
     const veslxRoot = new URL('../..', import.meta.url).pathname
