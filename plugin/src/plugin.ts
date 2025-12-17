@@ -281,33 +281,15 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     next()
   }
 
+  // Virtual module ID for the modified CSS
+  const VIRTUAL_CSS_MODULE = '\0veslx:index.css'
+
   return {
     name: 'content',
     enforce: 'pre',
 
-    // Inject @source directive for Tailwind to scan content directory for classes
-    transform(code, id) {
-      // Only process CSS files containing the tailwindcss import
-      if (!id.endsWith('.css')) return null
-      if (!code.includes('@import "tailwindcss"')) return null
-
-      // Calculate relative path from CSS file to content directory
-      const cssDir = path.dirname(id)
-      let relativeContentDir = path.relative(cssDir, dir)
-      relativeContentDir = relativeContentDir.replace(/\\/g, '/') // Windows compatibility
-
-      // Inject @source directive after the tailwindcss import
-      const sourceDirective = `@source "${relativeContentDir}";`
-      const modified = code.replace(
-        /(@import\s+["']tailwindcss["'];?)/,
-        `$1\n${sourceDirective}`
-      )
-
-      return { code: modified, map: null }
-    },
-
     // Inject @content alias and fs.allow into Vite config
-    config() {
+    config(config, { command }) {
       return {
         resolve: {
           alias: {
@@ -325,8 +307,18 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       }
     },
 
-    // Virtual modules for content MDX imports and site config
-    resolveId(id) {
+    // Intercept CSS and virtual module imports
+    resolveId(id, importer) {
+      // Intercept index.css imported from main.tsx and redirect to our virtual module
+      // This allows us to inject @source directive for Tailwind to scan user content
+      if (id === './index.css' && importer?.endsWith('/src/main.tsx')) {
+        return VIRTUAL_CSS_MODULE
+      }
+      // Also catch the resolved path
+      if (id.endsWith('/src/index.css') && !id.startsWith('\0')) {
+        return VIRTUAL_CSS_MODULE
+      }
+      // Virtual modules for content
       if (id === VIRTUAL_MODULE_ID) {
         return RESOLVED_VIRTUAL_MODULE_ID
       }
@@ -336,6 +328,28 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     },
 
     load(id) {
+      // Serve the modified CSS content with @source directive
+      // This enables Tailwind v4 to scan the user's content directory for classes
+      if (id === VIRTUAL_CSS_MODULE) {
+        // Read the original CSS
+        const veslxRoot = path.dirname(path.dirname(__dirname))
+        const cssPath = path.join(veslxRoot, 'src/index.css')
+        const cssContent = fs.readFileSync(cssPath, 'utf-8')
+
+        // Use absolute path for @source directive
+        const absoluteContentDir = dir.replace(/\\/g, '/')
+
+        // Inject @source directive after the tailwindcss import
+        const sourceDirective = `@source "${absoluteContentDir}";`
+        const modified = cssContent.replace(
+          /(@import\s+["']tailwindcss["'];?)/,
+          `$1\n${sourceDirective}`
+        )
+
+        return modified
+      }
+
+      // Virtual module for content
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
         // Extract frontmatter from MDX files at build time (avoids MDX hook issues)
         const frontmatterData = extractFrontmatters(dir);
