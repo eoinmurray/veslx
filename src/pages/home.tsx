@@ -16,14 +16,24 @@ export function Home() {
         <title>{isRoot ? config.name : `${config.name} - ${path}`}</title>
         <main className="flex flex-col gap-8 mb-32 mt-12">
           {isRoot && (
-            <div className="animate-fade-in">
-              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-                {config.name}
-              </h1>
-              {config.description && (
-                <p className="mt-2 text-muted-foreground">
-                  {config.description}
-                </p>
+            <div className="animate-fade-in flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
+                  {config.name}
+                </h1>
+                {config.description && (
+                  <p className="mt-2 text-muted-foreground">
+                    {config.description}
+                  </p>
+                )}
+              </div>
+              {config.llmsTxt && (
+                <a
+                  href="/llms-full.txt"
+                  className="font-mono text-xs text-muted-foreground/70 hover:text-foreground underline underline-offset-2 transition-colors shrink-0"
+                >
+                  llms.txt
+                </a>
               )}
             </div>
           )}

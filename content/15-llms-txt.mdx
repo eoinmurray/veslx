@@ -1,0 +1,37 @@
+---
+title: "LLMs.txt"
+description: "Each post has an LLM-compatible equivalent in the llms.txt format."
+date: 2024-06-20
+---
+
+<FrontMatter />
+
+Click the `llms.txt` link in the header above to see the LLM-friendly version of this page.
+
+## What is llms.txt?
+
+The [llms.txt specification](https://llmstxt.org/) is a proposed standard for providing LLM-friendly content. It uses Markdown to structure information in a format that's easy for language models to understand.
+
+## Configuration
+
+Enable llms.txt in your `veslx.yaml`:
+
+```yaml
+site:
+  llmsTxt: true
+```
+
+This enables:
+- `/llms.txt` - Index with links to all articles
+- `/llms-full.txt` - Full content of all articles inline
+- `llms.txt` link in each post's frontmatter
+
+## Format
+
+The llms.txt format includes:
+
+1. **H1 Title** (required) - The name of the document
+2. **Blockquote Summary** - A short description
+3. **Content** - The main markdown content, stripped of frontmatter and JSX components
+
+This makes it easy to copy documentation content directly into an LLM conversation without the noise of HTML, navigation, or interactive components.

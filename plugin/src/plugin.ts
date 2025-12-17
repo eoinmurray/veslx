@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import yaml from 'js-yaml'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { type VeslxConfig, type ResolvedSiteConfig, type ResolvedSlidesConfig, type ResolvedConfig, DEFAULT_SITE_CONFIG, DEFAULT_SLIDES_CONFIG } from './types'
+import { type VeslxConfig, type ResolvedSiteConfig, type ResolvedSlidesConfig, type ResolvedPostsConfig, type ResolvedConfig, DEFAULT_SITE_CONFIG, DEFAULT_SLIDES_CONFIG, DEFAULT_POSTS_CONFIG } from './types'
 import matter from 'gray-matter'
 
 /**
@@ -100,6 +100,11 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     ...config?.slides,
   }
 
+  let postsConfig: ResolvedPostsConfig = {
+    ...DEFAULT_POSTS_CONFIG,
+    ...config?.posts,
+  }
+
   // Helper to reload config from file
   function reloadConfig(): boolean {
     if (!configPath || !fs.existsSync(configPath)) return false
@@ -114,6 +119,10 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
         ...DEFAULT_SLIDES_CONFIG,
         ...parsed?.slides,
       }
+      postsConfig = {
+        ...DEFAULT_POSTS_CONFIG,
+        ...parsed?.posts,
+      }
       return true
     } catch (e) {
       console.error('[veslx] Failed to reload config:', e)
@@ -126,8 +135,8 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
   urlToDir.set('/raw', dir)
 
-  // Generate llms.txt content dynamically
-  function generateLlmsTxt(): string {
+  // Get sorted entries for llms.txt generation
+  function getLlmsEntries() {
     const frontmatters = extractFrontmatters(dir)
     const entries: { path: string; title?: string; description?: string; date?: string; isSlides: boolean }[] = []
 
@@ -143,47 +152,97 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       })
     }
 
-    entries.sort((a, b) => {
-      if (a.date && b.date) return b.date.localeCompare(a.date)
-      if (a.date) return -1
-      if (b.date) return 1
-      return a.path.localeCompare(b.path)
-    })
+    // Sort alphanumerically by path (0-foo before 1-bar before 10-baz)
+    entries.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }))
+
+    return entries
+  }
+
+  // Generate llms.txt index (links to articles)
+  function generateLlmsTxt(): string {
+    const entries = getLlmsEntries()
 
     const lines: string[] = [`# ${siteConfig.name}`]
     if (siteConfig.description) {
-      lines.push(siteConfig.description)
+      lines.push(`> ${siteConfig.description}`)
     }
     lines.push('')
 
     // Links section
     if (siteConfig.homepage) {
-      lines.push(`Homepage: ${siteConfig.homepage}`)
+      lines.push(`- Homepage: ${siteConfig.homepage}`)
     }
     if (siteConfig.github) {
-      lines.push(`GitHub: https://github.com/${siteConfig.github}`)
+      lines.push(`- GitHub: https://github.com/${siteConfig.github}`)
     }
-    lines.push('Install: bun install -g veslx')
     lines.push('')
 
-    lines.push('Content is served as raw MDX files at /raw/{path}.')
+    lines.push('## Documentation')
     lines.push('')
 
     for (const entry of entries) {
-      const type = entry.isSlides ? '[slides]' : entry.date ? '[post]' : '[doc]'
       const title = entry.title || entry.path.replace(/\.mdx?$/, '').split('/').pop()
-      const desc = entry.description ? ` - ${entry.description}` : ''
-      lines.push(`${type} ${title}: /raw/${entry.path}${desc}`)
+      const desc = entry.description ? `: ${entry.description}` : ''
+      lines.push(`- [${title}](/raw/${entry.path})${desc}`)
     }
     lines.push('')
     return lines.join('\n')
   }
 
+  // Generate llms-full.txt with all article content inline
+  function generateLlmsFullTxt(): string {
+    const entries = getLlmsEntries()
+
+    const lines: string[] = [`# ${siteConfig.name}`]
+    if (siteConfig.description) {
+      lines.push(`> ${siteConfig.description}`)
+    }
+    lines.push('')
+
+    for (const entry of entries) {
+      const filePath = path.join(dir, entry.path)
+      if (!fs.existsSync(filePath)) continue
+
+      try {
+        const content = fs.readFileSync(filePath, 'utf-8')
+        // Remove frontmatter and JSX components
+        const contentWithoutFrontmatter = content
+          .replace(/^---[\s\S]*?---\n*/, '')
+          .replace(/<[A-Z][a-zA-Z]*\s*\/>/g, '') // Self-closing JSX like <FrontMatter />
+          .replace(/<[A-Z][a-zA-Z]*[^>]*>[\s\S]*?<\/[A-Z][a-zA-Z]*>/g, '') // JSX with children
+          .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines
+
+        const title = entry.title || entry.path.replace(/\.mdx?$/, '').split('/').pop()
+
+        lines.push('---')
+        lines.push('')
+        lines.push(`## ${title}`)
+        if (entry.description) {
+          lines.push(`> ${entry.description}`)
+        }
+        lines.push('')
+        lines.push(contentWithoutFrontmatter.trim())
+        lines.push('')
+      } catch {
+        // Skip files that can't be read
+      }
+    }
+
+    return lines.join('\n')
+  }
+
   const middleware: Connect.NextHandleFunction = (req: IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
-    // Serve llms.txt dynamically
-    if (req.url === '/llms.txt') {
+    // Serve llms.txt dynamically (only if enabled)
+    if (req.url === '/llms.txt' && siteConfig.llmsTxt) {
       res.setHeader('Content-Type', 'text/plain')
       res.end(generateLlmsTxt())
+      return
+    }
+
+    // Serve llms-full.txt with all content inline (only if enabled)
+    if (req.url === '/llms-full.txt' && siteConfig.llmsTxt) {
+      res.setHeader('Content-Type', 'text/plain')
+      res.end(generateLlmsFullTxt())
       return
     }
 
@@ -224,6 +283,28 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
   return {
     name: 'content',
+    enforce: 'pre',
+
+    // Inject @source directive for Tailwind to scan content directory for classes
+    transform(code, id) {
+      // Only process CSS files containing the tailwindcss import
+      if (!id.endsWith('.css')) return null
+      if (!code.includes('@import "tailwindcss"')) return null
+
+      // Calculate relative path from CSS file to content directory
+      const cssDir = path.dirname(id)
+      let relativeContentDir = path.relative(cssDir, dir)
+      relativeContentDir = relativeContentDir.replace(/\\/g, '/') // Windows compatibility
+
+      // Inject @source directive after the tailwindcss import
+      const sourceDirective = `@source "${relativeContentDir}";`
+      const modified = code.replace(
+        /(@import\s+["']tailwindcss["'];?)/,
+        `$1\n${sourceDirective}`
+      )
+
+      return { code: modified, map: null }
+    },
 
     // Inject @content alias and fs.allow into Vite config
     config() {
@@ -294,7 +375,7 @@ export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'
       }
       if (id === RESOLVED_VIRTUAL_CONFIG_ID) {
         // Generate virtual module with full config
-        const fullConfig: ResolvedConfig = { site: siteConfig, slides: slidesConfig }
+        const fullConfig: ResolvedConfig = { site: siteConfig, slides: slidesConfig, posts: postsConfig }
         return `export default ${JSON.stringify(fullConfig)};`
       }
     },
@@ -340,10 +421,16 @@ export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'
         copyDirSync(dir, destDir)
         console.log(`Content copied successfully`)
 
-        // Generate llms.txt for CLI tools and LLMs
-        const llmsTxtPath = path.join(outDir, 'llms.txt')
-        fs.writeFileSync(llmsTxtPath, generateLlmsTxt())
-        console.log(`Generated llms.txt`)
+        // Generate llms.txt files if enabled
+        if (siteConfig.llmsTxt) {
+          const llmsTxtPath = path.join(outDir, 'llms.txt')
+          fs.writeFileSync(llmsTxtPath, generateLlmsTxt())
+          console.log(`Generated llms.txt`)
+
+          const llmsFullTxtPath = path.join(outDir, 'llms-full.txt')
+          fs.writeFileSync(llmsFullTxtPath, generateLlmsFullTxt())
+          console.log(`Generated llms-full.txt`)
+        }
       } else {
         console.warn(`Content directory not found: ${dir}`)
       }

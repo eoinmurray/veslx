@@ -9,6 +9,7 @@ import { useDirectory } from "../../plugin/src/client";
 import { ErrorDisplay } from "./page-error";
 import Loading from "./loading";
 import { PostListItem } from "./post-list-item";
+import veslxConfig from "virtual:veslx-config";
 
 // Helper to format name for display (e.g., "01-getting-started" → "Getting Started")
 function formatName(name: string): string {
@@ -79,8 +80,22 @@ export function PostList() {
     );
   }
 
-  // Alphanumeric sorting by name
-  posts = posts.sort((a, b) => a.name.localeCompare(b.name));
+  // Sort based on config
+  const sortMode = veslxConfig.posts?.sort ?? 'alpha';
+  if (sortMode === 'date') {
+    // Sort by date descending (newest first), posts without dates go to the end
+    posts = posts.sort((a, b) => {
+      const dateA = getFrontmatter(a)?.date;
+      const dateB = getFrontmatter(b)?.date;
+      if (!dateA && !dateB) return a.name.localeCompare(b.name);
+      if (!dateA) return 1;
+      if (!dateB) return -1;
+      return new Date(dateB as string).getTime() - new Date(dateA as string).getTime();
+    });
+  } else {
+    // Alphanumeric sorting by name
+    posts = posts.sort((a, b) => a.name.localeCompare(b.name));
+  }
 
   return (
     <div className="space-y-1 not-prose">

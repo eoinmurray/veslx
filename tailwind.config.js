@@ -1,16 +1,10 @@
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    path.join(__dirname, "../biblio/**/*.mdx"),
-    path.join(__dirname, "../biblio/**/*.md"),
+    // User content directory is scanned dynamically via @source injection in plugin/src/plugin.ts
   ],
   theme: {
   	extend: {

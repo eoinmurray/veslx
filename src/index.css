@@ -209,6 +209,11 @@
     letter-spacing: 0;
   }
 
+  /* Code inside pre blocks should inherit background from pre */
+  pre code {
+    background: transparent;
+  }
+
   /* Scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
