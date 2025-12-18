@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { cn } from '@/lib/utils'
 import Gallery from '@/components/gallery'
 import { ParameterTable } from '@/components/parameter-table'
 import { ParameterBadge } from '@/components/parameter-badge'
@@ -146,12 +147,12 @@ export const mdxComponents = {
   // Code blocks - IDE/terminal style
   pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
-      className="not-prose w-full overflow-x-auto p-4 text-sm bg-muted/50 border border-border rounded-md font-mono my-6"
+      className="not-prose w-full overflow-x-auto p-4 text-sm bg-muted border border-border rounded-md font-mono my-6"
       {...props}
     />
   ),
-  code: (props: React.HTMLAttributes<HTMLElement> & { className?: string }) => {
-    const isInline = !props.className?.includes('language-')
+  code: ({ className, ...props }: React.HTMLAttributes<HTMLElement> & { className?: string }) => {
+    const isInline = !className?.includes('language-')
     if (isInline) {
       return (
         <code
@@ -160,7 +161,8 @@ export const mdxComponents = {
         />
       )
     }
-    return <code {...props} />
+    // Block code inside pre - ensure transparent background
+    return <code className={cn('bg-transparent', className)} {...props} />
   },
 
   // Blockquote

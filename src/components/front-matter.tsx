@@ -56,9 +56,20 @@ export function FrontMatter() {
     <div>
       {frontmatter?.title && (
         <header className="not-prose flex flex-col gap-2 mb-8 pt-4">
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-3">
-            {frontmatter?.title}
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground mb-3">
+              {frontmatter?.title}
+            </h1>
+            {config.llmsTxt && (
+              <a
+                href="#"
+                onClick={handleLlmsTxt}
+                className="font-mono text-xs text-muted-foreground/70 hover:text-foreground underline underline-offset-2 transition-colors shrink-0"
+              >
+                llms.txt
+              </a>
+            )}
+          </div>
 
           {/* Meta line */}
           <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
@@ -66,15 +77,6 @@ export function FrontMatter() {
               <time className="font-mono text-xs bg-muted px-2 py-0.5 rounded">
                 {formatDate(new Date(frontmatter.date as string))}
               </time>
-            )}
-            {config.llmsTxt && (
-              <a
-                href="#"
-                onClick={handleLlmsTxt}
-                className="font-mono text-xs text-muted-foreground/70 hover:text-foreground underline underline-offset-2 transition-colors"
-              >
-                llms.txt
-              </a>
             )}
           </div>
 

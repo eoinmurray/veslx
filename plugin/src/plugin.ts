@@ -205,12 +205,41 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
       try {
         const content = fs.readFileSync(filePath, 'utf-8')
-        // Remove frontmatter and JSX components
-        const contentWithoutFrontmatter = content
-          .replace(/^---[\s\S]*?---\n*/, '')
-          .replace(/<[A-Z][a-zA-Z]*\s*\/>/g, '') // Self-closing JSX like <FrontMatter />
-          .replace(/<[A-Z][a-zA-Z]*[^>]*>[\s\S]*?<\/[A-Z][a-zA-Z]*>/g, '') // JSX with children
-          .replace(/\n{3,}/g, '\n\n') // Collapse multiple newlines
+        // Remove frontmatter
+        let processed = content.replace(/^---[\s\S]*?---\n*/, '')
+
+        // Extract code blocks to preserve them
+        const codeBlocks: string[] = []
+        processed = processed.replace(/```[\s\S]*?```/g, (match) => {
+          codeBlocks.push(match)
+          return `__CODE_BLOCK_${codeBlocks.length - 1}__`
+        })
+
+        // Also preserve inline code
+        const inlineCode: string[] = []
+        processed = processed.replace(/`[^`]+`/g, (match) => {
+          inlineCode.push(match)
+          return `__INLINE_CODE_${inlineCode.length - 1}__`
+        })
+
+        // Remove standalone JSX component usages at root level (no indentation)
+        // This preserves JSX inside function definitions (which are indented)
+        processed = processed
+          .replace(/^<[A-Z][a-zA-Z]*\s[^]*?\/>$/gm, '') // Multi-line self-closing JSX at line start
+          .replace(/^<([A-Z][a-zA-Z]*)(?:\s[^>]*)?>[\s\S]*?<\/\1>$/gm, '') // Multi-line JSX with children at line start
+
+        // Restore inline code
+        inlineCode.forEach((code, i) => {
+          processed = processed.replace(`__INLINE_CODE_${i}__`, code)
+        })
+
+        // Restore code blocks
+        codeBlocks.forEach((block, i) => {
+          processed = processed.replace(`__CODE_BLOCK_${i}__`, block)
+        })
+
+        // Collapse multiple newlines
+        processed = processed.replace(/\n{3,}/g, '\n\n')
 
         const title = entry.title || entry.path.replace(/\.mdx?$/, '').split('/').pop()
 
@@ -221,7 +250,7 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
           lines.push(`> ${entry.description}`)
         }
         lines.push('')
-        lines.push(contentWithoutFrontmatter.trim())
+        lines.push(processed.trim())
         lines.push('')
       } catch {
         // Skip files that can't be read
@@ -234,14 +263,14 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
   const middleware: Connect.NextHandleFunction = (req: IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
     // Serve llms.txt dynamically (only if enabled)
     if (req.url === '/llms.txt' && siteConfig.llmsTxt) {
-      res.setHeader('Content-Type', 'text/plain')
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
       res.end(generateLlmsTxt())
       return
     }
 
     // Serve llms-full.txt with all content inline (only if enabled)
     if (req.url === '/llms-full.txt' && siteConfig.llmsTxt) {
-      res.setHeader('Content-Type', 'text/plain')
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
       res.end(generateLlmsFullTxt())
       return
     }
