@@ -209,6 +209,16 @@
     letter-spacing: 0;
   }
 
+  /* Inline code - only code NOT inside pre elements */
+  :not(pre) > code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.85em;
+    background-color: hsl(var(--muted));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    color: hsl(var(--primary));
+  }
+
   /* Code inside pre blocks should inherit background from pre */
   pre code {
     background: transparent;

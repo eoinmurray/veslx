@@ -1,5 +1,4 @@
 import { Link, useLocation } from 'react-router-dom'
-import { cn } from '@/lib/utils'
 import Gallery from '@/components/gallery'
 import { ParameterTable } from '@/components/parameter-table'
 import { ParameterBadge } from '@/components/parameter-badge'
@@ -151,19 +150,10 @@ export const mdxComponents = {
       {...props}
     />
   ),
-  code: ({ className, ...props }: React.HTMLAttributes<HTMLElement> & { className?: string }) => {
-    const isInline = !className?.includes('language-')
-    if (isInline) {
-      return (
-        <code
-          className="font-mono text-[0.85em] bg-muted px-1.5 py-0.5 rounded text-primary"
-          {...props}
-        />
-      )
-    }
-    // Block code inside pre - ensure transparent background
-    return <code className={cn('bg-transparent', className)} {...props} />
-  },
+  code: ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => (
+    // Styling handled by CSS - inline code gets bg via :not(pre) > code selector
+    <code className={className} {...props} />
+  ),
 
   // Blockquote
   blockquote: (props: React.HTMLAttributes<HTMLQuoteElement>) => (
