@@ -33,10 +33,10 @@ function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
     const matchingKey = keys.find(key => {
       // Strategy 1: Key ends with /path (e.g., @content/docs/foo.mdx matches docs/foo.mdx)
       if (key.endsWith(`/${normalizedPath}`)) return true
-      // Strategy 2: Key equals @content/path (alias form)
-      if (key === `@content/${normalizedPath}`) return true
-      // Strategy 3: Key equals /@content/path (with leading slash)
+      // Strategy 2: Key equals /@content/path (Vite alias resolution)
       if (key === `/@content/${normalizedPath}`) return true
+      // Strategy 3: Key equals @content/path (alias form)
+      if (key === `@content/${normalizedPath}`) return true
       // Strategy 4: Key equals path directly
       if (key === normalizedPath) return true
       // Strategy 5: Key equals /path (with leading slash)
@@ -63,6 +63,7 @@ function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
   for (const candidate of candidates) {
     const matchingKey = keys.find(key => {
       if (key.endsWith(`/${candidate}`)) return true
+      if (key === `/@content/${candidate}`) return true
       if (key === `@content/${candidate}`) return true
       if (key === candidate) return true
       return false
@@ -136,10 +137,10 @@ function findSlidesModule(modules: ModuleMap, path: string): ModuleLoader | null
     const matchingKey = keys.find(key => {
       // Strategy 1: Key ends with /path (e.g., @content/docs/foo.slides.mdx matches docs/foo.slides.mdx)
       if (key.endsWith(`/${normalizedPath}`)) return true
-      // Strategy 2: Key equals @content/path (alias form)
-      if (key === `@content/${normalizedPath}`) return true
-      // Strategy 3: Key equals /@content/path (with leading slash)
+      // Strategy 2: Key equals /@content/path (Vite alias resolution)
       if (key === `/@content/${normalizedPath}`) return true
+      // Strategy 3: Key equals @content/path (alias form)
+      if (key === `@content/${normalizedPath}`) return true
       // Strategy 4: Key equals path directly
       if (key === normalizedPath) return true
       // Strategy 5: Key equals /path (with leading slash)
@@ -163,6 +164,7 @@ function findSlidesModule(modules: ModuleMap, path: string): ModuleLoader | null
   for (const candidate of candidates) {
     const matchingKey = keys.find(key => {
       if (key.endsWith(`/${candidate}`)) return true
+      if (key === `/@content/${candidate}`) return true
       if (key === `@content/${candidate}`) return true
       if (key === candidate) return true
       return false
@@ -222,23 +224,60 @@ export function useMDXSlides(path: string) {
 }
 
 /**
- * Find only index.mdx or index.md in a directory (not README or other conventions)
+ * Find index.mdx, index.md, README.mdx, or README.md in a directory.
+ * Checks index files first, then README files.
  */
 function findIndexModule(modules: ModuleMap, path: string): ModuleLoader | null {
   const keys = Object.keys(modules)
 
   // Normalize path - remove leading slash, handle root
   const normalizedPath = path.replace(/^\//, '') || '.'
+  const isRoot = normalizedPath === '.' || normalizedPath === ''
 
-  // Only look for index.mdx or index.md
-  const candidates = normalizedPath === '.'
-    ? ['index.mdx', 'index.md']
-    : [`${normalizedPath}/index.mdx`, `${normalizedPath}/index.md`]
+  // Debug: log keys and path
+  console.log('[findIndexModule] path:', path, 'normalizedPath:', normalizedPath, 'isRoot:', isRoot)
+  console.log('[findIndexModule] ALL keys:', keys)
+
+  // Look for index files first, then README files
+  const candidates = isRoot
+    ? ['index.mdx', 'index.md', 'README.mdx', 'README.md']
+    : [
+        `${normalizedPath}/index.mdx`,
+        `${normalizedPath}/index.md`,
+        `${normalizedPath}/README.mdx`,
+        `${normalizedPath}/README.md`,
+      ]
 
   for (const candidate of candidates) {
     const matchingKey = keys.find(key => {
+      // For root-level files, match keys that end with /candidate but DON'T have additional path segments
+      // e.g., for README.mdx: match "/../content/README.mdx" but not "/../content/subdir/README.mdx"
+      if (isRoot) {
+        // Key must end with /candidate and have no additional path segments before the filename
+        // Extract the filename from the key and compare
+        const keyFilename = key.split('/').pop()
+        if (keyFilename === candidate) {
+          // Make sure it's in the root of content dir, not a subdirectory
+          // Count path segments after the content directory marker
+          // Keys look like: /../pinglab/content/README.mdx or @content/README.mdx
+          const parts = key.split('/')
+          const contentIdx = parts.findIndex(p => p === 'content' || p === '@content')
+          if (contentIdx !== -1) {
+            // If there's only one segment after "content", it's a root file
+            const afterContent = parts.slice(contentIdx + 1)
+            if (afterContent.length === 1) return true
+          }
+          // Also try @content prefix matching
+          if (key === `/@content/${candidate}`) return true
+          if (key === `@content/${candidate}`) return true
+        }
+        return false
+      }
+      // For subdirectories, allow endsWith matching
       if (key.endsWith(`/${candidate}`)) return true
+      if (key === `/@content/${candidate}`) return true
       if (key === `@content/${candidate}`) return true
+      if (key === `/content/${candidate}`) return true
       if (key === candidate) return true
       return false
     })
@@ -251,8 +290,9 @@ function findIndexModule(modules: ModuleMap, path: string): ModuleLoader | null 
 }
 
 /**
- * Hook for loading index.mdx/index.md content only.
- * Returns notFound: true if no index file exists (instead of throwing an error).
+ * Hook for loading index.mdx/index.md or README.mdx/README.md content.
+ * Checks for index files first, then README files.
+ * Returns notFound: true if no matching file exists (instead of throwing an error).
  */
 export function useIndexContent(path: string) {
   const [Content, setContent] = useState<MDXModule['default'] | null>(null)

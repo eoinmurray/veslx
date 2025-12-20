@@ -3,6 +3,7 @@ import { findSlides, isSimulationRunning, useDirectory } from "../../plugin/src/
 import Loading from "@/components/loading";
 import { FileEntry } from "plugin/src/lib";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { useMDXContent } from "@/hooks/use-mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { FrontmatterProvider } from "@/lib/frontmatter-context";
@@ -54,11 +55,12 @@ export function Post() {
 
         {Content && (
           <FrontmatterProvider frontmatter={frontmatter}>
-            <article className="mt-12 mb-64 mx-auto px-[var(--page-padding)] max-w-[var(--content-width)] animate-fade-in">
+            <article className="mt-12 mb-32 mx-auto px-[var(--page-padding)] max-w-[var(--content-width)] animate-fade-in">
               <Content components={mdxComponents} />
             </article>
           </FrontmatterProvider>
         )}
+        <Footer />
       </main>
     </div>
   )

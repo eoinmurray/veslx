@@ -310,9 +310,6 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     next()
   }
 
-  // Virtual module ID for the modified CSS
-  const VIRTUAL_CSS_MODULE = '\0veslx:index.css'
-
   return {
     name: 'content',
     enforce: 'pre',
@@ -336,17 +333,8 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       }
     },
 
-    // Intercept CSS and virtual module imports
-    resolveId(id, importer) {
-      // Intercept index.css imported from main.tsx and redirect to our virtual module
-      // This allows us to inject @source directive for Tailwind to scan user content
-      if (id === './index.css' && importer?.endsWith('/src/main.tsx')) {
-        return VIRTUAL_CSS_MODULE
-      }
-      // Also catch the resolved path
-      if (id.endsWith('/src/index.css') && !id.startsWith('\0')) {
-        return VIRTUAL_CSS_MODULE
-      }
+    // Intercept virtual module imports
+    resolveId(id) {
       // Virtual modules for content
       if (id === VIRTUAL_MODULE_ID) {
         return RESOLVED_VIRTUAL_MODULE_ID
@@ -356,28 +344,25 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       }
     },
 
-    load(id) {
-      // Serve the modified CSS content with @source directive
-      // This enables Tailwind v4 to scan the user's content directory for classes
-      if (id === VIRTUAL_CSS_MODULE) {
-        // Read the original CSS
-        const veslxRoot = path.dirname(path.dirname(__dirname))
-        const cssPath = path.join(veslxRoot, 'src/index.css')
-        const cssContent = fs.readFileSync(cssPath, 'utf-8')
-
+    // Transform CSS to inject @source directive for Tailwind
+    // This enables Tailwind v4 to scan the user's content directory for classes
+    transform(code, id) {
+      if (id.endsWith('/src/index.css') && code.includes("@import 'tailwindcss'")) {
         // Use absolute path for @source directive
         const absoluteContentDir = dir.replace(/\\/g, '/')
+        const sourceDirective = `@source "${absoluteContentDir}";`
 
         // Inject @source directive after the tailwindcss import
-        const sourceDirective = `@source "${absoluteContentDir}";`
-        const modified = cssContent.replace(
+        const modified = code.replace(
           /(@import\s+["']tailwindcss["'];?)/,
           `$1\n${sourceDirective}`
         )
 
-        return modified
+        return { code: modified, map: null }
       }
+    },
 
+    load(id) {
       // Virtual module for content
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
         // Extract frontmatter from MDX files at build time (avoids MDX hook issues)
@@ -385,15 +370,31 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
         // Generate virtual module with import.meta.glob for MDX files
         return `
-export const posts = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'], {
+export const posts = import.meta.glob(['@content/*.mdx', '@content/*.md', '@content/**/*.mdx', '@content/**/*.md'], {
   import: 'default',
   query: { skipSlides: true }
 });
-export const allMdx = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md']);
-export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/SLIDES.md', '@content/**/*.slides.mdx', '@content/**/*.slides.md']);
+export const allMdx = import.meta.glob(['@content/*.mdx', '@content/*.md', '@content/**/*.mdx', '@content/**/*.md']);
+export const slides = import.meta.glob(['@content/SLIDES.mdx', '@content/SLIDES.md', '@content/*.slides.mdx', '@content/*.slides.md', '@content/**/SLIDES.mdx', '@content/**/SLIDES.md', '@content/**/*.slides.mdx', '@content/**/*.slides.md']);
 
-// All files for directory tree building
+// All files for directory tree building (using ?url to avoid parsing non-JS files)
 export const files = import.meta.glob([
+  '@content/*.mdx',
+  '@content/*.md',
+  '@content/*.tsx',
+  '@content/*.ts',
+  '@content/*.jsx',
+  '@content/*.js',
+  '@content/*.png',
+  '@content/*.jpg',
+  '@content/*.jpeg',
+  '@content/*.gif',
+  '@content/*.svg',
+  '@content/*.webp',
+  '@content/*.css',
+  '@content/*.yaml',
+  '@content/*.yml',
+  '@content/*.json',
   '@content/**/*.mdx',
   '@content/**/*.md',
   '@content/**/*.tsx',
@@ -410,13 +411,13 @@ export const files = import.meta.glob([
   '@content/**/*.yaml',
   '@content/**/*.yml',
   '@content/**/*.json',
-], { eager: false });
+], { eager: false, query: '?url', import: 'default' });
 
 // Frontmatter extracted at build time (no MDX execution required)
 export const frontmatters = ${JSON.stringify(frontmatterData)};
 
 // Legacy aliases for backwards compatibility
-export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md']);
+export const modules = import.meta.glob(['@content/*.mdx', '@content/*.md', '@content/**/*.mdx', '@content/**/*.md']);
 `
       }
       if (id === RESOLVED_VIRTUAL_CONFIG_ID) {
@@ -441,15 +442,21 @@ export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'
       // File extensions that should trigger a full reload
       const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.tsx', '.ts', '.jsx', '.js', '.css']
 
-      const handleContentChange = (filePath: string, event: 'add' | 'unlink' | 'change') => {
-        // Check if the file is in the content directory
-        if (!filePath.startsWith(dir)) return
+      // Debounce reload to avoid rapid-fire refreshes when multiple files change
+      let reloadTimeout: ReturnType<typeof setTimeout> | null = null
+      const pendingChanges: Array<{ filePath: string; event: 'add' | 'unlink' | 'change' }> = []
+      const DEBOUNCE_MS = 1000
 
-        // Check if it's a watched file type
-        const ext = path.extname(filePath).toLowerCase()
-        if (!watchedExtensions.includes(ext)) return
+      const flushReload = () => {
+        if (pendingChanges.length === 0) return
 
-        console.log(`[veslx] Content ${event}: ${path.relative(dir, filePath)}`)
+        // Log all pending changes
+        for (const { filePath, event } of pendingChanges) {
+          console.log(`[veslx] Content ${event}: ${path.relative(dir, filePath)}`)
+        }
+
+        // Clear pending changes
+        pendingChanges.length = 0
 
         // Invalidate the virtual content module so frontmatters are re-extracted
         const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
@@ -459,6 +466,24 @@ export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'
 
         // Full reload to pick up new/deleted files
         server.ws.send({ type: 'full-reload' })
+      }
+
+      const handleContentChange = (filePath: string, event: 'add' | 'unlink' | 'change') => {
+        // Check if the file is in the content directory
+        if (!filePath.startsWith(dir)) return
+
+        // Check if it's a watched file type
+        const ext = path.extname(filePath).toLowerCase()
+        if (!watchedExtensions.includes(ext)) return
+
+        // Queue this change
+        pendingChanges.push({ filePath, event })
+
+        // Debounce: clear existing timeout and set a new one
+        if (reloadTimeout) {
+          clearTimeout(reloadTimeout)
+        }
+        reloadTimeout = setTimeout(flushReload, DEBOUNCE_MS)
       }
 
       server.watcher.on('add', (filePath) => handleContentChange(filePath, 'add'))

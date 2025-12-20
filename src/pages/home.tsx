@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom"
 import { PostList } from "@/components/post-list";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import veslxConfig from "virtual:veslx-config";
 
 export function Home() {
@@ -44,6 +45,7 @@ export function Home() {
             </div>
           </div>
         </main>
+        <Footer />
       </main>
     </div>
   )

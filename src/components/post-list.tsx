@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { minimatch } from "minimatch";
 import {
   type PostEntry,
   directoryToPostEntries,
@@ -10,6 +11,11 @@ import { ErrorDisplay } from "./page-error";
 import Loading from "./loading";
 import { PostListItem } from "./post-list-item";
 import veslxConfig from "virtual:veslx-config";
+
+interface PostListProps {
+  /** Glob patterns to filter posts by name (e.g., ["01-*", "getting-*"]) */
+  globs?: string[] | null;
+}
 
 // Helper to format name for display (e.g., "01-getting-started" → "Getting Started")
 function formatName(name: string): string {
@@ -36,7 +42,7 @@ function getLinkPath(post: PostEntry): string {
   }
 }
 
-export function PostList() {
+export function PostList({ globs = null }: PostListProps) {
   const { "*": path = "." } = useParams();
 
   const { directory, loading, error } = useDirectory(path)
@@ -71,6 +77,13 @@ export function PostList() {
 
   // Filter out hidden and draft posts
   posts = filterVisiblePosts(posts);
+
+  // Filter by glob patterns if provided
+  if (globs && globs.length > 0) {
+    posts = posts.filter(post =>
+      globs.some(pattern => minimatch(post.name, pattern, { matchBase: true }))
+    );
+  }
 
   if (posts.length === 0) {
     return (

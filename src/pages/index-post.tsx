@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { isSimulationRunning } from "../../plugin/src/client";
 import Loading from "@/components/loading";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { useIndexContent } from "@/hooks/use-mdx-content";
 import { mdxComponents } from "@/components/mdx-components";
 import { FrontmatterProvider } from "@/lib/frontmatter-context";
@@ -12,8 +13,9 @@ interface IndexPostProps {
 }
 
 /**
- * Attempts to render an index.mdx or index.md file for a directory.
- * Falls back to the provided component if no index file exists.
+ * Attempts to render an index.mdx, index.md, README.mdx, or README.md file for a directory.
+ * Checks for index files first, then README files.
+ * Falls back to the provided component if no matching file exists.
  */
 export function IndexPost({ fallback }: IndexPostProps) {
   const { "*": rawPath = "." } = useParams();
@@ -53,6 +55,7 @@ export function IndexPost({ fallback }: IndexPostProps) {
             </article>
           </FrontmatterProvider>
         )}
+        <Footer />
       </main>
     </div>
   )

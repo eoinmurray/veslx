@@ -543,10 +543,16 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
   // Check if this is a glob pattern
   const hasGlob = isGlobPattern(resolvedPath);
 
-  // For glob patterns, get the base directory (everything before the first glob character)
-  const baseDir = hasGlob
-    ? resolvedPath.split(/[*?\[]/, 1)[0].replace(/\/$/, "") || "."
-    : null;
+  // For glob patterns, get the base directory (directory containing the glob pattern)
+  const baseDir = useMemo(() => {
+    if (!hasGlob) return null;
+    // Get everything before the first glob character
+    const beforeGlob = resolvedPath.split(/[*?\[]/, 1)[0];
+    // Extract directory portion (everything up to the last slash)
+    const lastSlash = beforeGlob.lastIndexOf('/');
+    if (lastSlash === -1) return ".";
+    return beforeGlob.slice(0, lastSlash) || ".";
+  }, [hasGlob, resolvedPath]);
 
   const { directory } = useDirectory(baseDir || ".");
 

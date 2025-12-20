@@ -1,0 +1,233 @@
+---
+title: Built-in Components
+description: React components available in all MDX files
+---
+
+<FrontMatter />
+
+veslx provides several built-in React components that are automatically available in all MDX files without any imports.
+
+## Document Components
+
+### FrontMatter
+
+Renders the frontmatter metadata (title, date, description) as a styled header. Typically placed at the top of README.mdx files.
+
+```mdx
+<FrontMatter />
+```
+
+No props required - it automatically reads from the file's frontmatter.
+
+### PostList
+
+Displays a list of posts in the current directory. Useful for index pages.
+
+```mdx
+<PostList />
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `globs` | `string[]` | `null` | Glob patterns to filter posts by name |
+
+**Examples:**
+
+```mdx
+{/* Show all posts */}
+<PostList />
+
+{/* Only show posts starting with "01-" or "02-" */}
+<PostList globs={["01-*", "02-*"]} />
+
+{/* Only show tutorial posts */}
+<PostList globs={["*tutorial*"]} />
+```
+
+### PostListItem
+
+Individual post link item with title, description, date, and optional slides indicator. Use this for custom post lists.
+
+```mdx
+<PostListItem
+  title="Getting Started"
+  description="Introduction to the project"
+  linkPath="/docs/getting-started/README.mdx"
+  date={new Date("2024-12-01")}
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | — | Post title (required) |
+| `description` | `string` | — | Short description |
+| `date` | `Date` | — | Publication date |
+| `linkPath` | `string` | — | Link destination (required) |
+| `isSlides` | `boolean` | `false` | Show presentation icon |
+
+## Gallery
+
+Displays images in a responsive gallery with lightbox support. Images are served from the content directory.
+
+```mdx
+<Gallery path="./images" />
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `path` | `string` | — | Path to image directory (relative to content root) |
+| `globs` | `string[]` | `null` | Glob patterns to filter images (e.g., `["*.png", "fig-*.jpg"]`) |
+| `title` | `string` | — | Gallery title displayed above images |
+| `subtitle` | `string` | — | Subtitle displayed below title |
+| `caption` | `string` | — | Caption displayed below gallery |
+| `captionLabel` | `string` | — | Label prefix for caption (e.g., "Figure 1") |
+| `limit` | `number` | `null` | Maximum number of images to show |
+| `page` | `number` | `0` | Page offset when using limit |
+| `childAlign` | `"left" \| "right"` | `"right"` | Alignment of children content when single image |
+
+**Examples:**
+
+```mdx
+{/* Basic gallery */}
+<Gallery path="./figures" />
+
+{/* With title and caption */}
+<Gallery
+  path="./results"
+  title="Experiment Results"
+  caption="Measurements taken at 25°C"
+  captionLabel="Figure 3"
+/>
+
+{/* Filter with globs */}
+<Gallery path="./images" globs={["chart-*.png"]} />
+
+{/* Single image with side content */}
+<Gallery path="./diagram.png" title="Architecture">
+  Description text appears beside the image.
+</Gallery>
+```
+
+## Parameter Display
+
+### ParameterTable
+
+Displays YAML or JSON configuration files in a structured table format. Supports glob patterns to show multiple files.
+
+```mdx
+<ParameterTable path="./config.yaml" />
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `path` | `string` | — | Path to config file (supports glob patterns like `*.yaml`) |
+| `keys` | `string[]` | — | jq-like paths to filter displayed parameters |
+
+**Examples:**
+
+```mdx
+{/* Show entire config */}
+<ParameterTable path="./params.yaml" />
+
+{/* Filter specific keys */}
+<ParameterTable
+  path="./config.yaml"
+  keys={[".base.N_E", ".base.N_I", ".simulation.dt"]}
+/>
+
+{/* Show multiple files with glob */}
+<ParameterTable path="./configs/*.yaml" />
+```
+
+### ParameterBadge
+
+Inline badge showing a single parameter value from a config file.
+
+```mdx
+The simulation uses <ParameterBadge path="./config.yaml" keyPath=".base.dt" unit="ms" /> timesteps.
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `path` | `string` | — | Path to the YAML or JSON file |
+| `keyPath` | `string` | — | jq-like path to the value (e.g., `.base.N_E`) |
+| `label` | `string` | — | Label override (defaults to last segment of keyPath) |
+| `unit` | `string` | — | Unit suffix (e.g., "ms", "Hz") |
+
+## Slide Components
+
+These components are designed for use in `SLIDES.mdx` files but work in any MDX file.
+
+### HeroSlide
+
+Title slide for presentations with large typography.
+
+```mdx
+<HeroSlide
+  title="My Presentation"
+  subtitle="An introduction to the topic"
+  author="Jane Doe"
+  date="December 2024"
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | — | Main title (required) |
+| `subtitle` | `string` | — | Subtitle text |
+| `author` | `string` | — | Author name |
+| `date` | `string` | — | Date string |
+
+### TextSlide
+
+Content slide with optional title and body text.
+
+```mdx
+<TextSlide title="Key Findings" subtitle="From our analysis">
+
+- Finding one with details
+- Finding two with more info
+- Finding three
+
+</TextSlide>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | — | Slide title |
+| `subtitle` | `string` | — | Subtitle text |
+| `children` | `ReactNode` | — | Slide content (markdown supported) |
+
+### FigureSlide
+
+Simple slide with a title and image.
+
+```mdx
+<FigureSlide
+  title="System Architecture"
+  src="/raw/diagrams/architecture.png"
+/>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `title` | `string` | — | Slide title (required) |
+| `src` | `string` | — | Image URL (required) |
+
+### SlideOutline
+
+Container with a visible border, useful for framing content on slides.
+
+```mdx
+<SlideOutline size="lg">
+  Content goes here
+</SlideOutline>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `size` | `"sm" \| "md" \| "lg" \| "xl" \| "full"` | `"md"` | Container size |
+| `className` | `string` | — | Additional CSS classes |
+| `children` | `ReactNode` | — | Content to display |
+
+Size values map to max-widths: `sm` (32rem), `md` (42rem), `lg` (64rem), `xl` (80rem), `full` (100%).
