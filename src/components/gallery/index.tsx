@@ -141,7 +141,7 @@ export default function Gallery({
             {images.map((img, index) => imageElement(index, img, 'flex-1'))}
           </div>
         ) : (
-          <div className="flex gap-3 overflow-x-auto pb-4">
+          <div className="flex gap-3 overflow-x-auto overscroll-x-contain pb-4">
             {images.map((img, index) => (
               <div
                 key={index}

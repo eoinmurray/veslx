@@ -46,8 +46,8 @@
   --popover: 0 0% 100%;
   --popover-foreground: 240 10% 10%;
 
-  /* Cyan/teal accent - technical, precise */
-  --primary: 190 80% 42%;
+  /* Zinc accent - clean, neutral */
+  --primary: 240 5% 34%;
   --primary-foreground: 0 0% 100%;
 
   --secondary: 220 14% 96%;
@@ -62,18 +62,18 @@
 
   --border: 220 13% 90%;
   --input: 220 13% 90%;
-  --ring: 190 80% 42%;
+  --ring: 240 5% 34%;
   --radius: 0.375rem;
 
   /* Sidebar */
   --sidebar-background: 220 14% 98%;
   --sidebar-foreground: 220 10% 40%;
-  --sidebar-primary: 190 80% 42%;
+  --sidebar-primary: 240 5% 34%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 220 14% 95%;
   --sidebar-accent-foreground: 240 10% 10%;
   --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 190 80% 42%;
+  --sidebar-ring: 240 5% 34%;
 
   /* Layout widths - generous for galleries */
   --content-width: 44rem;
@@ -92,9 +92,9 @@
   --popover: 0 0% 10%;
   --popover-foreground: 0 0% 93%;
 
-  /* Cyan accent - crisp against zinc */
-  --primary: 175 70% 45%;
-  --primary-foreground: 0 0% 98%;
+  /* Zinc accent - clean, neutral */
+  --primary: 240 5% 65%;
+  --primary-foreground: 0 0% 7%;
 
   --secondary: 0 0% 14%;
   --secondary-foreground: 0 0% 80%;
@@ -108,17 +108,17 @@
 
   --border: 0 0% 22%;
   --input: 0 0% 22%;
-  --ring: 175 70% 45%;
+  --ring: 240 5% 65%;
 
   /* Sidebar - zinc */
   --sidebar-background: 0 0% 10%;
   --sidebar-foreground: 0 0% 65%;
-  --sidebar-primary: 175 70% 45%;
-  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-primary: 240 5% 65%;
+  --sidebar-primary-foreground: 0 0% 7%;
   --sidebar-accent: 0 0% 13%;
   --sidebar-accent-foreground: 0 0% 93%;
   --sidebar-border: 0 0% 19%;
-  --sidebar-ring: 175 70% 45%;
+  --sidebar-ring: 240 5% 65%;
 }
 
 @layer base {

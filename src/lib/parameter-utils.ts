@@ -86,9 +86,7 @@ export function formatNumber(value: number): string {
   if (Math.abs(value) < 0.0001 && value !== 0) return value.toExponential(1);
   if (Math.abs(value) >= 10000) return value.toExponential(1);
   if (Number.isInteger(value)) return value.toString();
-  const str = value.toString();
-  if (str.length > 6) return value.toPrecision(4);
-  return str;
+  return value.toFixed(1);
 }
 
 export function formatValue(value: ParameterValue): string {

@@ -18,6 +18,7 @@ export default async function start(dir?: string) {
   pm2.connect((err) => {
     if (err) {
       log.error('pm2 connection failed');
+      process.exit(1);
       return;
     }
 
@@ -34,10 +35,12 @@ export default async function start(dir?: string) {
 
       if (err) {
         log.error('daemon failed to start');
+        process.exit(1);
         return;
       }
 
       log.success('daemon started');
+      process.exit(0);
     });
   })
 }
