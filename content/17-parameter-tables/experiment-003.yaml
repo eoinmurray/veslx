@@ -1,18 +1,10 @@
-name: Deeper Network
-description: Testing with more layers
-
-hyperparameters:
-  learning_rate: 0.001
-  batch_size: 64
-  epochs: 150
-  dropout: 0.3
-
-architecture:
-  layers: 8
-  hidden_units: 512
-  activation: gelu
-
-results:
-  accuracy: 0.947
-  loss: 0.142
-  f1_score: 0.944
+learning_rate: 0.001
+batch_size: 64
+epochs: 150
+dropout: 0.3
+layers: 8
+hidden_units: 512
+activation: gelu
+accuracy: 0.947
+loss: 0.142
+f1_score: 0.944

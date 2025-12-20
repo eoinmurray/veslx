@@ -122,12 +122,13 @@ function ParameterGrid({ entries }: { entries: [string, ParameterValue][] }) {
             </span>
             <span
               className={cn(
-                "text-[11px] font-mono tabular-nums font-medium shrink-0",
+                "text-[11px] font-mono tabular-nums font-medium truncate max-w-[120px]",
                 type === "number" && "text-foreground",
                 type === "string" && "text-amber-600 dark:text-amber-500",
                 type === "boolean" && "text-cyan-600 dark:text-cyan-500",
                 type === "null" && "text-muted-foreground/50"
               )}
+              title={type === "string" ? `"${formatValue(value)}"` : formatValue(value)}
             >
               {type === "string" ? `"${formatValue(value)}"` : formatValue(value)}
             </span>
@@ -489,7 +490,7 @@ function SingleParameterTable({ path, keys, label, withMargin = true }: SinglePa
           {label}
         </div>
       )}
-      <div className="rounded border border-border/60 bg-card/20 p-3 overflow-hidden">
+      <div className="rounded border border-border/60 bg-card/20 p-3 overflow-hidden max-w-full">
         {topLeaves.length > 0 && (
           <div className={cn(topNested.length > 0 && "mb-4 pb-3 border-b border-border/30")}>
             <ParameterGrid entries={topLeaves} />
@@ -602,30 +603,31 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
     );
   }
 
-  // Render a table for each matching file horizontally
-  // Break out of content width when there are multiple tables
-  const count = matchingPaths.length;
-  const breakoutClass = count >= 3
-    ? 'w-[90vw] ml-[calc(-45vw+50%)]'
-    : count === 2
-      ? 'w-[75vw] ml-[calc(-37.5vw+50%)]'
-      : '';
-
   const scrollRef = useRef<HTMLDivElement>(null);
   usePreventSwipeNavigation(scrollRef);
 
+  // Breakout width based on count
+  const count = matchingPaths.length;
+  const breakoutClass = count >= 4
+    ? 'w-[96vw] ml-[calc(-48vw+50%)]'
+    : count >= 2
+      ? 'w-[75vw] ml-[calc(-37.5vw+50%)]'
+      : '';
+
   return (
-    <div ref={scrollRef} className={`my-6 flex gap-4 overflow-x-auto overscroll-x-contain pb-2 ${breakoutClass}`}>
-      {matchingPaths.map((filePath) => (
-        <div key={filePath} className="flex-none min-w-[300px] max-w-[400px]">
-          <SingleParameterTable
-            path={filePath}
-            keys={keys}
-            label={filePath.split('/').pop() || filePath}
-            withMargin={false}
-          />
-        </div>
-      ))}
+    <div className={`my-6 ${breakoutClass}`}>
+      <div ref={scrollRef} className="flex gap-4 overflow-x-auto overscroll-x-contain pb-2">
+        {matchingPaths.map((filePath) => (
+          <div key={filePath} className="flex-none w-[280px]">
+            <SingleParameterTable
+              path={filePath}
+              keys={keys}
+              label={filePath.split('/').pop() || filePath}
+              withMargin={false}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

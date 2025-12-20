@@ -1,0 +1,10 @@
+learning_rate: 0.002
+batch_size: 128
+epochs: 200
+dropout: 0.25
+layers: 16
+hidden_units: 1024
+activation: gelu
+accuracy: 0.852
+loss: 0.034
+f1_score: 0.908

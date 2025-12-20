@@ -1,18 +1,10 @@
-name: Higher Learning Rate
-description: Testing increased learning rate
-
-hyperparameters:
-  learning_rate: 0.01
-  batch_size: 32
-  epochs: 100
-  dropout: 0.2
-
-architecture:
-  layers: 4
-  hidden_units: 256
-  activation: relu
-
-results:
-  accuracy: 0.891
-  loss: 0.243
-  f1_score: 0.885
+learning_rate: 0.01
+batch_size: 32
+epochs: 100
+dropout: 0.2
+layers: 4
+hidden_units: 256
+activation: relu
+accuracy: 0.891
+loss: 0.243
+f1_score: 0.885
