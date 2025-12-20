@@ -1,6 +1,8 @@
-import { useFileContent } from "../../plugin/src/client";
-import { useMemo, useState } from "react";
+import { useFileContent, useDirectory } from "../../plugin/src/client";
+import { useMemo, useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { minimatch } from "minimatch";
 import {
   type ParameterValue,
   extractPath,
@@ -8,6 +10,67 @@ import {
   formatValue,
   parseConfigFile,
 } from "@/lib/parameter-utils";
+import { FileEntry, DirectoryEntry } from "../../plugin/src/lib";
+
+/**
+ * Hook to prevent horizontal scroll from triggering browser back/forward gestures.
+ */
+function usePreventSwipeNavigation(ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const atLeftEdge = scrollLeft <= 0;
+      const atRightEdge = scrollLeft + clientWidth >= scrollWidth - 1;
+
+      if ((atLeftEdge && e.deltaX < 0) || (atRightEdge && e.deltaX > 0)) {
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [ref]);
+}
+
+// Check if a path contains glob patterns
+function isGlobPattern(path: string): boolean {
+  return path.includes('*') || path.includes('?') || path.includes('[');
+}
+
+// Recursively collect all config files from a directory tree
+function collectAllConfigFiles(entry: DirectoryEntry | FileEntry): FileEntry[] {
+  if (entry.type === "file") {
+    if (entry.name.match(/\.(yaml|yml|json)$/i)) {
+      return [entry];
+    }
+    return [];
+  }
+  const files: FileEntry[] = [];
+  for (const child of entry.children || []) {
+    files.push(...collectAllConfigFiles(child));
+  }
+  return files;
+}
+
+// Sort paths numerically
+function sortPathsNumerically(paths: string[]): void {
+  paths.sort((a, b) => {
+    const nums = (s: string) => (s.match(/\d+/g) || []).map(Number);
+    const na = nums(a);
+    const nb = nums(b);
+    const len = Math.max(na.length, nb.length);
+    for (let i = 0; i < len; i++) {
+      const diff = (na[i] ?? 0) - (nb[i] ?? 0);
+      if (diff !== 0) return diff;
+    }
+    return a.localeCompare(b);
+  });
+}
 
 /**
  * Build a filtered data object from an array of jq-like paths.
@@ -184,7 +247,7 @@ function ParameterSection({
   );
 }
 
-interface ParameterTableProps {
+interface SingleParameterTableProps {
   /** Path to the YAML or JSON file */
   path: string;
   /**
@@ -193,6 +256,19 @@ interface ParameterTableProps {
    *   - [".base.N_E", ".base.N_I"] → show only N_E and N_I from base
    *   - [".base"] → show entire base section
    *   - [".default_inputs", ".base.dt"] → show default_inputs section and dt from base
+   */
+  keys?: string[];
+  /** Optional label to show above the table */
+  label?: string;
+  /** Whether to include vertical margin (default true) */
+  withMargin?: boolean;
+}
+
+interface ParameterTableProps {
+  /** Path to the YAML or JSON file, supports glob patterns like "*.yaml" */
+  path: string;
+  /**
+   * Optional array of jq-like paths to filter which parameters to show.
    */
   keys?: string[];
 }
@@ -282,20 +358,34 @@ function splitIntoColumns<T extends [string, ParameterValue]>(
   return columns;
 }
 
-export function ParameterTable({ path, keys }: ParameterTableProps) {
+function SingleParameterTable({ path, keys, label, withMargin = true }: SingleParameterTableProps) {
   const { content, loading, error } = useFileContent(path);
 
-  const parsed = useMemo(() => {
-    if (!content) return null;
+  const { parsed, parseError } = useMemo(() => {
+    if (!content) return { parsed: null, parseError: 'no content' };
 
     const data = parseConfigFile(content, path);
-    if (!data) return null;
-
-    if (keys && keys.length > 0) {
-      return filterData(data, keys);
+    if (!data) {
+      // Check why parsing failed
+      if (!path.match(/\.(yaml|yml|json)$/i)) {
+        return { parsed: null, parseError: `unsupported file type` };
+      }
+      // Check if content looks like HTML (404 page)
+      if (content.trim().startsWith('<!') || content.trim().startsWith('<html')) {
+        return { parsed: null, parseError: `file not found` };
+      }
+      return { parsed: null, parseError: `invalid ${path.split('.').pop()} syntax` };
     }
 
-    return data;
+    if (keys && keys.length > 0) {
+      const filtered = filterData(data, keys);
+      if (Object.keys(filtered).length === 0) {
+        return { parsed: null, parseError: `keys not found: ${keys.join(', ')}` };
+      }
+      return { parsed: filtered, parseError: null };
+    }
+
+    return { parsed: data, parseError: null };
   }, [content, path, keys]);
 
   if (loading) {
@@ -319,8 +409,11 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
 
   if (!parsed) {
     return (
-      <div className="my-6 p-3 rounded border border-border/50 bg-card/30">
-        <p className="text-[11px] font-mono text-muted-foreground">unable to parse config</p>
+      <div className={cn("p-3 rounded border border-border/50 bg-card/30", withMargin && "my-6")}>
+        <p className="text-[11px] font-mono text-muted-foreground">
+          {label && <span className="text-foreground/60">{label}: </span>}
+          {parseError || 'unable to parse'}
+        </p>
       </div>
     );
   }
@@ -390,7 +483,12 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
   };
 
   return (
-    <div className="my-6 not-prose">
+    <div className={cn("not-prose", withMargin && "my-6")}>
+      {label && (
+        <div className="text-[11px] font-mono text-muted-foreground mb-1.5 truncate" title={label}>
+          {label}
+        </div>
+      )}
       <div className="rounded border border-border/60 bg-card/20 p-3 overflow-hidden">
         {topLeaves.length > 0 && (
           <div className={cn(topNested.length > 0 && "mb-4 pb-3 border-b border-border/30")}>
@@ -415,6 +513,119 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
           topNested.map(renderNestedEntry)
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * ParameterTable component that displays YAML/JSON config files.
+ * Supports glob patterns in the path prop to show multiple files.
+ */
+export function ParameterTable({ path, keys }: ParameterTableProps) {
+  const { "*": routePath = "" } = useParams();
+
+  // Get current directory from route
+  const currentDir = routePath
+    .replace(/\/?[^/]+\.mdx$/i, "")
+    .replace(/\/$/, "")
+    || ".";
+
+  // Resolve relative paths
+  let resolvedPath = path;
+  if (path?.startsWith("./")) {
+    const relativePart = path.slice(2);
+    resolvedPath = currentDir === "." ? relativePart : `${currentDir}/${relativePart}`;
+  } else if (path && !path.startsWith("/") && !path.includes("/") && !isGlobPattern(path)) {
+    resolvedPath = currentDir === "." ? path : `${currentDir}/${path}`;
+  }
+
+  // Check if this is a glob pattern
+  const hasGlob = isGlobPattern(resolvedPath);
+
+  // For glob patterns, get the base directory (everything before the first glob character)
+  const baseDir = hasGlob
+    ? resolvedPath.split(/[*?\[]/, 1)[0].replace(/\/$/, "") || "."
+    : null;
+
+  const { directory } = useDirectory(baseDir || ".");
+
+  // Find matching files for glob patterns
+  const matchingPaths = useMemo(() => {
+    if (!hasGlob || !directory) return [];
+
+    const allFiles = collectAllConfigFiles(directory);
+    const paths = allFiles
+      .map(f => f.path)
+      .filter(p => minimatch(p, resolvedPath, { matchBase: true }));
+
+    sortPathsNumerically(paths);
+
+    // Debug logging
+    console.log('[ParameterTable]', {
+      original: path,
+      resolved: resolvedPath,
+      baseDir,
+      allConfigFiles: allFiles.map(f => f.path),
+      matched: paths
+    });
+
+    return paths;
+  }, [hasGlob, directory, resolvedPath, path, baseDir]);
+
+  // If not a glob pattern, just render the single table
+  if (!hasGlob) {
+    return <SingleParameterTable path={resolvedPath} keys={keys} />;
+  }
+
+  // Loading state for glob patterns
+  if (!directory) {
+    return (
+      <div className="my-6 p-4 rounded border border-border/50 bg-card/30">
+        <div className="flex items-center gap-2 text-muted-foreground/60">
+          <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+          <span className="text-[11px] font-mono">loading parameters...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // No matches
+  if (matchingPaths.length === 0) {
+    return (
+      <div className="my-6 p-3 rounded border border-border/50 bg-card/30">
+        <p className="text-[11px] font-mono text-muted-foreground">
+          no files matching: {resolvedPath}
+          <br />
+          <span className="text-muted-foreground/50">(base dir: {baseDir}, original: {path})</span>
+        </p>
+      </div>
+    );
+  }
+
+  // Render a table for each matching file horizontally
+  // Break out of content width when there are multiple tables
+  const count = matchingPaths.length;
+  const breakoutClass = count >= 3
+    ? 'w-[90vw] ml-[calc(-45vw+50%)]'
+    : count === 2
+      ? 'w-[75vw] ml-[calc(-37.5vw+50%)]'
+      : '';
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  usePreventSwipeNavigation(scrollRef);
+
+  return (
+    <div ref={scrollRef} className={`my-6 flex gap-4 overflow-x-auto overscroll-x-contain pb-2 ${breakoutClass}`}>
+      {matchingPaths.map((filePath) => (
+        <div key={filePath} className="flex-none min-w-[300px] max-w-[400px]">
+          <SingleParameterTable
+            path={filePath}
+            keys={keys}
+            label={filePath.split('/').pop() || filePath}
+            withMargin={false}
+          />
+        </div>
+      ))}
     </div>
   );
 }

@@ -102,7 +102,15 @@ export default async function serve(dir?: string) {
     ],
   })
 
-  await server.listen()
+  try {
+    await server.listen()
+  } catch (err: any) {
+    if (err?.code === 'EADDRINUSE') {
+      log.error(`port already in use`)
+      process.exit(1)
+    }
+    throw err
+  }
 
   const info = server.resolvedUrls
   if (info?.local[0]) {

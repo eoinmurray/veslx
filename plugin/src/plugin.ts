@@ -392,7 +392,7 @@ export const posts = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'],
 export const allMdx = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md']);
 export const slides = import.meta.glob(['@content/**/SLIDES.mdx', '@content/**/SLIDES.md', '@content/**/*.slides.mdx', '@content/**/*.slides.md']);
 
-// All files for directory tree building (web-compatible files only)
+// All files for directory tree building
 export const files = import.meta.glob([
   '@content/**/*.mdx',
   '@content/**/*.md',
@@ -407,6 +407,9 @@ export const files = import.meta.glob([
   '@content/**/*.svg',
   '@content/**/*.webp',
   '@content/**/*.css',
+  '@content/**/*.yaml',
+  '@content/**/*.yml',
+  '@content/**/*.json',
 ], { eager: false });
 
 // Frontmatter extracted at build time (no MDX execution required)

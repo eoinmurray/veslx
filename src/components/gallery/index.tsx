@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import { Image } from "lucide-react";
 import { Lightbox, LightboxImage } from "@/components/gallery/components/lightbox";
 import { useGalleryImages } from "./hooks/use-gallery-images";
@@ -6,6 +6,34 @@ import { useLightbox } from "./hooks/use-lightbox";
 import { LoadingImage } from "./components/loading-image";
 import { FigureHeader } from "./components/figure-header";
 import { FigureCaption } from "./components/figure-caption";
+
+/**
+ * Hook to prevent horizontal scroll from triggering browser back/forward gestures.
+ * Captures wheel events and prevents default when at scroll boundaries.
+ */
+function usePreventSwipeNavigation(ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Only handle horizontal scrolling
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const atLeftEdge = scrollLeft <= 0;
+      const atRightEdge = scrollLeft + clientWidth >= scrollWidth - 1;
+
+      // Prevent default if trying to scroll past boundaries
+      if ((atLeftEdge && e.deltaX < 0) || (atRightEdge && e.deltaX > 0)) {
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [ref]);
+}
 
 function getImageLabel(path: string): string {
   const filename = path.split('/').pop() || path;
@@ -51,6 +79,8 @@ export default function Gallery({
   });
 
   const lightbox = useLightbox(paths.length);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  usePreventSwipeNavigation(scrollRef);
 
   const images: LightboxImage[] = useMemo(() =>
     paths.map(p => ({ src: getImageUrl(p), label: getImageLabel(p) })),
@@ -142,7 +172,7 @@ export default function Gallery({
             {images.map((img, index) => imageElement(index, img, 'flex-1'))}
           </div>
         ) : (
-          <div className="flex gap-3 overflow-x-auto overscroll-x-contain pb-4">
+          <div ref={scrollRef} className="flex gap-3 overflow-x-auto overscroll-x-contain pb-4">
             {images.map((img, index) => (
               <div
                 key={index}
