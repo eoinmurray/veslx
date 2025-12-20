@@ -344,26 +344,36 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       }
     },
 
-    // Transform CSS to inject @source directive for Tailwind
-    // This enables Tailwind v4 to scan the user's content directory for classes
-    transform(code, id) {
-      if (id.endsWith('/src/index.css') && code.includes("@import 'tailwindcss'")) {
-        // Use absolute path with glob pattern for @source directive
-        // Must include all file types that may contain Tailwind classes
-        const absoluteContentDir = dir.replace(/\\/g, '/')
-        const sourceDirective = `@source "${absoluteContentDir}/**/*.{html,js,jsx,ts,tsx,mdx,md,vue,svelte}";`
-
-        // Inject @source directive after the tailwindcss import
-        const modified = code.replace(
-          /(@import\s+["']tailwindcss["'];?)/,
-          `$1\n${sourceDirective}`
-        )
-
-        return { code: modified, map: null }
-      }
-    },
-
     load(id) {
+      // Inject @source directive into index.css for Tailwind v4 content scanning
+      // This must happen in load() before Tailwind processes the CSS
+      if (id.endsWith('/src/index.css')) {
+        const veslxRoot = path.dirname(path.dirname(__dirname))
+        const cssPath = path.join(veslxRoot, 'src/index.css')
+
+        try {
+          const code = fs.readFileSync(cssPath, 'utf-8')
+
+          // Check if this CSS file has the tailwindcss import
+          if (/\@import\s+["']tailwindcss["']/.test(code)) {
+            // Use absolute path with glob pattern for @source directive
+            // Must include all file types that may contain Tailwind classes
+            const absoluteContentDir = dir.replace(/\\/g, '/')
+            const sourceDirective = `@source "${absoluteContentDir}/**/*.{html,js,jsx,ts,tsx,mdx,md,vue,svelte}";`
+
+            // Inject @source directive after the tailwindcss import
+            const modified = code.replace(
+              /(@import\s+["']tailwindcss["'];?)/,
+              `$1\n${sourceDirective}`
+            )
+
+            return modified
+          }
+        } catch {
+          // Fall through to default loading
+        }
+      }
+
       // Virtual module for content
       if (id === RESOLVED_VIRTUAL_MODULE_ID) {
         // Extract frontmatter from MDX files at build time (avoids MDX hook issues)
