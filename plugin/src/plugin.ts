@@ -348,9 +348,10 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     // This enables Tailwind v4 to scan the user's content directory for classes
     transform(code, id) {
       if (id.endsWith('/src/index.css') && code.includes("@import 'tailwindcss'")) {
-        // Use absolute path for @source directive
+        // Use absolute path with glob pattern for @source directive
+        // Must include all file types that may contain Tailwind classes
         const absoluteContentDir = dir.replace(/\\/g, '/')
-        const sourceDirective = `@source "${absoluteContentDir}";`
+        const sourceDirective = `@source "${absoluteContentDir}/**/*.{html,js,jsx,ts,tsx,mdx,md,vue,svelte}";`
 
         // Inject @source directive after the tailwindcss import
         const modified = code.replace(
