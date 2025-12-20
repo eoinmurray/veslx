@@ -1,5 +1,4 @@
 import { createServer } from 'vite'
-import { execSync } from 'child_process'
 import importConfig from "./import-config";
 import veslxPlugin from '../../plugin/src/plugin'
 import path from 'path'
@@ -20,17 +19,6 @@ async function readPackageJson(cwd: string): Promise<PackageJson | null> {
   }
 }
 
-function getGitHubRepo(cwd: string): string {
-  try {
-    const remote = execSync('git remote get-url origin', { cwd, encoding: 'utf-8' }).trim();
-    // Parse github URL: git@github.com:user/repo.git or https://github.com/user/repo.git
-    const match = remote.match(/github\.com[:/]([^/]+\/[^/.]+)/);
-    return match ? match[1] : '';
-  } catch {
-    return '';
-  }
-}
-
 async function getDefaultConfig(cwd: string) {
   const pkg = await readPackageJson(cwd);
   const folderName = path.basename(cwd);
@@ -41,7 +29,6 @@ async function getDefaultConfig(cwd: string) {
     site: {
       name,
       description: pkg?.description || '',
-      github: getGitHubRepo(cwd),
     }
   };
 }
