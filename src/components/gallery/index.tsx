@@ -98,6 +98,7 @@ export default function Gallery({
   const imageElement = (index: number, img: LightboxImage, className?: string) => (
     <div
       key={index}
+      title={img.label}
       className={`aspect-square overflow-hidden rounded-sm bg-muted/10 cursor-pointer group ${className || ''}`}
       onClick={() => lightbox.open(index)}
     >
@@ -145,6 +146,7 @@ export default function Gallery({
             {images.map((img, index) => (
               <div
                 key={index}
+                title={img.label}
                 className="flex-none w-[30%] min-w-[250px] aspect-square overflow-hidden rounded-sm bg-muted/10 cursor-pointer group"
                 onClick={() => lightbox.open(index)}
               >

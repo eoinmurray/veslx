@@ -431,6 +431,36 @@ export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'
       if (configPath && fs.existsSync(configPath)) {
         server.watcher.add(configPath)
       }
+
+      // Watch content directory for all file changes (add, delete, change)
+      server.watcher.add(dir)
+
+      // File extensions that should trigger a full reload
+      const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.tsx', '.ts', '.jsx', '.js', '.css']
+
+      const handleContentChange = (filePath: string, event: 'add' | 'unlink' | 'change') => {
+        // Check if the file is in the content directory
+        if (!filePath.startsWith(dir)) return
+
+        // Check if it's a watched file type
+        const ext = path.extname(filePath).toLowerCase()
+        if (!watchedExtensions.includes(ext)) return
+
+        console.log(`[veslx] Content ${event}: ${path.relative(dir, filePath)}`)
+
+        // Invalidate the virtual content module so frontmatters are re-extracted
+        const mod = server.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
+        if (mod) {
+          server.moduleGraph.invalidateModule(mod)
+        }
+
+        // Full reload to pick up new/deleted files
+        server.ws.send({ type: 'full-reload' })
+      }
+
+      server.watcher.on('add', (filePath) => handleContentChange(filePath, 'add'))
+      server.watcher.on('unlink', (filePath) => handleContentChange(filePath, 'unlink'))
+      server.watcher.on('change', (filePath) => handleContentChange(filePath, 'change'))
     },
 
     handleHotUpdate({ file, server }) {
@@ -446,6 +476,16 @@ export const modules = import.meta.glob(['@content/**/*.mdx', '@content/**/*.md'
           // Full reload since config affects the entire app
           server.ws.send({ type: 'full-reload' })
           return [] // Prevent default HMR handling
+        }
+      }
+
+      // Check if the changed file is in the content directory
+      // Return empty array to prevent default HMR - we handle it in configureServer
+      if (file.startsWith(dir)) {
+        const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.tsx', '.ts', '.jsx', '.js', '.css']
+        const ext = path.extname(file).toLowerCase()
+        if (watchedExtensions.includes(ext)) {
+          return [] // Prevent default HMR, we already handle this via watcher events
         }
       }
     },
