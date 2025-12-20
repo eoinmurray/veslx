@@ -1,0 +1,34 @@
+---
+title: "Assets and Galleries"
+description: "Images, figures, and the Gallery component."
+---
+
+<FrontMatter />
+
+## Images
+Store images inside your content tree and reference them by path:
+
+```md
+![Diagram](./images/image1.png)
+```
+
+## Gallery
+Use the built-in Gallery component for image grids:
+
+```mdx
+<Gallery
+  path="images"
+  globs={["image1.png", "image2.png"]}
+  title="Sample images"
+  caption="A small example gallery."
+  captionLabel="Figure 1"
+/>
+```
+
+<Gallery
+  path="images"
+  globs={["image1.png", "image2.png"]}
+  title="Sample images"
+  caption="A small example gallery."
+  captionLabel="Figure 1"
+/>

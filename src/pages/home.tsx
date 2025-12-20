@@ -15,7 +15,7 @@ export function Home() {
       <Header />
       <main className="flex-1 mx-auto w-full max-w-[var(--content-width)] px-[var(--page-padding)]">
         <title>{isRoot ? config.name : `${config.name} - ${path}`}</title>
-        <main className="flex flex-col gap-8 mb-32 mt-12">
+        <main className="flex flex-col gap-8 mb-48 mt-12">
           {isRoot && (
             <div className="animate-fade-in flex items-start justify-between gap-4">
               <div>

@@ -1,0 +1,30 @@
+---
+title: "Gallery"
+description: "Responsive image galleries."
+---
+
+<FrontMatter />
+
+```mdx
+<Gallery
+  path="images"
+  globs={["*.png"]}
+  title="Results"
+  caption="Measurements at 25C"
+  captionLabel="Figure 2"
+/>
+```
+
+Props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| path | string | - | Relative to content root |
+| globs | string[] | null | Filter images |
+| title | string | - | Optional title |
+| subtitle | string | - | Optional subtitle |
+| caption | string | - | Optional caption |
+| captionLabel | string | - | Caption prefix |
+| limit | number | null | Max images |
+| page | number | 0 | Page offset |
+| childAlign | "left" or "right" | "right" | Side content alignment |

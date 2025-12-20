@@ -1,58 +1,42 @@
 ---
 title: "CLI"
-description: "Command reference"
+description: "Command reference."
 ---
 
 <FrontMatter />
 
-# CLI
-
-## `veslx serve`
-
-Start dev server.
+## serve
+Start the dev server:
 
 ```bash
 veslx serve [directory]
 veslx serve -p 8080
 ```
 
-## `veslx build`
-
-Production build.
+## build
+Create a static build:
 
 ```bash
 veslx build [directory]
 veslx build -o ./public
 ```
 
-Output is static, deploy anywhere.
-
-## `veslx init`
-
-Generate config file.
+## init
+Generate a config file:
 
 ```bash
 veslx init
 ```
 
-## `veslx start`
-
-Run as background daemon (pm2).
+## start / stop
+Run as a background daemon:
 
 ```bash
 veslx start
-```
-
-## `veslx stop`
-
-Stop daemon.
-
-```bash
 veslx stop
 ```
 
 ## Install
-
 ```bash
 bun install -g veslx
 npm install -g veslx

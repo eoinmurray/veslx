@@ -1,0 +1,20 @@
+---
+title: "LLMs.txt"
+description: "LLM-friendly exports of your docs."
+---
+
+<FrontMatter />
+
+Veslx can generate `llms.txt` and `llms-full.txt` so tools can read clean Markdown without UI noise.
+
+## Enable
+```yaml
+site:
+  llmsTxt: true
+```
+
+## Output
+- `/llms.txt` lists all pages with links
+- `/llms-full.txt` inlines all content
+
+The format follows the [llms.txt spec](https://llmstxt.org/).

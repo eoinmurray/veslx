@@ -1,0 +1,36 @@
+---
+title: "Parameters"
+description: "ParameterTable and ParameterBadge."
+---
+
+<FrontMatter />
+
+## ParameterTable
+Render YAML or JSON files as a table.
+
+```mdx
+<ParameterTable path="./config.yaml" />
+```
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| path | string | File path or glob |
+| keys | string[] | Filter with jq-like paths |
+
+## ParameterBadge
+Inline parameter display.
+
+```mdx
+<ParameterBadge path="./config.yaml" keyPath=".base.dt" unit="ms" />
+```
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| path | string | File path |
+| keyPath | string | jq-like path |
+| label | string | Optional override |
+| unit | string | Optional suffix |

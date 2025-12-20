@@ -1,0 +1,55 @@
+---
+title: "Quickstart"
+description: "Install and run veslx in minutes."
+---
+
+<FrontMatter />
+
+# Quickstart
+
+Veslx serves MDX files from a folder with almost no setup.
+
+## Prerequisites
+- [Bun](https://bun.sh)
+
+## Install
+```bash
+bun install -g veslx
+```
+
+Or run without installing:
+
+```bash
+bunx veslx serve
+```
+
+## Run
+```bash
+cd your-docs
+veslx serve
+```
+
+Open http://localhost:3000.
+
+## Build
+```bash
+veslx build
+```
+
+Static output goes to `dist` by default.
+
+## A minimal structure
+```
+docs/
+├── 00-welcome.mdx
+├── 01-quickstart.mdx
+├── guide/
+│   └── README.mdx
+└── images/
+    └── diagram.png
+```
+
+## Next
+- [Core concepts](./02-core-concepts.mdx)
+- [Writing MDX](./03-writing-mdx.mdx)
+- [Slides](./06-slides.mdx)

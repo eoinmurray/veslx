@@ -1,0 +1,35 @@
+---
+title: "Slides"
+description: "Create presentations with MDX."
+---
+
+<FrontMatter />
+
+## File naming
+Any file named `*.slides.mdx` or `SLIDES.mdx` renders as a slide deck.
+
+## Separators
+Use `---` on its own line to start a new slide:
+
+```mdx
+# Slide 1
+
+---
+
+# Slide 2
+```
+
+## Navigation
+- Arrow keys for slide changes
+- Scroll to move between slides
+
+## Configuration
+Disable scroll snap:
+
+```yaml
+slides:
+  scrollSnap: false
+```
+
+## Slide components
+See [Slide components](./10-components/slides.mdx) and [Examples](./11-examples/README.mdx).

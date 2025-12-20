@@ -1,0 +1,56 @@
+---
+title: "Configuration"
+description: "veslx.yaml options."
+---
+
+<FrontMatter />
+
+Veslx works without config. Add `veslx.yaml` to override defaults.
+
+## Example
+```yaml
+dir: content
+site:
+  name: My Project
+  description: Project documentation
+  github: myorg/myproject
+posts:
+  sort: date
+slides:
+  scrollSnap: true
+```
+
+## Options
+
+### dir
+Content directory relative to the config file.
+
+```yaml
+dir: content
+```
+
+### site.name
+Shown in the header and browser title.
+
+### site.description
+Homepage subtitle.
+
+### site.github
+GitHub repo link in the header.
+
+### site.homepage
+Homepage URL for external links.
+
+### site.llmsTxt
+Enable llms.txt generation.
+
+```yaml
+site:
+  llmsTxt: true
+```
+
+### slides.scrollSnap
+Enable or disable slide scroll snapping.
+
+### posts.sort
+`alpha`, `date`, or `date-asc`.

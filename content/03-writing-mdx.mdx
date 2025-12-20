@@ -1,0 +1,51 @@
+---
+title: "Writing MDX"
+description: "Markdown plus components."
+---
+
+<FrontMatter />
+
+## Markdown basics
+Use standard Markdown:
+
+```md
+**Bold**, *italic*, `code`
+
+- Lists
+- Tables
+
+> Blockquotes
+```
+
+## MDX components
+MDX lets you embed React components in Markdown.
+
+```mdx
+<MyComponent prop="value" />
+```
+
+## Imports
+Use local components or npm packages:
+
+```mdx
+import { Counter } from './Counter.tsx'
+import confetti from 'canvas-confetti'
+```
+
+## Tailwind classes
+Tailwind works inside MDX:
+
+```mdx
+<div className="rounded border px-4 py-2">
+  Styled with Tailwind
+</div>
+```
+
+## Links
+Internal links use relative paths:
+
+```md
+[Quickstart](./01-quickstart.mdx)
+```
+
+External links open in a new tab by default.

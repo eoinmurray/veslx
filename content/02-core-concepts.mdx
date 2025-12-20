@@ -1,0 +1,50 @@
+---
+title: "Core Concepts"
+description: "How veslx finds, sorts, and renders content."
+---
+
+<FrontMatter />
+
+## Content directory
+Veslx scans the current folder by default. Point it elsewhere in `veslx.yaml`:
+
+```yaml
+dir: content
+```
+
+## Frontmatter
+Every page can define metadata:
+
+```yaml
+---
+title: "My Page"
+description: "Short summary"
+date: "2025-01-15"
+draft: true
+visibility: "hidden"
+---
+```
+
+- `date` makes it a post.
+- `draft` or `visibility: "hidden"` hides it from listings.
+
+## Docs vs posts
+- Docs: no `date`
+- Posts: with `date`
+
+Routes:
+- `/docs`
+- `/posts`
+- `/all`
+
+## Ordering
+1. Numeric prefix
+2. Date
+3. Alphabetical
+
+## Subfolders and index pages
+Put a `README.mdx` in a folder to create a section index.
+Use `<PostList />` to list pages in that folder.
+
+## URLs
+Paths follow your folder layout. A file `guides/intro.mdx` becomes `/guides/intro`.

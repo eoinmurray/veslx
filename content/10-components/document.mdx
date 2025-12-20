@@ -1,0 +1,48 @@
+---
+title: "Document Components"
+description: "FrontMatter, PostList, PostListItem."
+---
+
+<FrontMatter />
+
+## FrontMatter
+Renders a styled header from frontmatter.
+
+```mdx
+<FrontMatter />
+```
+
+## PostList
+Lists pages in the current folder.
+
+```mdx
+<PostList />
+```
+
+Props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| globs | string[] | null | Filter by file glob |
+
+## PostListItem
+Build custom lists.
+
+```mdx
+<PostListItem
+  title="Getting Started"
+  description="Intro"
+  linkPath="/docs/getting-started"
+  date={new Date("2025-01-15")}
+/>
+```
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| title | string | required |
+| description | string | optional |
+| date | Date | optional |
+| linkPath | string | required |
+| isSlides | boolean | optional |
