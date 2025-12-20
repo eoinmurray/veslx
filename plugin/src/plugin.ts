@@ -378,6 +378,7 @@ export const allMdx = import.meta.glob(['@content/*.mdx', '@content/*.md', '@con
 export const slides = import.meta.glob(['@content/SLIDES.mdx', '@content/SLIDES.md', '@content/*.slides.mdx', '@content/*.slides.md', '@content/**/SLIDES.mdx', '@content/**/SLIDES.md', '@content/**/*.slides.mdx', '@content/**/*.slides.md']);
 
 // All files for directory tree building (using ?url to avoid parsing non-JS files)
+// Exclude veslx.yaml config files from bundling
 export const files = import.meta.glob([
   '@content/*.mdx',
   '@content/*.md',
@@ -411,6 +412,8 @@ export const files = import.meta.glob([
   '@content/**/*.yaml',
   '@content/**/*.yml',
   '@content/**/*.json',
+  '!@content/veslx.yaml',
+  '!@content/**/veslx.yaml',
 ], { eager: false, query: '?url', import: 'default' });
 
 // Frontmatter extracted at build time (no MDX execution required)

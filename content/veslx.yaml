@@ -1,7 +1,0 @@
-dir: .
-site:
-  name: veslx
-  description: A zero config mdx based static site generator for technical content powered by Vite.
-  github: "eoinmurray/veslx"
-  homepage: "https://veslx.eoinmurray.info"
-  llmsTxt: true
