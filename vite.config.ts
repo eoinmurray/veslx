@@ -84,7 +84,7 @@ export default defineConfig(({ command }) => {
     {
       enforce: 'pre',
       ...mdx({
-        include: /SLIDES\.mdx?$|slides\.mdx?$/i,
+        include: /(^|\/)slides\.mdx?$|\.slides\.mdx?$/i,
         remarkPlugins: [
           ...commonRemarkPlugins,
           remarkSlides, // Transform --- into <Slide> wrappers
@@ -98,7 +98,7 @@ export default defineConfig(({ command }) => {
       enforce: 'pre',
       ...mdx({
         include: /\.mdx?$/,
-        exclude: /SLIDES\.mdx?$|slides\.mdx?$/i,
+        exclude: /(^|\/)slides\.mdx?$|\.slides\.mdx?$/i,
         remarkPlugins: commonRemarkPlugins,
         rehypePlugins: [rehypeKatex],
         providerImportSource: '@mdx-js/react',

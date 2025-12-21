@@ -4,7 +4,7 @@ description: "Showcase of various layout of galleries."
 ---
 
 <Gallery
-  path="images"
+  path="/images"
   globs={["image1.png"]}
 />
 
@@ -12,7 +12,7 @@ description: "Showcase of various layout of galleries."
 
 ```mdx
 <Gallery
-  path="images"
+  path="/images"
   globs={["image1.png"]}
 />
 ```
@@ -22,7 +22,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="One Image"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -34,7 +34,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="One Image"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -46,14 +46,45 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="One Image with custom content"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
 >
-  Some custom content next to the gallery.
+**Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Content is authored
+in MDX, where prose and components coexist without ceremony. Frontmatter defines
+intent, not constraint. Pages are compiled ahead of time, hydrated only where
+meaning demands it.
 
-  With **Markdown** support!
+</Gallery>
+
+---
+
+<Gallery
+  title="One Image with custom content"
+  subtitle="A collection of images. And a long subtitle to see how it breaks."
+  path="/images"
+  globs={["image1.png"]}
+  caption="An example image gallery with multiple images."
+  captionLabel="Figure 2: Sample Images"
+>
+**Lorem ipsum dolor sit amet**, consectetur adipiscing elit. Content is authored
+in MDX, where prose and components coexist without ceremony. Frontmatter defines
+intent, not constraint. Pages are compiled ahead of time, hydrated only where
+meaning demands it.
+
+**Sed do eiusmod tempor incididunt ut markdown renders fast**, code blocks stay
+readable, and components remain optional. No runtime templating, no CMS gravity
+well. Just files, builds, and artifacts.
+
+**Ut enim ad minim veniam**, the site ships as plain HTML, predictable and
+inspectable. JavaScript is earned, not assumed. The generator disappears; the
+content remains.
+
+**Et nihil obstat, content lives in version control**, revisions leave an audit
+trail, and authorship is explicit even when the voice is not. The pipeline is
+boring on purpose: write, build, deploy. Like a quiet cloister for documents—no
+engagement metrics, no pop-ups—just text, code, and time.
 </Gallery>
 
 ---
@@ -62,7 +93,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="One Image with custom content"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -77,7 +108,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="Multiple Images"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png", "image2.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -90,7 +121,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="Multiple Images"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png", "image2.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -103,7 +134,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="Multiple Images"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png", "image2.png", "image3.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -116,7 +147,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="Multiple Images"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["image1.png", "image2.png", "image3.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -129,7 +160,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="Multiple Images"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["*.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"
@@ -142,7 +173,7 @@ description: "Showcase of various layout of galleries."
 <Gallery
   title="Multiple Images"
   subtitle="A collection of images. And a long subtitle to see how it breaks."
-  path="images"
+  path="/images"
   globs={["*.png"]}
   caption="An example image gallery with multiple images."
   captionLabel="Figure 2: Sample Images"

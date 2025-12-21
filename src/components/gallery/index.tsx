@@ -150,12 +150,11 @@ export default function Gallery({
         )}
 
         {isSingleWithChildren ? (
-          <div className={`flex gap-6 ${childAlign === 'left' ? '' : 'flex-row-reverse'}`}>
-            <div className="flex-1 text-sm leading-relaxed text-foreground/90 space-y-3 [&>ul]:space-y-1.5 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:space-y-1.5 [&>ol]:list-decimal [&>ol]:pl-5 flex flex-col">
-              {(title || subtitle) && <div className="invisible"><FigureHeader title={title} subtitle={subtitle} /></div>}
-              <div>{children}</div>
+          <div className={`grid items-start gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] ${childAlign === 'left' ? '' : 'md:[&>div:first-child]:order-2'}`}>
+            <div className="min-w-0 self-center text-sm leading-relaxed text-foreground/90 space-y-3 [&>ul]:space-y-1.5 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:space-y-1.5 [&>ol]:list-decimal [&>ol]:pl-5">
+              {children}
             </div>
-            <div className="w-3/5 flex-shrink-0">
+            <div className="min-w-0">
               <FigureHeader title={title} subtitle={subtitle} />
               {imageElement(0, images[0])}
               <FigureCaption caption={caption} label={captionLabel} />
