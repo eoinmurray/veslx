@@ -33,6 +33,37 @@ async function getDefaultConfig(cwd: string) {
   };
 }
 
+function isAddressInUse(err: unknown) {
+  if (!err || typeof err !== 'object') return false;
+  const anyErr = err as { code?: string; message?: string };
+  if (anyErr.code === 'EADDRINUSE') return true;
+  return typeof anyErr.message === 'string' && anyErr.message.includes('already in use');
+}
+
+async function listenWithFallback(server: Awaited<ReturnType<typeof createServer>>) {
+  const startPort = server.config.server.port ?? 3000;
+  const maxAttempts = 50;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const port = startPort + attempt;
+    try {
+      await server.listen(port);
+      const address = server.httpServer?.address();
+      const resolvedPort = typeof address === 'object' && address ? address.port : port;
+      log.success(`listening :${resolvedPort}`);
+      return;
+    } catch (err: any) {
+      if (!isAddressInUse(err)) {
+        throw err;
+      }
+      log.info(`busy :${port} → :${port + 1}`);
+    }
+  }
+
+  log.error(`no available ports from ${startPort} to ${startPort + maxAttempts - 1}`);
+  process.exit(1);
+}
+
 export default async function serve(dir?: string) {
   const cwd = process.cwd()
 
@@ -82,6 +113,9 @@ export default async function serve(dir?: string) {
   const server = await createServer({
     root: veslxRoot,
     configFile,
+    server: {
+      strictPort: true,
+    },
     // Cache in user's project so it persists across bunx runs
     cacheDir: path.join(cwd, 'node_modules/.vite'),
     plugins: [
@@ -89,15 +123,7 @@ export default async function serve(dir?: string) {
     ],
   })
 
-  try {
-    await server.listen()
-  } catch (err: any) {
-    if (err?.code === 'EADDRINUSE') {
-      log.error(`port already in use`)
-      process.exit(1)
-    }
-    throw err
-  }
+  await listenWithFallback(server);
 
   const info = server.resolvedUrls
   if (info?.local[0]) {

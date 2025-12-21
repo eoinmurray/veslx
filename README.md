@@ -32,7 +32,7 @@ bun install -g veslx
 veslx serve
 ```
 
-That's it. Your docs are live at `localhost:3000`.
+That's it. Your docs are live at `localhost:3000` (or the next available port).
 
 ---
 
@@ -77,7 +77,7 @@ cd docs
 veslx serve
 ```
 
-Open [localhost:3000](http://localhost:3000). Done.
+Open the URL printed in the console (defaults to [localhost:3000](http://localhost:3000)). Done.
 
 ---
 
@@ -100,7 +100,7 @@ Open [localhost:3000](http://localhost:3000). Done.
 
 ## Content Structure
 
-veslx scans your directory for `README.mdx` (posts) and `SLIDES.mdx` (presentations):
+veslx scans your directory for `README.mdx` or `index.mdx` (docs) and `SLIDES.mdx` or `*.slides.mdx` (presentations):
 
 ```
 content/
@@ -113,6 +113,18 @@ content/
 │   └── SLIDES.mdx          # → /my-slides/slides
 └── another-post/
     └── README.mdx
+```
+
+### Custom Homepage
+
+Put `README.mdx` (or `index.mdx`) at the root to replace the default homepage. A common pattern is to use `<PostList />` with `globs` to group content:
+
+```mdx
+# Docs
+<PostList globs={["00-*", "01-*"]} />
+
+# Guides
+<PostList globs={["guides/*"]} />
 ```
 
 ### Frontmatter
@@ -244,7 +256,7 @@ Each slide becomes one PDF page, centered and optimized for print.
 ## CLI Commands
 
 ```bash
-veslx init      # Create veslx.config.ts
+veslx init      # Create veslx.yaml
 veslx serve     # Start dev server with hot reload
 veslx build     # Build for production → dist/
 veslx start     # Run as background daemon (PM2)
@@ -255,12 +267,14 @@ veslx stop      # Stop the daemon
 
 ## Configuration
 
-Create `veslx.config.ts` in your content root:
+Create `veslx.yaml` in your content root:
 
-```typescript
-export default {
-  dir: './content',  // Content directory (default: current dir)
-}
+```yaml
+dir: content  # Content directory (default: .)
+site:
+  name: My Project
+  description: Project documentation
+  github: myorg/myproject
 ```
 
 Or run `veslx init` to generate it.
@@ -307,7 +321,7 @@ veslx/
 │   ├── hooks/        # React hooks
 │   ├── pages/        # Route pages
 │   └── lib/          # Utilities
-└── test-content/     # Example content for testing
+└── content/          # Docs and examples used for the site
 ```
 
 ---

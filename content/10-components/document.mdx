@@ -19,6 +19,16 @@ Lists pages in the current folder.
 <PostList />
 ```
 
+Group content by globs (useful on a custom homepage):
+
+```mdx
+# Getting Started
+<PostList globs={["00-*", "01-*"]} />
+
+# Tutorials
+<PostList globs={["tutorials/*"]} />
+```
+
 Props:
 
 | Prop | Type | Default | Notes |

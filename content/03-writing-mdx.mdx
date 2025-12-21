@@ -33,10 +33,16 @@ import confetti from 'canvas-confetti'
 ```
 
 ## Tailwind classes
-Tailwind works inside MDX:
+Tailwind works in both `.md` and `.mdx` files. Use `className` on JSX or `class` on HTML:
 
 ```mdx
 <div className="rounded border px-4 py-2">
+  Styled with Tailwind
+</div>
+```
+
+```md
+<div class="rounded border px-4 py-2">
   Styled with Tailwind
 </div>
 ```

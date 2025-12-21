@@ -52,5 +52,21 @@ Routes:
 Put a `README.mdx` in a folder to create a section index.
 Use `<PostList />` to list pages in that folder.
 
+## Custom homepage
+Put `README.mdx` (or `index.mdx`) at the root of your content directory to replace the default homepage. This is the common place to build a custom landing page and group lists of content.
+
+```mdx
+---
+title: "Welcome"
+description: "Start here."
+---
+
+# Docs
+<PostList globs={["00-*", "01-*"]} />
+
+# Guides
+<PostList globs={["guides/*"]} />
+```
+
 ## URLs
 Paths follow your folder layout. A file `guides/intro.mdx` becomes `/guides/intro`.

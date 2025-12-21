@@ -150,7 +150,7 @@ export default function Gallery({
         )}
 
         {isSingleWithChildren ? (
-          <div className={`grid items-start gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] ${childAlign === 'left' ? '' : 'md:[&>div:first-child]:order-2'}`}>
+          <div className={`grid items-start gap-12 md:gap-16 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] ${childAlign === 'left' ? '' : 'md:[&>div:first-child]:order-2'}`}>
             <div className="min-w-0 self-center text-sm leading-relaxed text-foreground/90 space-y-3 [&>ul]:space-y-1.5 [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:space-y-1.5 [&>ol]:list-decimal [&>ol]:pl-5">
               {children}
             </div>
