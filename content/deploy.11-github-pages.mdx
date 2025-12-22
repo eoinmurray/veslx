@@ -1,0 +1,91 @@
+---
+title: "GitHub Pages"
+description: "Deploy the static build to GitHub Pages."
+---
+
+<VeslxFrontMatter />
+
+This repo deploys the static build to GitHub Pages using a workflow that runs on every push to `main`.
+
+## Build output
+`veslx build` writes a static site to `dist/`. GitHub Pages serves that folder.
+
+## Workflow (same as this repo)
+Create `.github/workflows/pages.yml`:
+
+<VeslxCopyButton>
+```
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+```
+</VeslxCopyButton>
+
+## Custom domain (optional)
+If you use a custom domain, add a `CNAME` step before upload:
+
+```yaml
+- name: Add CNAME
+  run: echo "your.domain.com" > dist/CNAME
+```
+
+## GitHub Pages settings
+- Repository Settings → Pages
+- Source: "GitHub Actions"
+- Branch: leave blank (Actions handles deployment)
+- Custom domain: set it here if you’re using one (and keep the CNAME step)
+- Enforce HTTPS: enable once DNS has propagated
+
+## Repo permissions checklist
+- Actions → General → Workflow permissions: "Read and write permissions"
+- Actions → General → Allow GitHub Actions to create and approve pull requests (optional)
+
+These settings match the permissions used by the workflow (`pages: write`, `id-token: write`).
+
+Push to `main` and the workflow will publish the site.

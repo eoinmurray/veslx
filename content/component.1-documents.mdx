@@ -1,6 +1,6 @@
 ---
 title: "Document Components"
-description: "VeslxFrontMatter, VeslxPostList, VeslxPostListItem."
+description: "VeslxFrontMatter, VeslxPostList, VeslxPostListItem, VeslxCopyButton."
 ---
 
 <VeslxFrontMatter />
@@ -56,3 +56,18 @@ Props:
 | date | Date | optional |
 | linkPath | string | required |
 | isSlides | boolean | optional |
+
+## VeslxCopyButton
+Adds a copy button for arbitrary content.
+
+```mdx
+<VeslxCopyButton>
+  <code>curl https://example.com</code>
+</VeslxCopyButton>
+```
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| children | ReactNode | required |

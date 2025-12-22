@@ -55,3 +55,22 @@ Internal links use relative paths:
 ```
 
 External links open in a new tab by default.
+
+## TSX pages
+You can place `.tsx` files in the content directory for fully custom pages. These always render unstyled (no Veslx layout wrappers).
+
+```tsx
+export const frontmatter = {
+  title: "Custom Page",
+  description: "Fully custom TSX page",
+}
+
+export default function CustomPage() {
+  return (
+    <div className="min-h-screen bg-black text-white p-12">
+      <h1 className="text-4xl font-bold">Raw TSX</h1>
+      <p className="mt-4 text-zinc-300">No layout, just your component.</p>
+    </div>
+  )
+}
+```

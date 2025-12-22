@@ -7,10 +7,23 @@ import { type VeslxConfig, type ResolvedSiteConfig, type ResolvedSlidesConfig, t
 import matter from 'gray-matter'
 
 /**
- * Extract frontmatter from all MDX files in a directory
+ * Extract frontmatter from content files in a directory.
  */
-function extractFrontmatters(dir: string): Record<string, { title?: string; description?: string; date?: string }> {
-  const frontmatters: Record<string, { title?: string; description?: string; date?: string }> = {};
+function extractFrontmatters(dir: string): Record<string, { title?: string; description?: string; date?: string; draft?: boolean; visibility?: string }> {
+  const frontmatters: Record<string, { title?: string; description?: string; date?: string; draft?: boolean; visibility?: string }> = {};
+
+  function extractTsxFrontmatter(content: string) {
+    const match = content.match(/export\s+const\s+frontmatter(?:\s*:\s*[^=]+)?\s*=\s*({[\s\S]*?})\s*;?/m);
+    if (!match) return null;
+
+    try {
+      const data = Function(`"use strict"; return (${match[1]});`)();
+      if (!data || typeof data !== 'object') return {};
+      return data as Record<string, unknown>;
+    } catch {
+      return {};
+    }
+  }
 
   function scanDir(currentDir: string, relativePath: string = '') {
     if (!fs.existsSync(currentDir)) return;
@@ -35,6 +48,26 @@ function extractFrontmatters(dir: string): Record<string, { title?: string; desc
             title: data.title,
             description: data.description,
             date: data.date instanceof Date ? data.date.toISOString() : data.date,
+            draft: data.draft,
+            visibility: data.visibility,
+          };
+        } catch {
+          // Skip files that can't be parsed
+        }
+      } else if (entry.name.endsWith('.tsx')) {
+        try {
+          const content = fs.readFileSync(fullPath, 'utf-8');
+          const data = extractTsxFrontmatter(content);
+          if (!data) {
+            continue;
+          }
+          const key = `@content/${relPath}`;
+          frontmatters[key] = {
+            title: data.title as string | undefined,
+            description: data.description as string | undefined,
+            date: data.date instanceof Date ? data.date.toISOString() : (data.date as string | undefined),
+            draft: data.draft as boolean | undefined,
+            visibility: data.visibility as string | undefined,
           };
         } catch {
           // Skip files that can't be parsed
@@ -142,6 +175,9 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
     for (const [key, fm] of Object.entries(frontmatters)) {
       const relativePath = key.replace('@content/', '')
+      if (!relativePath.endsWith('.mdx') && !relativePath.endsWith('.md')) {
+        continue
+      }
       const isSlides = relativePath.endsWith('SLIDES.mdx') || relativePath.endsWith('.slides.mdx')
       entries.push({
         path: relativePath,
@@ -386,6 +422,7 @@ export const posts = import.meta.glob(['@content/*.mdx', '@content/*.md', '@cont
   query: { skipSlides: true }
 });
 export const allMdx = import.meta.glob(['@content/*.mdx', '@content/*.md', '@content/**/*.mdx', '@content/**/*.md']);
+export const tsxPages = import.meta.glob(['@content/*.tsx', '@content/**/*.tsx']);
 export const slides = import.meta.glob(['@content/SLIDES.mdx', '@content/SLIDES.md', '@content/*.slides.mdx', '@content/*.slides.md', '@content/**/SLIDES.mdx', '@content/**/SLIDES.md', '@content/**/*.slides.mdx', '@content/**/*.slides.md']);
 
 // All files for directory tree building (using ?url to avoid parsing non-JS files)

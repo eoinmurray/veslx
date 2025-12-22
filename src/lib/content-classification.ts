@@ -1,5 +1,5 @@
 import type { DirectoryEntry, FileEntry } from "../../plugin/src/lib";
-import { findReadme, findSlides, findMdxFiles, findStandaloneSlides } from "../../plugin/src/client";
+import { findReadme, findSlides, findMdxFiles, findStandaloneSlides, findTsxFiles } from "../../plugin/src/client";
 
 export type PostEntry = {
   type: 'folder' | 'file';
@@ -17,6 +17,7 @@ export function getFrontmatter(post: PostEntry) {
 export function directoryToPostEntries(directory: DirectoryEntry): PostEntry[] {
   const folders = directory.children.filter((c): c is DirectoryEntry => c.type === "directory");
   const standaloneFiles = findMdxFiles(directory);
+  const standaloneTsxFiles = findTsxFiles(directory);
   const standaloneSlidesFiles = findStandaloneSlides(directory);
 
   const folderPosts: PostEntry[] = folders
@@ -39,6 +40,15 @@ export function directoryToPostEntries(directory: DirectoryEntry): PostEntry[] {
     file,
   }));
 
+  const tsxPosts: PostEntry[] = standaloneTsxFiles.map((file) => ({
+    type: 'file' as const,
+    name: file.name.replace(/\.tsx$/, ''),
+    path: file.path,
+    readme: null,
+    slides: null,
+    file,
+  }));
+
   // Standalone slides files (e.g., getting-started.slides.mdx)
   const slidesPosts: PostEntry[] = standaloneSlidesFiles.map((file) => ({
     type: 'file' as const,
@@ -49,7 +59,7 @@ export function directoryToPostEntries(directory: DirectoryEntry): PostEntry[] {
     file: null,
   }));
 
-  return [...folderPosts, ...filePosts, ...slidesPosts];
+  return [...folderPosts, ...filePosts, ...tsxPosts, ...slidesPosts];
 }
 
 export function filterVisiblePosts(posts: PostEntry[]): PostEntry[] {

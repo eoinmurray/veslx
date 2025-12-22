@@ -135,6 +135,7 @@ title: My Post Title
 date: 2025-01-15
 description: A brief description
 visibility: public          # or "hidden" to hide from listings
+unstyled: true              # render MDX without Veslx layout/positioning
 ---
 ```
 

@@ -38,6 +38,19 @@ export function Post() {
     )
   }
 
+  const isUnstyled = frontmatter?.unstyled === true
+
+  if (isUnstyled && Content) {
+    return (
+      <>
+        <title>{frontmatter?.title}</title>
+        <FrontmatterProvider frontmatter={frontmatter}>
+          <Content components={mdxComponents} />
+        </FrontmatterProvider>
+      </>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background noise-overlay">
       <title>{frontmatter?.title}</title>

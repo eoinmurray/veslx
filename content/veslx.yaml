@@ -3,3 +3,4 @@ site:
   name: veslx
   description: Project documentation
   github: eoinmurray/veslx
+  llmsTxt: true

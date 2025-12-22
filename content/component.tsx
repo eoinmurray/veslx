@@ -1,18 +1,3 @@
----
-title: "Example: Hitting an API"
-description: "Using components to hit an API and render the results."
----
-
-# Hitting an API
-
-import { Component } from "./component";
-
-<Component />
-
----
-
-
-```javascript
 import { useState } from "react";
 
 export function Component() {
@@ -39,11 +24,9 @@ export function Component() {
         {loading ? "Loading…" : "Click to POST to API"}
       </button>
 
-      {data && <pre className="mt-4 p-3 bg-gray-100 rounded">
+      {data && <pre className="mt-4 p-3 bg-background rounded">
         {JSON.stringify(data, null, 2)}
       </pre>}
     </div>
   );
 }
-
-```

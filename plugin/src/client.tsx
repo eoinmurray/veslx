@@ -51,6 +51,18 @@ export function findMdxFiles(directory: DirectoryEntry): FileEntry[] {
   );
 }
 
+/**
+ * Find TSX pages in a directory (requires frontmatter export).
+ */
+export function findTsxFiles(directory: DirectoryEntry): FileEntry[] {
+  return directory.children.filter((child): child is FileEntry =>
+    child.type === "file" &&
+    child.name.endsWith('.tsx') &&
+    !child.name.endsWith('.d.ts') &&
+    child.frontmatter !== undefined
+  );
+}
+
 export function findSlides(directory: DirectoryEntry): FileEntry | null {
   // First check for standard SLIDES.mdx files
   const standardSlides = directory.children.find((child) =>

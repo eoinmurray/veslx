@@ -9,8 +9,20 @@ interface MDXModule {
     date?: string
     visibility?: string
     draft?: boolean
+    unstyled?: boolean
   }
   slideCount?: number // Exported by remark-slides plugin for SLIDES.mdx files
+}
+
+interface TSXModule {
+  default: ComponentType
+  frontmatter?: {
+    title?: string
+    description?: string
+    date?: string
+    visibility?: string
+    draft?: boolean
+  }
 }
 
 type ModuleLoader = () => Promise<MDXModule>
@@ -76,6 +88,29 @@ function findMdxModule(modules: ModuleMap, path: string): ModuleLoader | null {
   return null
 }
 
+/**
+ * Find TSX module by path (exact match only).
+ */
+function findTsxModule(modules: ModuleMap, path: string): ModuleLoader | null {
+  const keys = Object.keys(modules)
+  const normalizedPath = path.replace(/^\//, '')
+
+  if (!normalizedPath.endsWith('.tsx')) {
+    return null
+  }
+
+  const matchingKey = keys.find(key => {
+    if (key.endsWith(`/${normalizedPath}`)) return true
+    if (key === `/@content/${normalizedPath}`) return true
+    if (key === `@content/${normalizedPath}`) return true
+    if (key === normalizedPath) return true
+    if (key === `/${normalizedPath}`) return true
+    return false
+  })
+
+  return matchingKey ? modules[matchingKey] : null
+}
+
 export function useMDXContent(path: string) {
   const [Content, setContent] = useState<MDXModule['default'] | null>(null)
   const [frontmatter, setFrontmatter] = useState<MDXModule['frontmatter']>(undefined)
@@ -94,6 +129,49 @@ export function useMDXContent(path: string) {
 
         if (!loader) {
           throw new Error(`MDX module not found for path: ${path}`)
+        }
+
+        return loader()
+      })
+      .then((mod) => {
+        if (!cancelled) {
+          setContent(() => mod.default)
+          setFrontmatter(mod.frontmatter)
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err)
+          setLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [path])
+
+  return { Content, frontmatter, loading, error }
+}
+
+export function useTSXContent(path: string) {
+  const [Content, setContent] = useState<TSXModule['default'] | null>(null)
+  const [frontmatter, setFrontmatter] = useState<TSXModule['frontmatter']>(undefined)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    import('virtual:content-modules')
+      .then(({ tsxPages }) => {
+        const loader = findTsxModule(tsxPages as ModuleMap, path)
+
+        if (!loader) {
+          throw new Error(`TSX module not found for path: ${path}`)
         }
 
         return loader()

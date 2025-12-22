@@ -28,11 +28,27 @@ description: "Short summary"
 date: "2025-01-15"
 draft: true
 visibility: "hidden"
+unstyled: true
 ---
 ```
 
 - `date` makes it a post.
 - `draft` or `visibility: "hidden"` hides it from listings.
+- `unstyled: true` renders the MDX without Veslx layout or positioning.
+
+Example (raw, fully custom layout):
+
+```mdx
+---
+title: "Landing"
+unstyled: true
+---
+
+<div className="min-h-screen bg-white text-black">
+  <h1 className="text-5xl font-bold">Hello</h1>
+  <p className="mt-4">Custom layout without Veslx wrappers.</p>
+</div>
+```
 
 ## Docs vs posts
 - Docs: no `date`

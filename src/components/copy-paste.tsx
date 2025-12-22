@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 
-type CopyPasteProps = {
+type CopyButtonProps = {
   children: ReactNode
 }
 
-export function CopyPaste({ children }: CopyPasteProps) {
-  const preRef = useRef<HTMLPreElement>(null)
+export function CopyButton({ children }: CopyButtonProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
   const timeoutRef = useRef<number | null>(null)
   const [isCopied, setIsCopied] = useState(false)
 
@@ -23,7 +23,7 @@ export function CopyPaste({ children }: CopyPasteProps) {
       return
     }
 
-    const text = preRef.current?.innerText ?? ''
+    const text = contentRef.current?.innerText ?? ''
     if (!text) {
       return
     }
@@ -48,12 +48,7 @@ export function CopyPaste({ children }: CopyPasteProps) {
       >
         {isCopied ? 'Copied' : 'Copy'}
       </Button>
-      <pre
-        ref={preRef}
-        className="w-full overflow-x-auto p-4 text-sm bg-muted border border-border rounded-md font-mono"
-      >
-        {children}
-      </pre>
+      <div ref={contentRef}>{children}</div>
     </div>
   )
 }

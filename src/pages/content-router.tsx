@@ -3,6 +3,7 @@ import { Home } from "./home"
 import { Post } from "./post"
 import { SlidesPage } from "./slides"
 import { IndexPost } from "./index-post"
+import { TsxPage } from "./tsx-page"
 
 /**
  * Routes to the appropriate page based on the URL path:
@@ -25,9 +26,13 @@ export function ContentRouter() {
     return <SlidesPage />
   }
 
-  // Check if this is any MDX/MD file
+ // Check if this is any MDX/MD file
   if (path.endsWith('.mdx') || path.endsWith('.md')) {
     return <Post />
+  }
+
+  if (path.endsWith('.tsx')) {
+    return <TsxPage />
   }
 
   // For directories, try to render index.mdx/index.md, fallback to Home
