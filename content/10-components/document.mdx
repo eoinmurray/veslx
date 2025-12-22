@@ -1,32 +1,32 @@
 ---
 title: "Document Components"
-description: "FrontMatter, PostList, PostListItem."
+description: "VeslxFrontMatter, VeslxPostList, VeslxPostListItem."
 ---
 
-<FrontMatter />
+<VeslxFrontMatter />
 
-## FrontMatter
+## VeslxFrontMatter
 Renders a styled header from frontmatter.
 
 ```mdx
-<FrontMatter />
+<VeslxFrontMatter />
 ```
 
-## PostList
+## VeslxPostList
 Lists pages in the current folder.
 
 ```mdx
-<PostList />
+<VeslxPostList />
 ```
 
 Group content by globs (useful on a custom homepage):
 
 ```mdx
 # Getting Started
-<PostList globs={["00-*", "01-*"]} />
+<VeslxPostList globs={["00-*", "01-*"]} />
 
 # Tutorials
-<PostList globs={["tutorials/*"]} />
+<VeslxPostList globs={["tutorials/*"]} />
 ```
 
 Props:
@@ -35,11 +35,11 @@ Props:
 | --- | --- | --- | --- |
 | globs | string[] | null | Filter by file glob |
 
-## PostListItem
+## VeslxPostListItem
 Build custom lists.
 
 ```mdx
-<PostListItem
+<VeslxPostListItem
   title="Getting Started"
   description="Intro"
   linkPath="/docs/getting-started"

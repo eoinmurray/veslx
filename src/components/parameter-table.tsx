@@ -567,15 +567,6 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
 
     sortPathsNumerically(paths);
 
-    // Debug logging
-    console.log('[ParameterTable]', {
-      original: path,
-      resolved: resolvedPath,
-      baseDir,
-      allConfigFiles: allFiles.map(f => f.path),
-      matched: paths
-    });
-
     return paths;
   }, [hasGlob, directory, resolvedPath, path, baseDir]);
 

@@ -88,7 +88,7 @@ Open the URL printed in the console (defaults to [localhost:3000](http://localho
 | **MDX** | Write markdown with embedded React components |
 | **LaTeX** | Beautiful math rendering via KaTeX |
 | **Syntax Highlighting** | Code blocks with Shiki (150+ languages) |
-| **Image Galleries** | Built-in `<Gallery>` component with lightbox |
+| **Image Galleries** | Built-in `<VeslxGallery>` component with lightbox |
 | **Slides** | Create presentations from markdown |
 | **Local Imports** | Import `.tsx` components from your content directory |
 | **Parameter Tables** | Display YAML/JSON configs with collapsible sections |
@@ -117,14 +117,14 @@ content/
 
 ### Custom Homepage
 
-Put `README.mdx` (or `index.mdx`) at the root to replace the default homepage. A common pattern is to use `<PostList />` with `globs` to group content:
+Put `README.mdx` (or `index.mdx`) at the root to replace the default homepage. A common pattern is to use `<VeslxPostList />` with `globs` to group content:
 
 ```mdx
 # Docs
-<PostList globs={["00-*", "01-*"]} />
+<VeslxPostList globs={["00-*", "01-*"]} />
 
 # Guides
-<PostList globs={["guides/*"]} />
+<VeslxPostList globs={["guides/*"]} />
 ```
 
 ### Frontmatter
@@ -142,12 +142,12 @@ visibility: public          # or "hidden" to hide from listings
 
 ## Components
 
-### Gallery
+### VeslxGallery
 
 Display images with titles, captions, and a fullscreen lightbox:
 
 ```mdx
-<Gallery
+<VeslxGallery
   path="my-post/images"
   globs={["*.png", "*.jpg"]}
   title="Experiment Results"
@@ -161,18 +161,18 @@ Display images with titles, captions, and a fullscreen lightbox:
 |------|------|-------------|
 | `path` | `string` | Path to images directory |
 | `globs` | `string[]` | Glob patterns to match files |
-| `title` | `string` | Gallery title |
+| `title` | `string` | VeslxGallery title |
 | `subtitle` | `string` | Subtitle below title |
 | `caption` | `string` | Caption below images |
 | `captionLabel` | `string` | Label prefix (e.g., "Figure 1") |
 | `limit` | `number` | Max images to show |
 
-### ParameterTable
+### VeslxParameterTable
 
 Display YAML or JSON configuration files with collapsible sections:
 
 ```mdx
-<ParameterTable
+<VeslxParameterTable
   path="config.yaml"
   keys={[".simulation.timestep", ".model.layers"]}
 />
@@ -211,7 +211,7 @@ title: My Presentation
 date: 2025-01-15
 ---
 
-<FrontMatter />
+<VeslxFrontMatter />
 
 ---
 
@@ -225,7 +225,7 @@ First slide content
 
 Second slide with an image gallery:
 
-<Gallery path="images" globs={["chart*.png"]} />
+<VeslxGallery path="images" globs={["chart*.png"]} />
 
 ---
 
@@ -317,7 +317,7 @@ veslx/
 ├── bin/              # CLI entry point
 ├── plugin/           # Vite plugins (MDX, content scanning)
 ├── src/
-│   ├── components/   # React components (Gallery, Slides, etc.)
+│   ├── components/   # React components (VeslxGallery, Slides, etc.)
 │   ├── hooks/        # React hooks
 │   ├── pages/        # Route pages
 │   └── lib/          # Utilities

@@ -1,15 +1,15 @@
 ---
 title: "Parameters"
-description: "ParameterTable and ParameterBadge."
+description: "VeslxParameterTable and VeslxParameterBadge."
 ---
 
-<FrontMatter />
+<VeslxFrontMatter />
 
-## ParameterTable
+## VeslxParameterTable
 Render YAML or JSON files as a table.
 
 ```mdx
-<ParameterTable path="./config.yaml" />
+<VeslxParameterTable path="./config.yaml" />
 ```
 
 Props:
@@ -19,11 +19,11 @@ Props:
 | path | string | File path or glob |
 | keys | string[] | Filter with jq-like paths |
 
-## ParameterBadge
+## VeslxParameterBadge
 Inline parameter display.
 
 ```mdx
-<ParameterBadge path="./config.yaml" keyPath=".base.dt" unit="ms" />
+<VeslxParameterBadge path="./config.yaml" keyPath=".base.dt" unit="ms" />
 ```
 
 Props:

@@ -75,27 +75,27 @@ function generateId(children: unknown): string {
 // Shared MDX components - lab notebook / coder aesthetic
 export const mdxComponents = {
 
-  FrontMatter,
+  VeslxFrontMatter: FrontMatter,
 
-  Gallery,
+  VeslxGallery: Gallery,
 
-  ParameterTable,
+  VeslxParameterTable: ParameterTable,
 
-  ParameterBadge,
+  VeslxParameterBadge: ParameterBadge,
 
-  HeroSlide,
+  VeslxHeroSlide: HeroSlide,
 
-  FigureSlide,
+  VeslxFigureSlide: FigureSlide,
 
-  TextSlide,
+  VeslxTextSlide: TextSlide,
 
-  SlideOutline,
+  VeslxSlideOutline: SlideOutline,
 
-  PostList,
+  VeslxPostList: PostList,
 
-  PostListItem,
+  VeslxPostListItem: PostListItem,
 
-  CopyPaste,
+  VeslxCopyPaste: CopyPaste,
 
   // Headings - clean sans-serif
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {

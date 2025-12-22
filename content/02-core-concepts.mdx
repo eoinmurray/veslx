@@ -3,7 +3,7 @@ title: "Core Concepts"
 description: "How veslx finds, sorts, and renders content."
 ---
 
-<FrontMatter />
+<VeslxFrontMatter />
 
 ## Content directory
 Veslx scans the current folder by default. Point it elsewhere with
@@ -50,7 +50,7 @@ Routes:
 
 ## Subfolders and index pages
 Put a `README.mdx` in a folder to create a section index.
-Use `<PostList />` to list pages in that folder.
+Use `<VeslxPostList />` to list pages in that folder.
 
 ## Custom homepage
 Put `README.mdx` (or `index.mdx`) at the root of your content directory to replace the default homepage. This is the common place to build a custom landing page and group lists of content.
@@ -62,10 +62,10 @@ description: "Start here."
 ---
 
 # Docs
-<PostList globs={["00-*", "01-*"]} />
+<VeslxPostList globs={["00-*", "01-*"]} />
 
 # Guides
-<PostList globs={["guides/*"]} />
+<VeslxPostList globs={["guides/*"]} />
 ```
 
 ## URLs

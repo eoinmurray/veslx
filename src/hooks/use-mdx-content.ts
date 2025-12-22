@@ -235,8 +235,7 @@ function findIndexModule(modules: ModuleMap, path: string): ModuleLoader | null 
   const isRoot = normalizedPath === '.' || normalizedPath === ''
 
   // Debug: log keys and path
-  console.log('[findIndexModule] path:', path, 'normalizedPath:', normalizedPath, 'isRoot:', isRoot)
-  console.log('[findIndexModule] ALL keys:', keys)
+  // Debug logging removed to keep browser console clean.
 
   // Look for index files first, then README files
   const candidates = isRoot
