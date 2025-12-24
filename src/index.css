@@ -219,6 +219,11 @@
     color: hsl(var(--primary));
   }
 
+  .katex-display,
+  .math-display {
+    text-align: center;
+  }
+
   /* Code inside pre blocks should inherit background from pre */
   pre code {
     background: transparent;
