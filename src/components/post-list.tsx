@@ -42,6 +42,10 @@ function getLinkPath(post: PostEntry): string {
   }
 }
 
+function isRouterPath(href: string): boolean {
+  return href.startsWith("/") && !href.startsWith("//");
+}
+
 export function PostList({ globs = null }: PostListProps) {
   const { "*": path = "." } = useParams();
 
@@ -119,8 +123,18 @@ export function PostList({ globs = null }: PostListProps) {
         const title = (frontmatter?.title as string) || formatName(post.name);
         const description = frontmatter?.description as string | undefined;
         const date = frontmatter?.date ? new Date(frontmatter.date as string) : undefined;
-        const linkPath = getLinkPath(post);
-        const isSlides = linkPath.endsWith('SLIDES.mdx') || linkPath.endsWith('.slides.mdx');
+        const internalLinkPath = getLinkPath(post);
+        const normalizedLink = internalLinkPath.toLowerCase();
+        const isSlides =
+          normalizedLink.endsWith('/slides.mdx') ||
+          normalizedLink.endsWith('/slides.md') ||
+          normalizedLink.endsWith('.slides.mdx') ||
+          normalizedLink.endsWith('.slides.md');
+
+        const frontmatterLink =
+          typeof frontmatter?.link === "string" ? frontmatter.link.trim() : "";
+        const href = frontmatterLink || internalLinkPath;
+        const external = !isRouterPath(href);
 
         return (
           <PostListItem
@@ -128,7 +142,8 @@ export function PostList({ globs = null }: PostListProps) {
             title={title}
             description={description}
             date={date}
-            linkPath={linkPath}
+            href={href}
+            external={external}
             isSlides={isSlides}
           />
         );

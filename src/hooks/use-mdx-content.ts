@@ -6,6 +6,7 @@ interface MDXModule {
   frontmatter?: {
     title?: string
     description?: string
+    link?: string
     date?: string
     visibility?: string
     draft?: boolean
@@ -19,6 +20,7 @@ interface TSXModule {
   frontmatter?: {
     title?: string
     description?: string
+    link?: string
     date?: string
     visibility?: string
     draft?: boolean
@@ -312,10 +314,95 @@ function findIndexModule(modules: ModuleMap, path: string): ModuleLoader | null 
   const normalizedPath = path.replace(/^\//, '') || '.'
   const isRoot = normalizedPath === '.' || normalizedPath === ''
 
-  // Debug: log keys and path
-  // Debug logging removed to keep browser console clean.
+  function stripQueryAndHash(p: string): string {
+    return p.replace(/[?#].*$/, '')
+  }
 
-  // Look for index files first, then README files
+  function ensureLeadingSlash(p: string): string {
+    if (!p) return p
+    return p.startsWith('/') ? p : `/${p}`
+  }
+
+  function dirname(p: string): string {
+    const clean = stripQueryAndHash(p)
+    const parts = clean.split('/')
+    if (parts.length <= 1) return clean
+    parts.pop()
+    const joined = parts.join('/')
+    return joined || '/'
+  }
+
+  function commonDirPrefix(paths: string[]): string | null {
+    if (paths.length === 0) return null
+    const split = paths.map((p) => p.split('/').filter(Boolean))
+    let prefix = split[0]
+    for (let i = 1; i < split.length; i++) {
+      const cur = split[i]
+      let j = 0
+      while (j < prefix.length && j < cur.length && prefix[j] === cur[j]) {
+        j++
+      }
+      prefix = prefix.slice(0, j)
+      if (prefix.length === 0) return '/'
+    }
+    return '/' + prefix.join('/')
+  }
+
+  function isFsLikeGlobKey(key: string): boolean {
+    const clean = stripQueryAndHash(key)
+    if (clean.startsWith('/@fs/')) return true
+    // Vite can emit keys like "/../../../abs/path/to/file.mdx" for out-of-root globs,
+    // and sometimes absolute-like keys (still starting with "/") for aliased globs.
+    if (clean.startsWith('/') && (clean.endsWith('.mdx') || clean.endsWith('.md'))) return true
+    return false
+  }
+
+  function keyToFsPath(key: string): string | null {
+    const clean = stripQueryAndHash(key)
+    if (!isFsLikeGlobKey(clean)) return null
+    if (clean.startsWith('/@fs/')) {
+      return ensureLeadingSlash(clean.slice('/@fs/'.length))
+    }
+    return ensureLeadingSlash(clean)
+  }
+
+  // Infer the content root from the common parent directory of all fs-like keys.
+  // This avoids relying on the content directory being literally named "content".
+  const inferredContentRoot = (() => {
+    const fsPaths = keys.map(keyToFsPath).filter((p): p is string => Boolean(p))
+    if (fsPaths.length === 0) return null
+    const dirs = fsPaths.map(dirname)
+    return commonDirPrefix(dirs)
+  })()
+
+  function toContentRelativePath(key: string): string | null {
+    const cleanKey = stripQueryAndHash(key)
+
+    if (cleanKey.startsWith('@content/')) return cleanKey.slice('@content/'.length)
+    if (cleanKey.startsWith('/@content/')) return cleanKey.slice('/@content/'.length)
+
+    if (cleanKey.startsWith('./')) return cleanKey.slice('./'.length)
+    // Some Vite glob keys look like "/README.mdx" relative to the Vite root
+    if (cleanKey.startsWith('/') && (cleanKey.endsWith('.mdx') || cleanKey.endsWith('.md'))) {
+      const maybe = cleanKey.slice(1)
+      if (!maybe.includes('/')) return maybe
+    }
+
+    if (inferredContentRoot) {
+      const fsPath = keyToFsPath(cleanKey)
+      if (fsPath) {
+        const normalizedRoot = inferredContentRoot.endsWith('/')
+          ? inferredContentRoot.slice(0, -1)
+          : inferredContentRoot
+        if (fsPath.startsWith(normalizedRoot + '/')) {
+          return fsPath.slice(normalizedRoot.length + 1)
+        }
+      }
+    }
+
+    return null
+  }
+
   const candidates = isRoot
     ? ['index.mdx', 'index.md', 'README.mdx', 'README.md']
     : [
@@ -326,41 +413,11 @@ function findIndexModule(modules: ModuleMap, path: string): ModuleLoader | null 
       ]
 
   for (const candidate of candidates) {
-    const matchingKey = keys.find(key => {
-      // For root-level files, match keys that end with /candidate but DON'T have additional path segments
-      // e.g., for README.mdx: match "/../content/README.mdx" but not "/../content/subdir/README.mdx"
-      if (isRoot) {
-        // Key must end with /candidate and have no additional path segments before the filename
-        // Extract the filename from the key and compare
-        const keyFilename = key.split('/').pop()
-        if (keyFilename === candidate) {
-          // Make sure it's in the root of content dir, not a subdirectory
-          // Count path segments after the content directory marker
-          // Keys look like: /../pinglab/content/README.mdx or @content/README.mdx
-          const parts = key.split('/')
-          const contentIdx = parts.findIndex(p => p === 'content' || p === '@content')
-          if (contentIdx !== -1) {
-            // If there's only one segment after "content", it's a root file
-            const afterContent = parts.slice(contentIdx + 1)
-            if (afterContent.length === 1) return true
-          }
-          // Also try @content prefix matching
-          if (key === `/@content/${candidate}`) return true
-          if (key === `@content/${candidate}`) return true
-        }
-        return false
-      }
-      // For subdirectories, allow endsWith matching
-      if (key.endsWith(`/${candidate}`)) return true
-      if (key === `/@content/${candidate}`) return true
-      if (key === `@content/${candidate}`) return true
-      if (key === `/content/${candidate}`) return true
-      if (key === candidate) return true
-      return false
+    const matchingKey = keys.find((k) => {
+      const rel = toContentRelativePath(k)
+      return rel === candidate
     })
-    if (matchingKey) {
-      return modules[matchingKey]
-    }
+    if (matchingKey) return modules[matchingKey]
   }
 
   return null

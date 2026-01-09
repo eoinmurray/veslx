@@ -88,7 +88,7 @@ export function useGalleryImages({
   // Route is like "04-components/README.mdx" -> "04-components"
   // Or "14-gallery.mdx" -> "." (root level file)
   const currentDir = routePath
-    .replace(/\/?[^/]+\.mdx$/i, "")  // Remove [/]filename.mdx (slash optional for root files)
+    .replace(/\/?[^/]+\.mdx?$/i, "")  // Remove [/]filename.mdx/.md (slash optional for root files)
     .replace(/\/$/, "")              // Remove trailing slash
     || ".";
 
@@ -105,7 +105,7 @@ export function useGalleryImages({
 
   // If only globs provided (no path), use root directory
   const directoryPath = resolvedPath || ".";
-  const { directory } = useDirectory(directoryPath);
+  const { directory, error } = useDirectory(directoryPath);
 
   const paths = useMemo(() => {
     if (!directory) return [];
@@ -138,7 +138,7 @@ export function useGalleryImages({
 
   return {
     paths,
-    isLoading: !directory,
-    isEmpty: directory !== undefined && paths.length === 0,
+    isLoading: !directory && !error,
+    isEmpty: !!error || (directory !== null && paths.length === 0),
   };
 }

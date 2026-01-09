@@ -1,9 +1,10 @@
 import { build } from 'vite'
 import path from 'path'
 import fs from 'fs'
-import importConfig from "./import-config";
-import veslxPlugin from '../../plugin/src/plugin'
-import { log } from './log'
+import { fileURLToPath } from 'url'
+import importConfig from "./import-config.js";
+import veslxPlugin from '../../plugin/src/plugin.js'
+import { log } from './log.js'
 
 /**
  * Recursively copy a directory
@@ -24,16 +25,33 @@ function copyDirSync(src: string, dest: string) {
   }
 }
 
+function resolveVeslxRoot() {
+  const candidates = [
+    new URL('../..', import.meta.url),
+    new URL('../../..', import.meta.url),
+  ];
+
+  for (const candidate of candidates) {
+    const candidatePath = fileURLToPath(candidate);
+    if (fs.existsSync(path.join(candidatePath, 'vite.config.ts'))) {
+      return candidatePath;
+    }
+  }
+
+  return fileURLToPath(new URL('../..', import.meta.url));
+}
+
 interface PackageJson {
   name?: string;
   description?: string;
 }
 
 async function readPackageJson(cwd: string): Promise<PackageJson | null> {
-  const file = Bun.file(path.join(cwd, 'package.json'));
-  if (!await file.exists()) return null;
+  const packagePath = path.join(cwd, 'package.json');
+  if (!fs.existsSync(packagePath)) return null;
   try {
-    return await file.json();
+    const content = await fs.promises.readFile(packagePath, 'utf-8');
+    return JSON.parse(content) as PackageJson;
   } catch {
     return null;
   }
@@ -77,8 +95,8 @@ export default async function buildApp(dir?: string) {
     posts: fileConfig?.posts,
   };
 
-  const veslxRoot = new URL('../..', import.meta.url).pathname;
-  const configFile = new URL('../../vite.config.ts', import.meta.url).pathname;
+  const veslxRoot = resolveVeslxRoot();
+  const configFile = path.join(veslxRoot, 'vite.config.ts');
 
   // Build inside veslxRoot first (Vite requires outDir to be within or relative to root)
   const tempOutDir = path.join(veslxRoot, '.veslx-build')

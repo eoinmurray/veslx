@@ -1,9 +1,18 @@
 import pm2 from "pm2";
-import { log } from './log'
+import path from "path";
+import { log } from './log.js'
 
-export default async function stop() {
+function toDaemonName(contentDir: string) {
+  const normalized = contentDir.replace(/[:\\/]+/g, '-').replace(/^-+/, '');
+  return `veslx-${normalized}`.toLowerCase();
+}
+
+export default async function stop(dir?: string) {
   const cwd = process.cwd();
-  const name = `veslx-${cwd.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
+  const contentDir = dir
+    ? (path.isAbsolute(dir) ? dir : path.resolve(cwd, dir))
+    : cwd;
+  const name = toDaemonName(contentDir);
 
   pm2.connect((err) => {
     if (err) {

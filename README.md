@@ -23,7 +23,7 @@
 
 ## Why veslx?
 
-**veslx** is a zero-config CLI that transforms your markdown files into a polished documentation site. Write in MDX, import React components, render LaTeX equations, display image galleries, and create slide and pdf presentations—all from simple markdown files.
+**veslx** is a zero-config CLI that transforms your markdown files into a polished documentation site. Write in MDX, import React components, render LaTeX equations, display image galleries, and create slide presentations—all from simple markdown files.
 
 Built on Vite + React + Tailwind. Fast builds. Instant hot reload. Beautiful defaults.
 
@@ -41,12 +41,14 @@ That's it. Your docs are live at `localhost:3000` (or the next available port).
 ### Install
 
 ```bash
-# Using bun (recommended)
+# Using bun (fast)
 bun install -g veslx
 
-# Or npm
+# Or npm (Node 18+)
 npm install -g veslx
 ```
+
+Requires Node >= 18 or Bun >= 1.0.
 
 ### Create Your First Post
 
@@ -94,7 +96,6 @@ Open the URL printed in the console (defaults to [localhost:3000](http://localho
 | **Parameter Tables** | Display YAML/JSON configs with collapsible sections |
 | **Dark Mode** | Automatic theme switching |
 | **Hot Reload** | Instant updates during development |
-| **Print to PDF** | Export slides as landscape PDFs |
 
 ---
 
@@ -242,17 +243,6 @@ Final thoughts
 | `↓` `→` `j` | Next slide |
 | `↑` `←` `k` | Previous slide |
 | Scroll | Natural trackpad scrolling |
-
-### Print to PDF
-
-1. Open slides in browser
-2. Press `Cmd+P` (or `Ctrl+P`)
-3. Select "Save as PDF"
-4. Choose **Landscape** orientation
-
-Each slide becomes one PDF page, centered and optimized for print.
-
----
 
 ## CLI Commands
 

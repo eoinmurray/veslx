@@ -3,25 +3,145 @@ import path from 'path'
 import fs from 'fs'
 import yaml from 'js-yaml'
 import type { IncomingMessage, ServerResponse } from 'http'
-import { type VeslxConfig, type ResolvedSiteConfig, type ResolvedSlidesConfig, type ResolvedPostsConfig, type ResolvedConfig, DEFAULT_SITE_CONFIG, DEFAULT_SLIDES_CONFIG, DEFAULT_POSTS_CONFIG } from './types'
+import { type VeslxConfig, type ResolvedSiteConfig, type ResolvedSlidesConfig, type ResolvedPostsConfig, type ResolvedConfig, DEFAULT_SITE_CONFIG, DEFAULT_SLIDES_CONFIG, DEFAULT_POSTS_CONFIG } from './types.js'
 import matter from 'gray-matter'
+import { parseExpressionAt } from 'acorn'
+import { fileURLToPath } from 'url'
 
 /**
  * Extract frontmatter from content files in a directory.
  */
-function extractFrontmatters(dir: string): Record<string, { title?: string; description?: string; date?: string; draft?: boolean; visibility?: string }> {
-  const frontmatters: Record<string, { title?: string; description?: string; date?: string; draft?: boolean; visibility?: string }> = {};
+function extractFrontmatters(dir: string): Record<string, { title?: string; description?: string; link?: string; date?: string; draft?: boolean; visibility?: string }> {
+  const frontmatters: Record<string, { title?: string; description?: string; link?: string; date?: string; draft?: boolean; visibility?: string }> = {};
 
   function extractTsxFrontmatter(content: string) {
-    const match = content.match(/export\s+const\s+frontmatter(?:\s*:\s*[^=]+)?\s*=\s*({[\s\S]*?})\s*;?/m);
-    if (!match) return null;
+    const exportIndex = content.search(/export\s+const\s+frontmatter\b/);
+    if (exportIndex === -1) return null;
+
+    const assignmentIndex = content.indexOf('=', exportIndex);
+    if (assignmentIndex === -1) return null;
+
+    const objectStart = content.indexOf('{', assignmentIndex);
+    if (objectStart === -1) return null;
+
+    const objectSource = extractObjectLiteral(content, objectStart);
+    if (!objectSource) return {};
 
     try {
-      const data = Function(`"use strict"; return (${match[1]});`)();
-      if (!data || typeof data !== 'object') return {};
-      return data as Record<string, unknown>;
+      const node = parseExpressionAt(objectSource, 0, { ecmaVersion: 'latest' }) as any;
+      if (!node || node.type !== 'ObjectExpression') return {};
+      const data = expressionToValue(node);
+      return data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
     } catch {
       return {};
+    }
+  }
+
+  function extractObjectLiteral(source: string, startIndex: number): string | null {
+    let depth = 0;
+    let inString: "'" | '"' | '`' | null = null;
+    let inComment: "line" | "block" | null = null;
+    let escaped = false;
+
+    for (let i = startIndex; i < source.length; i++) {
+      const char = source[i];
+      const next = source[i + 1];
+
+      if (inComment === "line") {
+        if (char === '\n') inComment = null;
+        continue;
+      }
+      if (inComment === "block") {
+        if (char === '*' && next === '/') {
+          inComment = null;
+          i++;
+        }
+        continue;
+      }
+
+      if (inString) {
+        if (escaped) {
+          escaped = false;
+          continue;
+        }
+        if (char === '\\') {
+          escaped = true;
+          continue;
+        }
+        if (char === inString) {
+          inString = null;
+        }
+        continue;
+      }
+
+      if (char === '/' && next === '/') {
+        inComment = "line";
+        i++;
+        continue;
+      }
+      if (char === '/' && next === '*') {
+        inComment = "block";
+        i++;
+        continue;
+      }
+      if (char === '"' || char === "'" || char === '`') {
+        inString = char;
+        continue;
+      }
+
+      if (char === '{') {
+        depth++;
+      } else if (char === '}') {
+        depth--;
+        if (depth === 0) {
+          return source.slice(startIndex, i + 1);
+        }
+      }
+    }
+
+    return null;
+  }
+
+  function expressionToValue(node: any): unknown {
+    if (!node) return undefined;
+    switch (node.type) {
+      case 'Literal':
+        return node.value;
+      case 'TemplateLiteral':
+        if (node.expressions?.length === 0) {
+          return node.quasis.map((q: any) => q.value?.cooked ?? '').join('');
+        }
+        return undefined;
+      case 'UnaryExpression':
+        if (node.operator === '-' && node.argument?.type === 'Literal' && typeof node.argument.value === 'number') {
+          return -node.argument.value;
+        }
+        return undefined;
+      case 'ArrayExpression':
+        return node.elements.map((el: any) => {
+          if (!el) return null;
+          const value = expressionToValue(el);
+          return value === undefined ? null : value;
+        });
+      case 'ObjectExpression': {
+        const obj: Record<string, unknown> = {};
+        for (const prop of node.properties) {
+          if (!prop || prop.type !== 'Property' || prop.computed) continue;
+          const key = prop.key?.type === 'Identifier'
+            ? prop.key.name
+            : prop.key?.type === 'Literal'
+              ? String(prop.key.value)
+              : null;
+          if (!key) continue;
+          const value = expressionToValue(prop.value);
+          if (value !== undefined) {
+            obj[key] = value;
+          }
+        }
+        return obj;
+      }
+      default:
+        return undefined;
     }
   }
 
@@ -47,6 +167,7 @@ function extractFrontmatters(dir: string): Record<string, { title?: string; desc
           frontmatters[key] = {
             title: data.title,
             description: data.description,
+            link: data.link,
             date: data.date instanceof Date ? data.date.toISOString() : data.date,
             draft: data.draft,
             visibility: data.visibility,
@@ -65,6 +186,7 @@ function extractFrontmatters(dir: string): Record<string, { title?: string; desc
           frontmatters[key] = {
             title: data.title as string | undefined,
             description: data.description as string | undefined,
+            link: data.link as string | undefined,
             date: data.date instanceof Date ? data.date.toISOString() : (data.date as string | undefined),
             draft: data.draft as boolean | undefined,
             visibility: data.visibility as string | undefined,
@@ -176,6 +298,9 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     for (const [key, fm] of Object.entries(frontmatters)) {
       const relativePath = key.replace('@content/', '')
       if (!relativePath.endsWith('.mdx') && !relativePath.endsWith('.md')) {
+        continue
+      }
+      if (fm.draft === true || fm.visibility === 'hidden') {
         continue
       }
       const isSlides = relativePath.endsWith('SLIDES.mdx') || relativePath.endsWith('.slides.mdx')
@@ -296,16 +421,36 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     return lines.join('\n')
   }
 
+  function resolveContentPath(contentDir: string, requestPath: string): string | null {
+    if (requestPath.includes('\0')) return null;
+    const stripped = requestPath.replace(/^\/+/, '');
+    const normalized = path.normalize(stripped);
+    const resolved = path.resolve(contentDir, normalized);
+    const relative = path.relative(contentDir, resolved);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      return null;
+    }
+    return resolved;
+  }
+
   const middleware: Connect.NextHandleFunction = (req: IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
+    let pathname = '';
+    try {
+      pathname = new URL(req.url ?? '', 'http://localhost').pathname;
+    } catch {
+      next();
+      return;
+    }
+
     // Serve llms.txt dynamically (only if enabled)
-    if (req.url === '/llms.txt' && siteConfig.llmsTxt) {
+    if (pathname === '/llms.txt' && siteConfig.llmsTxt) {
       res.setHeader('Content-Type', 'text/plain; charset=utf-8')
       res.end(generateLlmsTxt())
       return
     }
 
     // Serve llms-full.txt with all content inline (only if enabled)
-    if (req.url === '/llms-full.txt' && siteConfig.llmsTxt) {
+    if (pathname === '/llms-full.txt' && siteConfig.llmsTxt) {
       res.setHeader('Content-Type', 'text/plain; charset=utf-8')
       res.end(generateLlmsFullTxt())
       return
@@ -313,9 +458,14 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
 
     // Check if URL matches any registered content directory
     for (const [urlBase, contentDir] of urlToDir.entries()) {
-      if (req.url?.startsWith(urlBase + '/')) {
-        const relativePath = req.url.slice(urlBase.length + 1)
-        const filePath = path.join(contentDir, relativePath)
+      if (pathname.startsWith(urlBase + '/')) {
+        const relativePath = pathname.slice(urlBase.length + 1)
+        const filePath = resolveContentPath(contentDir, relativePath)
+        if (!filePath) {
+          res.statusCode = 403
+          res.end('Forbidden')
+          return
+        }
 
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           res.setHeader('Access-Control-Allow-Origin', '*')
@@ -384,7 +534,7 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
       // Inject @source directive into index.css for Tailwind v4 content scanning
       // This must happen in load() before Tailwind processes the CSS
       if (id.endsWith('/src/index.css')) {
-        const veslxRoot = path.dirname(path.dirname(__dirname))
+        const veslxRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
         const cssPath = path.join(veslxRoot, 'src/index.css')
 
         try {

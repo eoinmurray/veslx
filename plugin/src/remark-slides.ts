@@ -21,7 +21,7 @@ export function remarkSlides() {
       if (node.type === 'thematicBreak') {
         // Start a new slide
         slides.push([])
-      } else if (node.type === 'yaml' || node.type === 'toml') {
+      } else if (node.type === 'yaml' || (node.type as string) === 'toml') {
         // Keep frontmatter to add back later
         frontmatterNode = node
       } else {

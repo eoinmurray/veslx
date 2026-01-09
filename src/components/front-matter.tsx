@@ -35,14 +35,45 @@ export function FrontMatter() {
   const location = useLocation();
   const config = veslxConfig.site;
 
-  const rawUrl = `/raw${location.pathname.replace(/^\//, '/')}`;
+  function buildRawCandidates(pathname: string): string[] {
+    const normalized = pathname.replace(/\/$/, '');
+    const hasExtension = normalized.endsWith('.mdx') || normalized.endsWith('.md');
+
+    if (hasExtension) {
+      return [normalized];
+    }
+
+    if (!normalized || normalized === '/') {
+      return ['/index.mdx', '/index.md', '/README.mdx', '/README.md'];
+    }
+
+    return [
+      `${normalized}.mdx`,
+      `${normalized}.md`,
+      `${normalized}/index.mdx`,
+      `${normalized}/index.md`,
+      `${normalized}/README.mdx`,
+      `${normalized}/README.md`,
+    ];
+  }
 
   const handleLlmsTxt = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(rawUrl);
-      if (!res.ok) throw new Error('Failed to fetch');
-      const rawMdx = await res.text();
+      const candidates = buildRawCandidates(location.pathname);
+      let rawMdx: string | null = null;
+
+      for (const candidate of candidates) {
+        const res = await fetch(`/raw${candidate}`);
+        if (res.ok) {
+          rawMdx = await res.text();
+          break;
+        }
+      }
+
+      if (!rawMdx) {
+        throw new Error('Failed to fetch');
+      }
       const llmsTxt = convertToLlmsTxt(rawMdx, frontmatter);
       const blob = new Blob([llmsTxt], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
@@ -81,7 +112,7 @@ export function FrontMatter() {
           </div>
 
           {frontmatter?.description && (
-            <div className="flex flex-wrap text-sm items-center gap-3 text-muted-foreground">
+            <div className="mt-1 flex flex-wrap text-sm items-center gap-3 text-muted-foreground">
               {frontmatter?.description}
             </div>
           )}

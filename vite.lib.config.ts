@@ -1,12 +1,26 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import fs from 'fs'
+import { resolve, dirname } from 'path'
+
+function copyClientCss(): Plugin {
+  return {
+    name: 'veslx-copy-client-css',
+    writeBundle() {
+      const sourcePath = resolve(__dirname, 'src/index.css')
+      const destPath = resolve(__dirname, 'dist/client/src/index.css')
+      fs.mkdirSync(dirname(destPath), { recursive: true })
+      fs.copyFileSync(sourcePath, destPath)
+    },
+  }
+}
 
 // Library build config - pre-compiles src/ components for distribution
 // CSS is left to runtime processing (Tailwind needs to scan for classes)
 export default defineConfig({
   plugins: [
     react(),
+    copyClientCss(),
   ],
   build: {
     lib: {

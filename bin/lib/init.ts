@@ -1,10 +1,11 @@
+import fs from "fs";
 import nodePath from "path";
 import yaml from "js-yaml";
 
 export default async function createNewConfig() {
   const configPath = "veslx.yaml";
 
-  if (await Bun.file(configPath).exists()) {
+  if (fs.existsSync(configPath)) {
     console.error(`Configuration file '${configPath}' already exists.`);
     return;
   }
@@ -22,7 +23,7 @@ export default async function createNewConfig() {
 
   const configStr = yaml.dump(config, { indent: 2, quotingType: '"' });
 
-  await Bun.write(configPath, configStr);
+  await fs.promises.writeFile(configPath, configStr, "utf-8");
 
   console.log(`Created veslx.yaml`);
   console.log(`\nEdit the file to customize your site, then run:`);

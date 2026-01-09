@@ -87,12 +87,18 @@ describe("veslx CLI integration", () => {
           }
         });
 
-        // Test home page (directory listing)
-        await page.goto("http://localhost:3000");
+        // Test directory listing (folder without index/README)
+        await page.goto("http://localhost:3000/docs");
         await page.waitForSelector("#root", { state: "attached" });
-        await page.waitForTimeout(1000);
+        await page.waitForFunction(
+          () => document.body.textContent?.includes("External Link Post"),
+          { timeout: 20000 }
+        );
         let rootContent = await page.locator("#root").innerHTML();
         expect(rootContent.length).toBeGreaterThan(100);
+        expect(rootContent).toContain("External Link Post");
+        const externalLinkCount = await page.locator('a[href="https://example.com"][target="_blank"]').count();
+        expect(externalLinkCount).toBeGreaterThan(0);
 
         // Test README page (post)
         await page.goto("http://localhost:3000/README.mdx");
@@ -138,16 +144,71 @@ describe("veslx CLI integration", () => {
         // Test FrontMatter component works in slides (should render description from frontmatter)
         expect(rootContent).toContain("Test hyphenated slides filename"); // description from frontmatter
 
-        // Verify standalone .slides.mdx files appear in home page listing
-        await page.goto("http://localhost:3000/");
+        // Verify standalone .slides.mdx files appear in directory listing
+        await page.goto("http://localhost:3000/docs");
         await page.waitForSelector("#root", { state: "attached" });
-        await page.waitForTimeout(1000);
+        await page.waitForFunction(
+          () => document.querySelectorAll('a[href*=".slides.mdx"]').length > 0,
+          { timeout: 20000 }
+        );
         const slidesLinks = await page.locator('a[href*=".slides.mdx"]').count();
         expect(slidesLinks).toBeGreaterThan(0);
 
         // Verify no console errors across all pages
         expect(consoleErrors).toEqual([]);
 
+        await page.close();
+      } finally {
+        serverProcess.kill();
+        ctx.serverProcess = undefined;
+      }
+    }, 90000);
+
+    test("renders root README.mdx as homepage even when content dir is not named 'content'", async () => {
+      const veslxBin = path.join(ctx.testDir, "node_modules", ".bin", "veslx");
+
+      // Create a second content directory with a different folder name and only a README.mdx
+      const altContentDirName = "docs-root";
+      const altContentDir = path.join(ctx.testDir, altContentDirName);
+      fs.mkdirSync(altContentDir, { recursive: true });
+
+      const readmeSource = fs.readFileSync(
+        path.join(ctx.testDir, "content", "README.mdx"),
+        "utf-8"
+      );
+      fs.writeFileSync(path.join(altContentDir, "README.mdx"), readmeSource);
+
+      // Start the server pointing at the alternate directory
+      const serverProcess = Bun.spawn([veslxBin, "serve", altContentDirName], {
+        cwd: ctx.testDir,
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+
+      ctx.serverProcess = serverProcess;
+
+      try {
+        const ready = await waitForServer("http://localhost:3000", 30000);
+        expect(ready).toBe(true);
+
+        const page = await browser.newPage();
+        const consoleErrors: string[] = [];
+
+        page.on("console", (msg) => {
+          if (msg.type() === "error") {
+            consoleErrors.push(msg.text());
+          }
+        });
+
+        await page.goto("http://localhost:3000/");
+        await page.waitForSelector("#root", { state: "attached" });
+
+        // The homepage should render the README content, not the directory listing title.
+        await page.waitForSelector("h1", { state: "attached", timeout: 20000 });
+        const h1Text = await page.locator("h1").first().textContent();
+        expect(h1Text).toContain("Test Page");
+
+        expect(consoleErrors).toEqual([]);
         await page.close();
       } finally {
         serverProcess.kill();
@@ -186,8 +247,9 @@ describe("veslx CLI integration", () => {
       const distPath = path.join(ctx.testDir, "dist");
 
       // Serve the built static files
-      const staticServer = await serveStatic(distPath, 3001);
+      const { process: staticServer, port } = await serveStatic(distPath);
       ctx.staticServerProcess = staticServer;
+      ctx.staticServerPort = port;
 
       try {
         // Open browser and collect console errors
@@ -200,15 +262,21 @@ describe("veslx CLI integration", () => {
           }
         });
 
-        // Test home page (directory listing)
-        await page.goto("http://localhost:3001");
+        // Test directory listing (folder without index/README)
+        await page.goto(`http://localhost:${port}/docs`);
         await page.waitForSelector("#root", { state: "attached" });
-        await page.waitForTimeout(1000);
+        await page.waitForFunction(
+          () => document.body.textContent?.includes("External Link Post"),
+          { timeout: 60000 }
+        );
         let rootContent = await page.locator("#root").innerHTML();
         expect(rootContent.length).toBeGreaterThan(100);
+        expect(rootContent).toContain("External Link Post");
+        const externalLinkCount = await page.locator('a[href="https://example.com"][target="_blank"]').count();
+        expect(externalLinkCount).toBeGreaterThan(0);
 
         // Test README page (post)
-        await page.goto("http://localhost:3001/README.mdx");
+        await page.goto(`http://localhost:${port}/README.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         // Wait for article element (MDX content is rendered within an article)
         await page.waitForSelector("article", { state: "attached", timeout: 10000 });
@@ -226,14 +294,14 @@ describe("veslx CLI integration", () => {
         expect(pageContent).toContain("15 Jan, 24"); // date from frontmatter
 
         // Test SLIDES page (presentation)
-        await page.goto("http://localhost:3001/SLIDES.mdx");
+        await page.goto(`http://localhost:${port}/SLIDES.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForTimeout(1000);
         rootContent = await page.locator("#root").innerHTML();
         expect(rootContent.length).toBeGreaterThan(100);
 
         // Test .slides.mdx format (alternative slides naming)
-        await page.goto("http://localhost:3001/presentation.slides.mdx");
+        await page.goto(`http://localhost:${port}/presentation.slides.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForTimeout(1000);
         rootContent = await page.locator("#root").innerHTML();
@@ -241,7 +309,7 @@ describe("veslx CLI integration", () => {
         expect(rootContent).toContain("Dot Slides Test");
 
         // Test hyphenated .slides.mdx filename (e.g., getting-started.slides.mdx)
-        await page.goto("http://localhost:3001/getting-started.slides.mdx");
+        await page.goto(`http://localhost:${port}/getting-started.slides.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForTimeout(1000);
         rootContent = await page.locator("#root").innerHTML();
@@ -251,10 +319,13 @@ describe("veslx CLI integration", () => {
         // Test FrontMatter component works in slides (should render description from frontmatter)
         expect(rootContent).toContain("Test hyphenated slides filename"); // description from frontmatter
 
-        // Verify standalone .slides.mdx files appear in home page listing
-        await page.goto("http://localhost:3001/");
+        // Verify standalone .slides.mdx files appear in directory listing
+        await page.goto(`http://localhost:${port}/docs`);
         await page.waitForSelector("#root", { state: "attached" });
-        await page.waitForTimeout(1000);
+        await page.waitForFunction(
+          () => document.querySelectorAll('a[href*=".slides.mdx"]').length > 0,
+          { timeout: 60000 }
+        );
         const slidesLinks = await page.locator('a[href*=".slides.mdx"]').count();
         expect(slidesLinks).toBeGreaterThan(0);
 

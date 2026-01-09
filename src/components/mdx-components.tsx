@@ -75,6 +75,8 @@ function generateId(children: unknown): string {
 // Shared MDX components - lab notebook / coder aesthetic
 export const mdxComponents = {
 
+  FrontMatter: FrontMatter,
+
   VeslxFrontMatter: FrontMatter,
 
   VeslxGallery: Gallery,

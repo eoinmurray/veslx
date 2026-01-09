@@ -11,6 +11,7 @@ export type FileEntry = {
   frontmatter?: {
     title?: string;
     description?: string;
+    link?: string;
     date?: string;
     draft?: boolean;
     visibility?: string;

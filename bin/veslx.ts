@@ -1,13 +1,28 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { cac } from "cac";
-import pkg from "../package.json";
-import init from "./lib/init";
-import serve from "./lib/serve";
-import start from "./lib/start";
-import stop from "./lib/stop";
-import build from "./lib/build";
-import { banner } from "./lib/log";
+import { createRequire } from "module";
+import init from "./lib/init.js";
+import serve from "./lib/serve.js";
+import start from "./lib/start.js";
+import stop from "./lib/stop.js";
+import build from "./lib/build.js";
+import { banner } from "./lib/log.js";
+
+const require = createRequire(import.meta.url);
+function tryRequire<T>(id: string): T | null {
+  try {
+    return require(id) as T;
+  } catch (err: any) {
+    if (err?.code === "MODULE_NOT_FOUND") return null;
+    throw err;
+  }
+}
+
+const pkg =
+  tryRequire<{ version?: string }>("../package.json") ??
+  tryRequire<{ version?: string }>("../../package.json") ??
+  {};
 
 const cli = cac("veslx");
 
@@ -26,7 +41,7 @@ cli
   .action(start);
 
 cli
-  .command("stop", "Stop the veslx deamon")
+  .command("stop [dir]", "Stop the veslx daemon")
   .action(stop);
 
 cli
@@ -34,7 +49,7 @@ cli
   .action(build)
 
 cli.help();
-cli.version(pkg.version);
+cli.version(pkg.version ?? "0.0.0");
 cli.parse();
 
 if (!cli.matchedCommand && process.argv.length <= 2) {

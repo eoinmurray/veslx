@@ -3,6 +3,7 @@ import { createContext, useContext, ReactNode } from 'react';
 export interface Frontmatter {
   title?: string;
   description?: string;
+  link?: string;
   date?: string;
   visibility?: string;
   draft?: boolean;

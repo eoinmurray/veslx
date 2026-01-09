@@ -1,8 +1,10 @@
 import { createServer } from 'vite'
-import importConfig from "./import-config";
-import veslxPlugin from '../../plugin/src/plugin'
+import importConfig from "./import-config.js";
+import veslxPlugin from '../../plugin/src/plugin.js'
 import path from 'path'
-import { log } from './log'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
+import { log } from './log.js'
 
 interface PackageJson {
   name?: string;
@@ -10,10 +12,11 @@ interface PackageJson {
 }
 
 async function readPackageJson(cwd: string): Promise<PackageJson | null> {
-  const file = Bun.file(path.join(cwd, 'package.json'));
-  if (!await file.exists()) return null;
+  const packagePath = path.join(cwd, 'package.json');
+  if (!fs.existsSync(packagePath)) return null;
   try {
-    return await file.json();
+    const content = await fs.promises.readFile(packagePath, 'utf-8');
+    return JSON.parse(content) as PackageJson;
   } catch {
     return null;
   }
@@ -64,6 +67,22 @@ async function listenWithFallback(server: Awaited<ReturnType<typeof createServer
   process.exit(1);
 }
 
+function resolveVeslxRoot() {
+  const candidates = [
+    new URL('../..', import.meta.url),
+    new URL('../../..', import.meta.url),
+  ];
+
+  for (const candidate of candidates) {
+    const candidatePath = fileURLToPath(candidate);
+    if (fs.existsSync(path.join(candidatePath, 'vite.config.ts'))) {
+      return candidatePath;
+    }
+  }
+
+  return fileURLToPath(new URL('../..', import.meta.url));
+}
+
 export default async function serve(dir?: string) {
   const cwd = process.cwd()
 
@@ -102,8 +121,8 @@ export default async function serve(dir?: string) {
     posts: fileConfig?.posts,
   };
 
-  const veslxRoot = new URL('../..', import.meta.url).pathname;
-  const configFile = new URL('../../vite.config.ts', import.meta.url).pathname;
+  const veslxRoot = resolveVeslxRoot();
+  const configFile = path.join(veslxRoot, 'vite.config.ts');
 
   // Final content directory: CLI arg already resolved, or resolve from config
   const finalContentDir = dir

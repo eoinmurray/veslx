@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { DirectoryEntry, FileEntry } from "./lib";
-import { buildDirectoryTree, navigateToPath } from "./directory-tree";
+import { DirectoryEntry, FileEntry } from "./lib.js";
+import { buildDirectoryTree, navigateToPath } from "./directory-tree.js";
 // @ts-ignore - virtual module
 import { files, frontmatters } from "virtual:content-modules";
 
@@ -109,15 +109,12 @@ export type DirectoryError =
 const directoryTree = buildDirectoryTree(Object.keys(files), frontmatters as Record<string, FileEntry['frontmatter']>);
 
 export function useDirectory(path: string = ".") {
-  const [error, setError] = useState<DirectoryError | null>(null);
-
   const result = useMemo(() => {
     try {
       const { directory, file } = navigateToPath(directoryTree, path);
-      return { directory, file };
+      return { directory, file, error: null as DirectoryError | null };
     } catch {
-      setError({ type: 'path_not_found', message: `Path not found: ${path}`, status: 404 });
-      return { directory: null, file: null };
+      return { directory: null, file: null, error: { type: 'path_not_found', message: `Path not found: ${path}`, status: 404 } };
     }
   }, [path]);
 
@@ -125,7 +122,7 @@ export function useDirectory(path: string = ".") {
     directory: result.directory,
     file: result.file,
     loading: false, // No async loading needed
-    error
+    error: result.error
   };
 }
 
@@ -184,13 +181,17 @@ export function isSimulationRunning() {
     let interval: ReturnType<typeof setInterval>;
 
     const fetchStatus = async () => {
-      const response = await fetch(`/raw/.running`);
+      try {
+        const response = await fetch(`/raw/.running`);
 
-      // this is an elaborate workaround to stop devtools logging errors on 404s
-      const text = await response.text()
-      if (text === "") {
-        setRunning(true);
-      } else {
+        // this is an elaborate workaround to stop devtools logging errors on 404s
+        const text = await response.text()
+        if (text === "") {
+          setRunning(true);
+        } else {
+          setRunning(false);
+        }
+      } catch {
         setRunning(false);
       }
     };

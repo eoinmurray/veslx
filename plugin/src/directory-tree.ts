@@ -1,4 +1,4 @@
-import type { DirectoryEntry, FileEntry } from './lib';
+import type { DirectoryEntry, FileEntry } from './lib.js';
 
 /**
  * Find the common directory prefix among all paths.

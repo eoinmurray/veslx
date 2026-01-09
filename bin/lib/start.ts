@@ -1,6 +1,11 @@
 import pm2 from "pm2";
 import path from "path";
-import { log } from './log'
+import { log } from './log.js'
+
+function toDaemonName(contentDir: string) {
+  const normalized = contentDir.replace(/[:\\/]+/g, '-').replace(/^-+/, '');
+  return `veslx-${normalized}`.toLowerCase();
+}
 
 export default async function start(dir?: string) {
   const cwd = process.cwd();
@@ -10,10 +15,16 @@ export default async function start(dir?: string) {
     ? (path.isAbsolute(dir) ? dir : path.resolve(cwd, dir))
     : cwd;
 
-  const name = `veslx-${contentDir.replace(/\//g, '-').replace(/^-/, '')}`.toLowerCase();
+  const name = toDaemonName(contentDir);
 
   // Build args for veslx serve
-  const args = dir ? ['veslx', 'serve', dir] : ['veslx', 'serve'];
+  const args = dir ? ['serve', dir] : ['serve'];
+  const cliPath = process.argv[1];
+  if (!cliPath) {
+    log.error('unable to resolve veslx binary path');
+    process.exit(1);
+    return;
+  }
 
   pm2.connect((err) => {
     if (err) {
@@ -24,7 +35,8 @@ export default async function start(dir?: string) {
 
     pm2.start({
       name: name,
-      script: 'bunx',
+      script: cliPath,
+      interpreter: process.execPath,
       args: args,
       cwd: cwd,
       autorestart: true,

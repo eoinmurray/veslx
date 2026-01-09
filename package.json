@@ -10,24 +10,33 @@
     "access": "public"
   },
   "bin": {
-    "veslx": "bin/veslx.ts"
+    "veslx": "dist/bin/veslx.js"
   },
   "files": [
     "bin",
-    "dist",
-    "plugin",
+    "dist/bin",
+    "dist/client",
+    "dist/plugin",
+    "plugin/src",
     "src",
     "public",
-    "index.html",
+    "/index.html",
     "vite.config.ts",
-    "vite.lib.config.ts"
+    "vite.lib.config.ts",
+    "tailwind.config.js",
+    "postcss.config.js",
+    "tsconfig.build.json"
   ],
   "scripts": {
     "dev": "VESLX_DEV=1 bun bin/veslx.ts serve content",
     "build": "bun bin/veslx.ts build content",
     "build:lib": "vite build --config vite.lib.config.ts",
-    "prepublishOnly": "npm run build:lib",
+    "build:cli": "tsc -p tsconfig.build.json && node scripts/add-shebang.mjs",
+    "prepublishOnly": "npm run build:lib && npm run build:cli",
     "test": "bun test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.8.0",
