@@ -4,6 +4,7 @@ import { SiGithub } from "@icons-pack/react-simple-icons";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import veslxConfig from "virtual:veslx-config";
 import { cn } from "@/lib/utils";
+import { VeslxSearch } from "@/components/veslx-search";
 
 interface HeaderProps {
   slideControls?: {
@@ -62,6 +63,7 @@ export function Header({ slideControls }: HeaderProps = {}) {
               </button>
             </>
           )}
+          {!slideControls && <VeslxSearch className="w-56" />}
           {config.github && (
             <Link
               to={`https://github.com/${config.github}`}

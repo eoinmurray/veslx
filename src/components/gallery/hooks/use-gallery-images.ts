@@ -38,16 +38,14 @@ function sortPathsNumerically(paths: string[]): void {
 function filterPathsByTheme(paths: string[], theme: string | undefined): string[] {
   const pathGroups = new Map<string, { light?: string; dark?: string; original?: string }>();
 
-  paths.forEach(path => {
-    if (path.endsWith('_light.png')) {
-      const baseName = path.replace('_light.png', '');
+  paths.forEach((path) => {
+    const cleanPath = path.split(/[?#]/)[0];
+    const themedMatch = cleanPath.match(/^(.*)_(light|dark)\.(png|jpe?g|gif|svg|webp)$/i);
+    if (themedMatch) {
+      const baseName = `${themedMatch[1]}.${themedMatch[3]}`;
+      const variant = themedMatch[2].toLowerCase() as "light" | "dark";
       const group = pathGroups.get(baseName) || {};
-      group.light = path;
-      pathGroups.set(baseName, group);
-    } else if (path.endsWith('_dark.png')) {
-      const baseName = path.replace('_dark.png', '');
-      const group = pathGroups.get(baseName) || {};
-      group.dark = path;
+      group[variant] = path;
       pathGroups.set(baseName, group);
     } else {
       pathGroups.set(path, { original: path });
@@ -59,7 +57,7 @@ function filterPathsByTheme(paths: string[], theme: string | undefined): string[
     if (group.original) {
       filtered.push(group.original);
     } else {
-      const isDark = theme === 'dark';
+      const isDark = theme === "dark";
       const preferredPath = isDark ? group.dark : group.light;
       const fallbackPath = isDark ? group.light : group.dark;
       filtered.push(preferredPath || fallbackPath || baseName);
@@ -132,6 +130,7 @@ export function useGalleryImages({
     if (limit) {
       filtered = filtered.slice(page * limit, (page + 1) * limit);
     }
+
 
     return filtered;
   }, [directory, globs, resolvedTheme, limit, page]);

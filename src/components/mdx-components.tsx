@@ -10,6 +10,7 @@ import { SlideOutline } from './slides/slide-outline'
 import { PostList } from '@/components/post-list'
 import { PostListItem } from '@/components/post-list-item'
 import { CopyButton } from '@/components/copy-paste'
+import { VeslxSearch } from '@/components/veslx-search'
 /**
  * Smart link component that uses React Router for internal links
  * and regular anchor tags for external links.
@@ -98,6 +99,8 @@ export const mdxComponents = {
   VeslxPostListItem: PostListItem,
 
   VeslxCopyButton: CopyButton,
+
+  VeslxSearch: VeslxSearch,
 
   // Headings - clean sans-serif
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => {

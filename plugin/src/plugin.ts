@@ -202,6 +202,79 @@ function extractFrontmatters(dir: string): Record<string, { title?: string; desc
   return frontmatters;
 }
 
+type SearchEntry = {
+  title: string;
+  description?: string;
+  path: string;
+};
+
+function isSlidesPath(relativePath: string): boolean {
+  const lower = relativePath.toLowerCase();
+  return (
+    lower.endsWith('slides.mdx') ||
+    lower.endsWith('slides.md') ||
+    lower.endsWith('.slides.mdx') ||
+    lower.endsWith('.slides.md')
+  );
+}
+
+function normalizeTitle(raw: string): string {
+  const cleaned = raw.replace(/[-_]+/g, ' ').trim();
+  if (!cleaned) return raw;
+  return cleaned[0].toUpperCase() + cleaned.slice(1);
+}
+
+function resolveSearchRoute(relativePath: string): string {
+  const normalized = relativePath.replace(/^\/+/, '');
+  if (/^readme\.mdx?$/i.test(normalized) || /^index\.mdx?$/i.test(normalized)) {
+    return '/';
+  }
+
+  const readmeMatch = normalized.match(/^(.*)\/readme\.mdx?$/i);
+  if (readmeMatch) {
+    return `/${readmeMatch[1]}`;
+  }
+
+  const indexMatch = normalized.match(/^(.*)\/index\.mdx?$/i);
+  if (indexMatch) {
+    return `/${indexMatch[1]}`;
+  }
+
+  return `/${normalized}`;
+}
+
+function generateSearchIndex(dir: string, siteName: string): SearchEntry[] {
+  const frontmatters = extractFrontmatters(dir);
+  const entries: SearchEntry[] = [];
+
+  for (const [key, fm] of Object.entries(frontmatters)) {
+    const relativePath = key.replace('@content/', '');
+    if (!relativePath.endsWith('.mdx') && !relativePath.endsWith('.md')) {
+      continue;
+    }
+    if (isSlidesPath(relativePath)) {
+      continue;
+    }
+    if (fm.draft === true || fm.visibility === 'hidden') {
+      continue;
+    }
+
+    const route = resolveSearchRoute(relativePath);
+    const title =
+      fm.title ||
+      (route === '/' ? siteName : normalizeTitle(path.basename(relativePath).replace(/\.mdx?$/i, '')));
+
+    entries.push({
+      title,
+      description: fm.description,
+      path: route,
+    });
+  }
+
+  entries.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true }));
+  return entries;
+}
+
 const VIRTUAL_MODULE_ID = 'virtual:content-modules'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 
@@ -453,6 +526,12 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     if (pathname === '/llms-full.txt' && siteConfig.llmsTxt) {
       res.setHeader('Content-Type', 'text/plain; charset=utf-8')
       res.end(generateLlmsFullTxt())
+      return
+    }
+
+    if (pathname === '/raw/search.json') {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8')
+      res.end(JSON.stringify(generateSearchIndex(dir, siteConfig.name)))
       return
     }
 
@@ -729,12 +808,16 @@ export const modules = import.meta.glob(['@content/*.mdx', '@content/*.md', '@co
 
       console.log(`Copying content from ${dir} to ${destDir}`)
 
-      if (fs.existsSync(dir)) {
-        copyDirSync(dir, destDir)
-        console.log(`Content copied successfully`)
+    if (fs.existsSync(dir)) {
+      copyDirSync(dir, destDir)
+      console.log(`Content copied successfully`)
 
-        // Generate llms.txt files if enabled
-        if (siteConfig.llmsTxt) {
+      const searchIndexPath = path.join(destDir, 'search.json')
+      fs.writeFileSync(searchIndexPath, JSON.stringify(generateSearchIndex(dir, siteConfig.name)))
+      console.log(`Generated search.json`)
+
+      // Generate llms.txt files if enabled
+      if (siteConfig.llmsTxt) {
           const llmsTxtPath = path.join(outDir, 'llms.txt')
           fs.writeFileSync(llmsTxtPath, generateLlmsTxt())
           console.log(`Generated llms.txt`)

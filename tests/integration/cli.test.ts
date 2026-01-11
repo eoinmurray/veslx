@@ -5,7 +5,7 @@ import { chromium, type Browser } from "playwright";
 import {
   packAndInstall,
   copyFixtures,
-  waitForServer,
+  waitForDevServer,
   serveStatic,
   cleanup,
   type TestContext,
@@ -38,17 +38,17 @@ describe("veslx CLI integration", () => {
         cwd: ctx.testDir,
         stdout: "pipe",
         stderr: "pipe",
+        env: { ...process.env, VESLX_DEV: "1" },
       });
 
       ctx.serverProcess = serverProcess;
 
       try {
         // Wait for server to be ready
-        const ready = await waitForServer("http://localhost:3000", 30000);
-        expect(ready).toBe(true);
+        const { url } = await waitForDevServer(serverProcess, 30000);
 
         // Fetch the homepage
-        const response = await fetch("http://localhost:3000");
+        const response = await fetch(url);
         expect(response.ok).toBe(true);
 
         const html = await response.text();
@@ -68,14 +68,14 @@ describe("veslx CLI integration", () => {
         cwd: ctx.testDir,
         stdout: "pipe",
         stderr: "pipe",
+        env: { ...process.env, VESLX_DEV: "1" },
       });
 
       ctx.serverProcess = serverProcess;
 
       try {
         // Wait for server to be ready
-        const ready = await waitForServer("http://localhost:3000", 30000);
-        expect(ready).toBe(true);
+        const { url } = await waitForDevServer(serverProcess, 30000);
 
         // Open browser and collect console errors
         const page = await browser.newPage();
@@ -88,7 +88,7 @@ describe("veslx CLI integration", () => {
         });
 
         // Test directory listing (folder without index/README)
-        await page.goto("http://localhost:3000/docs");
+        await page.goto(`${url}/docs`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForFunction(
           () => document.body.textContent?.includes("External Link Post"),
@@ -101,7 +101,7 @@ describe("veslx CLI integration", () => {
         expect(externalLinkCount).toBeGreaterThan(0);
 
         // Test README page (post)
-        await page.goto("http://localhost:3000/README.mdx");
+        await page.goto(`${url}/README.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         // Wait for article element (MDX content is rendered within an article)
         await page.waitForSelector("article", { state: "attached", timeout: 10000 });
@@ -119,14 +119,14 @@ describe("veslx CLI integration", () => {
         expect(pageContent).toContain("15 Jan, 24"); // date from frontmatter
 
         // Test SLIDES page (presentation)
-        await page.goto("http://localhost:3000/SLIDES.mdx");
+        await page.goto(`${url}/SLIDES.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForTimeout(1000);
         rootContent = await page.locator("#root").innerHTML();
         expect(rootContent.length).toBeGreaterThan(100);
 
         // Test .slides.mdx format (alternative slides naming)
-        await page.goto("http://localhost:3000/presentation.slides.mdx");
+        await page.goto(`${url}/presentation.slides.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForTimeout(1000);
         rootContent = await page.locator("#root").innerHTML();
@@ -134,7 +134,7 @@ describe("veslx CLI integration", () => {
         expect(rootContent).toContain("Dot Slides Test");
 
         // Test hyphenated .slides.mdx filename (e.g., getting-started.slides.mdx)
-        await page.goto("http://localhost:3000/getting-started.slides.mdx");
+        await page.goto(`${url}/getting-started.slides.mdx`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForTimeout(1000);
         rootContent = await page.locator("#root").innerHTML();
@@ -145,7 +145,7 @@ describe("veslx CLI integration", () => {
         expect(rootContent).toContain("Test hyphenated slides filename"); // description from frontmatter
 
         // Verify standalone .slides.mdx files appear in directory listing
-        await page.goto("http://localhost:3000/docs");
+        await page.goto(`${url}/docs`);
         await page.waitForSelector("#root", { state: "attached" });
         await page.waitForFunction(
           () => document.querySelectorAll('a[href*=".slides.mdx"]').length > 0,
@@ -153,6 +153,20 @@ describe("veslx CLI integration", () => {
         );
         const slidesLinks = await page.locator('a[href*=".slides.mdx"]').count();
         expect(slidesLinks).toBeGreaterThan(0);
+
+        // Test gallery theme variants (gif light/dark)
+        await page.goto(`${url}/gallery/README.mdx`);
+        await page.waitForSelector("figure img", { state: "attached" });
+        const galleryImageCount = await page.locator("figure img").count();
+        expect(galleryImageCount).toBe(1);
+        const isDarkTheme = await page.evaluate(() =>
+          document.documentElement.classList.contains("dark")
+        );
+        const gallerySrc = await page
+          .locator("figure img")
+          .first()
+          .getAttribute("src");
+        expect(gallerySrc).toContain(isDarkTheme ? "diagram_dark.gif" : "diagram_light.gif");
 
         // Verify no console errors across all pages
         expect(consoleErrors).toEqual([]);
@@ -183,13 +197,13 @@ describe("veslx CLI integration", () => {
         cwd: ctx.testDir,
         stdout: "pipe",
         stderr: "pipe",
+        env: { ...process.env, VESLX_DEV: "1" },
       });
 
       ctx.serverProcess = serverProcess;
 
       try {
-        const ready = await waitForServer("http://localhost:3000", 30000);
-        expect(ready).toBe(true);
+        const { url } = await waitForDevServer(serverProcess, 30000);
 
         const page = await browser.newPage();
         const consoleErrors: string[] = [];
@@ -200,7 +214,7 @@ describe("veslx CLI integration", () => {
           }
         });
 
-        await page.goto("http://localhost:3000/");
+        await page.goto(`${url}/`);
         await page.waitForSelector("#root", { state: "attached" });
 
         // The homepage should render the README content, not the directory listing title.

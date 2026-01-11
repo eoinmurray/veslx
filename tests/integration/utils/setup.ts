@@ -90,6 +90,46 @@ export async function waitForServer(
   return false;
 }
 
+export async function waitForDevServer(
+  process: Subprocess,
+  timeoutMs: number = 30000
+): Promise<{ port: number; url: string }> {
+  if (!process.stdout) {
+    throw new Error("Dev server stdout not available");
+  }
+
+  const reader = process.stdout.getReader();
+  const decoder = new TextDecoder();
+  const start = Date.now();
+  let buffer = "";
+
+  while (Date.now() - start < timeoutMs) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const cleaned = buffer.replace(/\x1b\[[0-9;]*m/g, "");
+    const match =
+      cleaned.match(/listening\s+:(\d+)/) ||
+      cleaned.match(/http:\/\/localhost:(\d+)/);
+
+    if (match) {
+      const port = Number(match[1]);
+      const url = `http://localhost:${port}`;
+      const ready = await waitForServer(url, timeoutMs);
+      if (ready) {
+        return { port, url };
+      }
+    }
+
+    if (buffer.length > 20000) {
+      buffer = buffer.slice(-20000);
+    }
+  }
+
+  throw new Error("Dev server did not start within timeout");
+}
+
 // Helper script for SPA static server
 const SPA_SERVER_SCRIPT = `
 import * as fs from "fs";

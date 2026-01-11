@@ -1,10 +1,18 @@
 {
   "name": "veslx",
-  "version": "0.1.50",
+  "version": "0.1.53",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/eoinmurray/veslx.git"
+  },
+  "scripts": {
+    "dev": "VESLX_DEV=1 bun bin/veslx.ts serve content",
+    "build": "bun bin/veslx.ts build content",
+    "build:lib": "vite build --config vite.lib.config.ts",
+    "build:cli": "tsc -p tsconfig.build.json && node scripts/add-shebang.mjs",
+    "prepublishOnly": "npm run build:lib && npm run build:cli",
+    "test": "bun test"
   },
   "publishConfig": {
     "access": "public"
@@ -27,14 +35,6 @@
     "postcss.config.js",
     "tsconfig.build.json"
   ],
-  "scripts": {
-    "dev": "VESLX_DEV=1 bun bin/veslx.ts serve content",
-    "build": "bun bin/veslx.ts build content",
-    "build:lib": "vite build --config vite.lib.config.ts",
-    "build:cli": "tsc -p tsconfig.build.json && node scripts/add-shebang.mjs",
-    "prepublishOnly": "npm run build:lib && npm run build:cli",
-    "test": "bun test"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
