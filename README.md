@@ -28,8 +28,7 @@
 Built on Vite + React + Tailwind. Fast builds. Instant hot reload. Beautiful defaults.
 
 ```bash
-bun install -g veslx
-veslx serve
+bunx veslx serve
 ```
 
 That's it. Your docs are live at `localhost:3000` (or the next available port).
@@ -37,18 +36,6 @@ That's it. Your docs are live at `localhost:3000` (or the next available port).
 ---
 
 ## Quick Start
-
-### Install
-
-```bash
-# Using bun (fast)
-bun install -g veslx
-
-# Or npm (Node 18+)
-npm install -g veslx
-```
-
-Requires Node >= 18 or Bun >= 1.0.
 
 ### Create Your First Post
 
@@ -76,7 +63,7 @@ EOF
 
 ```bash
 cd docs
-veslx serve
+bunx veslx serve
 ```
 
 Open the URL printed in the console (defaults to [localhost:3000](http://localhost:3000)). Done.

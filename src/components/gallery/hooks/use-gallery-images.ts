@@ -111,11 +111,21 @@ export function useGalleryImages({
     let imagePaths: string[];
 
     if (globs && globs.length > 0) {
-      // When globs provided, collect all images recursively and match against filename
-      const allImages = collectAllImages(directory);
-      imagePaths = allImages
-        .map(img => img.path)
-        .filter(p => globs.some(glob => minimatch(p, glob, { matchBase: true })));
+      // When globs provided, preserve glob ordering and avoid duplicates.
+      const allImages = collectAllImages(directory).map((img) => img.path);
+      const seen = new Set<string>();
+      imagePaths = [];
+
+      for (const glob of globs) {
+        const matches = allImages.filter((p) =>
+          !seen.has(p) && minimatch(p, glob, { matchBase: true })
+        );
+        sortPathsNumerically(matches);
+        for (const match of matches) {
+          seen.add(match);
+          imagePaths.push(match);
+        }
+      }
     } else {
       // No globs - just get images from the specified directory
       const imageChildren = directory.children.filter((child): child is FileEntry => {
@@ -124,7 +134,9 @@ export function useGalleryImages({
       imagePaths = imageChildren.map(child => child.path);
     }
 
-    sortPathsNumerically(imagePaths);
+    if (!globs || globs.length === 0) {
+      sortPathsNumerically(imagePaths);
+    }
     let filtered = filterPathsByTheme(imagePaths, resolvedTheme);
 
     if (limit) {
