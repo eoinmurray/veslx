@@ -3,6 +3,7 @@ import Gallery from '@/components/gallery'
 import { ParameterTable } from '@/components/parameter-table'
 import { ParameterBadge } from '@/components/parameter-badge'
 import { VeslxCat } from '@/components/veslx-cat'
+import { VeslxTOC } from '@/components/veslx-toc'
 import { FrontMatter } from './front-matter'
 import { HeroSlide } from './slides/hero-slide'
 import { FigureSlide } from './slides/figure-slide'
@@ -99,6 +100,8 @@ export const mdxComponents = {
   VeslxPostListItem: PostListItem,
 
   VeslxCat: VeslxCat,
+
+  VeslxTOC: VeslxTOC,
 
   VeslxSearch: VeslxSearch,
 

@@ -626,7 +626,7 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
             const absoluteContentDir = dir.replace(/\\/g, '/')
             const sourceDirective = `@source "${absoluteContentDir}/**/*.{html,js,jsx,ts,tsx,mdx,md,vue,svelte}";`
 
-            // Inject @source directive after the tailwindcss import
+            // Inject @source directives after the tailwindcss import
             const modified = code.replace(
               /(@import\s+["']tailwindcss["'];?)/,
               `$1\n${sourceDirective}`

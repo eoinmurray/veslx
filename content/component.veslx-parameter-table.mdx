@@ -6,7 +6,13 @@ description: "Render YAML or JSON files as a table."
 <VeslxFrontMatter />
 
 ```mdx
-<VeslxParameterTable path="./config.yaml" />
+<VeslxParameterTable
+  path="./config.yaml"
+  pairs={[
+    { key: ".base.N_E", label: "N_E" },
+    { key: ".base.N_I", label: "N_I" }
+  ]}
+/>
 ```
 
 ### Example
@@ -21,10 +27,35 @@ Live table rendering from a local config file:
   ]}
 />
 
+### Compact
+Use `compact` for dense tables when there are many parameters.
+
+```mdx
+<VeslxParameterTable
+  path="./config.yaml"
+  compact
+  pairs={[
+    { key: ".base.N_E", label: "N_E" },
+    { key: ".base.N_I", label: "N_I" },
+    { key: ".base.dt", label: "dt (ms)" }
+  ]}
+/>
+```
+
+<VeslxParameterTable
+  path="./config.yaml"
+  compact
+  pairs={[
+    { key: ".base.N_E", label: "N_E" },
+    { key: ".base.N_I", label: "N_I" },
+    { key: ".base.dt", label: "dt (ms)" }
+  ]}
+/>
+
 Props:
 
 | Prop | Type | Notes |
 | --- | --- | --- |
 | path | string | File path or glob |
-| keys | string[] | Filter with jq-like paths |
-| pairs | \{ key: string; label?: string \}[] | Render only listed keys as a markdown-style table |
+| pairs | \{ key: string; label?: string \}[] | Required list of keys to render |
+| compact | boolean | Render a denser, compact table |
