@@ -1,0 +1,95 @@
+---
+title: "VeslxGallery"
+description: "Responsive image galleries."
+---
+
+<VeslxFrontMatter />
+
+```mdx
+<VeslxGallery
+  path="images"
+  globs={["*.png"]}
+  baseUrl="https://cdn.example.com/assets"
+  title="Results"
+  caption="Measurements at 25C"
+  captionLabel="Figure 2"
+/>
+```
+
+### Size variants
+Use `size` to control the gallery width.
+
+```mdx
+<VeslxGallery path="images" globs={["image1.png"]} size="sm" title="Small" />
+<VeslxGallery path="images" globs={["image1.png"]} size="md" title="Medium" />
+<VeslxGallery path="images" globs={["image1.png"]} size="lg" title="Large" />
+```
+
+<VeslxGallery path="images" globs={["image1.png"]} size="sm" title="Small" />
+<VeslxGallery path="images" globs={["image1.png"]} size="md" title="Medium" />
+<VeslxGallery path="images" globs={["image1.png"]} size="lg" title="Large" />
+
+### Full-width scroll row
+When you provide more than three images, VeslxGallery renders a horizontal row that spans the screen.
+
+```mdx
+<VeslxGallery
+  path="images"
+  globs={["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png", "image8.png", "image9.png", "image1.png"]}
+  title="More images"
+  caption="A wider gallery row with more than three images."
+  captionLabel="Figure 3"
+/>
+```
+
+<VeslxGallery
+  path="images"
+  globs={["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png", "image8.png", "image9.png", "image1.png"]}
+  title="More images"
+  caption="A wider gallery row with more than three images."
+  captionLabel="Figure 3"
+/>
+
+### Multi-row gallery
+Provide a grouped `globs` array to render multiple rows, with optional per-row subtitles.
+
+```mdx
+<VeslxGallery
+  path="images"
+  globs={[
+    ["image1.png", "image2.png", "image3.png"],
+    ["image4.png", "image5.png", "image6.png", "image7.png"]
+  ]}
+  title="Multi-row"
+  subtitles={["Row 1", "Row 2"]}
+  caption="Grouped rows with their own subtitles."
+/>
+```
+
+<VeslxGallery
+  path="images"
+  globs={[
+    ["image1.png", "image2.png", "image3.png"],
+    ["image4.png", "image5.png", "image6.png", "image7.png"]
+  ]}
+  title="Multi-row"
+  subtitles={["Row 1", "Row 2"]}
+  caption="Grouped rows with their own subtitles."
+/>
+
+Props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| path | string | - | Relative to content root |
+| globs | string[] \| string[][] | null | Filter images (grouped arrays become rows) |
+| baseUrl | string | - | Optional CDN/base URL for image sources |
+| title | string | - | Optional title |
+| subtitle | string | - | Optional subtitle |
+| caption | string | - | Optional caption |
+| subtitles | string[] | - | Per-row subtitles when using grouped globs |
+| captionLabel | string | - | Caption prefix |
+| size | "sm" \| "md" \| "lg" | "lg" | Gallery width |
+| limit | number | null | Max images |
+| page | number | 0 | Page offset |
+| childAlign | "left" or "right" | "right" | Side content alignment |

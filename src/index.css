@@ -78,9 +78,24 @@
   /* Layout widths - generous for galleries */
   --content-width: 44rem;
   --content-width-wide: 72rem;
-  --gallery-width: 90vw;
+  --gallery-width: min(90vw, 72rem);
   --prose-width: 60ch;
   --page-padding: 2rem;
+}
+
+.gallery-breakout {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.gallery-scroll-row {
+  padding-left: var(--page-padding);
+  padding-right: var(--page-padding);
+  scroll-padding-left: var(--page-padding);
+  scroll-padding-right: var(--page-padding);
 }
 
 .dark {

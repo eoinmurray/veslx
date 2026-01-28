@@ -13,7 +13,6 @@ This repo deploys the static build to GitHub Pages using a workflow that runs on
 ## Workflow (same as this repo)
 Create `.github/workflows/pages.yml`:
 
-<VeslxCopyButton>
 ```
 name: Deploy to GitHub Pages
 
@@ -65,7 +64,6 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 ```
-</VeslxCopyButton>
 
 ## Custom domain (optional)
 If you use a custom domain, add a `CNAME` step before upload:

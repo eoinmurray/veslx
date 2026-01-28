@@ -1,0 +1,30 @@
+---
+title: "VeslxParameterTable"
+description: "Render YAML or JSON files as a table."
+---
+
+<VeslxFrontMatter />
+
+```mdx
+<VeslxParameterTable path="./config.yaml" />
+```
+
+### Example
+Live table rendering from a local config file:
+
+<VeslxParameterTable
+  path="./config.yaml"
+  pairs={[
+    { key: ".base.N_E", label: "N_E" },
+    { key: ".base.N_I", label: "N_I" },
+    { key: ".base.dt", label: "dt (ms)" }
+  ]}
+/>
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| path | string | File path or glob |
+| keys | string[] | Filter with jq-like paths |
+| pairs | \{ key: string; label?: string \}[] | Render only listed keys as a markdown-style table |

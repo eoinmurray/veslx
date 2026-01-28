@@ -75,7 +75,7 @@ export function useGalleryImages({
   page = 0,
 }: {
   path?: string;
-  globs?: string[] | null;
+  globs?: string[] | string[][] | null;
   limit?: number | null;
   page?: number;
 }) {
@@ -105,50 +105,62 @@ export function useGalleryImages({
   const directoryPath = resolvedPath || ".";
   const { directory, error } = useDirectory(directoryPath);
 
-  const paths = useMemo(() => {
-    if (!directory) return [];
+  const { paths, rows } = useMemo(() => {
+    if (!directory) return { paths: [], rows: [] };
 
-    let imagePaths: string[];
+    const allImages = collectAllImages(directory).map((img) => img.path);
 
-    if (globs && globs.length > 0) {
-      // When globs provided, preserve glob ordering and avoid duplicates.
-      const allImages = collectAllImages(directory).map((img) => img.path);
+    const resolveGlobs = (globList: string[]) => {
       const seen = new Set<string>();
-      imagePaths = [];
+      const resolved: string[] = [];
 
-      for (const glob of globs) {
+      for (const glob of globList) {
         const matches = allImages.filter((p) =>
           !seen.has(p) && minimatch(p, glob, { matchBase: true })
         );
         sortPathsNumerically(matches);
         for (const match of matches) {
           seen.add(match);
-          imagePaths.push(match);
+          resolved.push(match);
         }
       }
-    } else {
-      // No globs - just get images from the specified directory
-      const imageChildren = directory.children.filter((child): child is FileEntry => {
-        return !!child.name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i) && child.type === "file";
-      });
-      imagePaths = imageChildren.map(child => child.path);
+
+      let filtered = filterPathsByTheme(resolved, resolvedTheme);
+      if (limit) {
+        filtered = filtered.slice(page * limit, (page + 1) * limit);
+      }
+
+      return filtered;
+    };
+
+    if (globs && globs.length > 0) {
+      const isGrouped = Array.isArray(globs[0]);
+      if (isGrouped) {
+        const grouped = (globs as string[][]).map((group) => resolveGlobs(group));
+        return { paths: grouped.flat(), rows: grouped };
+      }
+
+      const resolved = resolveGlobs(globs as string[]);
+      return { paths: resolved, rows: [resolved] };
     }
 
-    if (!globs || globs.length === 0) {
-      sortPathsNumerically(imagePaths);
-    }
+    // No globs - just get images from the specified directory
+    const imageChildren = directory.children.filter((child): child is FileEntry => {
+      return !!child.name.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i) && child.type === "file";
+    });
+    const imagePaths = imageChildren.map(child => child.path);
+    sortPathsNumerically(imagePaths);
     let filtered = filterPathsByTheme(imagePaths, resolvedTheme);
-
     if (limit) {
       filtered = filtered.slice(page * limit, (page + 1) * limit);
     }
 
-
-    return filtered;
+    return { paths: filtered, rows: [filtered] };
   }, [directory, globs, resolvedTheme, limit, page]);
 
   return {
     paths,
+    rows,
     isLoading: !directory && !error,
     isEmpty: !!error || (directory !== null && paths.length === 0),
   };

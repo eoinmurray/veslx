@@ -1,0 +1,19 @@
+---
+title: "VeslxParameterBadge"
+description: "Inline parameter display."
+---
+
+<VeslxFrontMatter />
+
+```mdx
+<VeslxParameterBadge path="./config.yaml" keyPath=".base.dt" unit="ms" />
+```
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| path | string | File path |
+| keyPath | string | jq-like path |
+| label | string | Optional override |
+| unit | string | Optional suffix |

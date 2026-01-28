@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import Gallery from '@/components/gallery'
 import { ParameterTable } from '@/components/parameter-table'
 import { ParameterBadge } from '@/components/parameter-badge'
+import { VeslxCat } from '@/components/veslx-cat'
 import { FrontMatter } from './front-matter'
 import { HeroSlide } from './slides/hero-slide'
 import { FigureSlide } from './slides/figure-slide'
@@ -9,7 +10,6 @@ import { TextSlide } from './slides/text-slide'
 import { SlideOutline } from './slides/slide-outline'
 import { PostList } from '@/components/post-list'
 import { PostListItem } from '@/components/post-list-item'
-import { CopyButton } from '@/components/copy-paste'
 import { VeslxSearch } from '@/components/veslx-search'
 /**
  * Smart link component that uses React Router for internal links
@@ -98,7 +98,7 @@ export const mdxComponents = {
 
   VeslxPostListItem: PostListItem,
 
-  VeslxCopyButton: CopyButton,
+  VeslxCat: VeslxCat,
 
   VeslxSearch: VeslxSearch,
 

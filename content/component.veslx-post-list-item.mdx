@@ -1,0 +1,25 @@
+---
+title: "VeslxPostListItem"
+description: "Build custom lists."
+---
+
+<VeslxFrontMatter />
+
+```mdx
+<VeslxPostListItem
+  title="Getting Started"
+  description="Intro"
+  linkPath="/docs/getting-started"
+  date={new Date("2025-01-15")}
+/>
+```
+
+Props:
+
+| Prop | Type | Notes |
+| --- | --- | --- |
+| title | string | required |
+| description | string | optional |
+| date | Date | optional |
+| linkPath | string | required |
+| isSlides | boolean | optional |

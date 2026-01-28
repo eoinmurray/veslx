@@ -1,0 +1,26 @@
+---
+title: "VeslxPostList"
+description: "Lists pages in the current folder."
+---
+
+<VeslxFrontMatter />
+
+```mdx
+<VeslxPostList />
+```
+
+Group content by globs (useful on a custom homepage):
+
+```mdx
+# Getting Started
+<VeslxPostList globs={["00-*", "01-*"]} />
+
+# Tutorials
+<VeslxPostList globs={["tutorials/*"]} />
+```
+
+Props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| globs | string[] | null | Filter by file glob |

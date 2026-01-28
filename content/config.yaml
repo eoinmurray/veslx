@@ -1,0 +1,19 @@
+base:
+  dt: 0.1
+  N_E: 8000
+  N_I: 2000
+model:
+  name: "EI network"
+  enabled: true
+  gains:
+    excitatory: 1.2
+    inhibitory: 0.9
+inputs:
+  default:
+    rate: 10
+    unit: "Hz"
+  layers:
+    - name: "L2/3"
+      weight: 0.8
+    - name: "L4"
+      weight: 1.0

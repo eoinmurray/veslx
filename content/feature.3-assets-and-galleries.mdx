@@ -19,9 +19,33 @@ Use the built-in VeslxGallery component for image grids:
 <VeslxGallery
   path="images"
   globs={["image1.png", "image2.png"]}
+  baseUrl="https://cdn.example.com/assets"
   title="Sample images"
   caption="A small example gallery."
   captionLabel="Figure 1"
+/>
+
+When `baseUrl` is set, VeslxGallery still uses your local content tree for globbing but loads images from the CDN URL.
+
+### Full-width scroll row
+Galleries with more than three images become a scrollable row that spans the screen.
+
+```mdx
+<VeslxGallery
+  path="images"
+  globs={["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png", "image8.png", "image9.png", "image1.png"]}
+  title="More images"
+  caption="A wider gallery row with more than three images."
+  captionLabel="Figure 2"
+/>
+```
+
+<VeslxGallery
+  path="images"
+  globs={["image1.png", "image2.png", "image3.png", "image4.png", "image5.png", "image6.png", "image7.png", "image8.png", "image9.png", "image1.png"]}
+  title="More images"
+  caption="A wider gallery row with more than three images."
+  captionLabel="Figure 2"
 />
 ```
 

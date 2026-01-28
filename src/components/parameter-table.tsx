@@ -109,32 +109,43 @@ function ParameterGrid({ entries }: { entries: [string, ParameterValue][] }) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-6 gap-y-px">
-      {entries.map(([key, value]) => {
-        const type = getValueType(value);
-        return (
-          <div
-            key={key}
-            className="flex items-baseline justify-between gap-2 py-1 group hover:bg-muted/30 -mx-1.5 px-1.5 rounded-sm transition-colors"
-          >
-            <span className="text-[11px] text-muted-foreground font-mono truncate">
-              {key}
-            </span>
-            <span
-              className={cn(
-                "text-[11px] font-mono tabular-nums font-medium truncate max-w-[120px]",
-                type === "number" && "text-foreground",
-                type === "string" && "text-amber-600 dark:text-amber-500",
-                type === "boolean" && "text-cyan-600 dark:text-cyan-500",
-                type === "null" && "text-muted-foreground/50"
-              )}
-              title={type === "string" ? `"${formatValue(value)}"` : formatValue(value)}
-            >
-              {type === "string" ? `"${formatValue(value)}"` : formatValue(value)}
-            </span>
-          </div>
-        );
-      })}
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse text-[11px] font-mono">
+        <thead>
+          <tr className="text-muted-foreground/70 uppercase tracking-widest">
+            <th className="text-left font-semibold py-1.5 px-1 border-b border-border/50">
+              Parameter
+            </th>
+            <th className="text-right font-semibold py-1.5 px-1 border-b border-border/50">
+              Value
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map(([key, value]) => {
+            const type = getValueType(value);
+            return (
+              <tr key={key} className="border-b border-border/30 last:border-b-0">
+                <td className="py-1.5 px-1 text-muted-foreground truncate" title={key}>
+                  {key}
+                </td>
+                <td
+                  className={cn(
+                    "py-1.5 px-1 text-right tabular-nums font-medium truncate",
+                    type === "number" && "text-foreground",
+                    type === "string" && "text-amber-600 dark:text-amber-500",
+                    type === "boolean" && "text-cyan-600 dark:text-cyan-500",
+                    type === "null" && "text-muted-foreground/50"
+                  )}
+                  title={type === "string" ? `"${formatValue(value)}"` : formatValue(value)}
+                >
+                  {type === "string" ? `"${formatValue(value)}"` : formatValue(value)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -161,25 +172,29 @@ function ParameterSection({
     return t === "object" || t === "array";
   });
 
+  const isTopLevel = depth === 0;
+
   return (
-    <div className={cn(depth === 0 && "mb-4 last:mb-0")}>
+    <div
+      className={cn(
+        isTopLevel && "mb-4 last:mb-0 rounded-md border border-border/40 bg-card/30 p-2",
+        !isTopLevel && "mb-3 last:mb-0"
+      )}
+    >
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
-          "flex items-center gap-2 w-full text-left group mb-1.5",
-          depth === 0 && "pb-1 border-b border-border/50"
+          "flex items-center gap-2 w-full text-left group mb-1.5 px-1",
+          isTopLevel && "pb-1 border-b border-border/50"
         )}
       >
-        <span className={cn(
-          "text-[10px] text-muted-foreground/60 transition-transform duration-150 select-none",
-          isCollapsed && "-rotate-90"
-        )}>
-          {isCollapsed ? "+" : "-"}
+        <span className="text-[10px] text-muted-foreground/60 select-none">
+          {isCollapsed ? "▸" : "▾"}
         </span>
 
         <span className={cn(
           "font-mono text-[11px] uppercase tracking-widest",
-          depth === 0
+          isTopLevel
             ? "text-foreground/80 font-semibold"
             : "text-muted-foreground/70"
         )}>
@@ -259,6 +274,11 @@ interface SingleParameterTableProps {
    *   - [".default_inputs", ".base.dt"] → show default_inputs section and dt from base
    */
   keys?: string[];
+  /**
+   * Optional array of key/label pairs to render as a markdown-style table.
+   * Each key is a jq-like path (e.g., ".base.dt").
+   */
+  pairs?: Array<{ key: string; label?: string }>;
   /** Optional label to show above the table */
   label?: string;
   /** Whether to include vertical margin (default true) */
@@ -272,6 +292,10 @@ interface ParameterTableProps {
    * Optional array of jq-like paths to filter which parameters to show.
    */
   keys?: string[];
+  /**
+   * Optional array of key/label pairs to render as a markdown-style table.
+   */
+  pairs?: Array<{ key: string; label?: string }>;
 }
 
 /**
@@ -359,7 +383,7 @@ function splitIntoColumns<T extends [string, ParameterValue]>(
   return columns;
 }
 
-function SingleParameterTable({ path, keys, label, withMargin = true }: SingleParameterTableProps) {
+function SingleParameterTable({ path, keys, pairs, label, withMargin = true }: SingleParameterTableProps) {
   const { content, loading, error } = useFileContent(path);
 
   const { parsed, parseError } = useMemo(() => {
@@ -376,6 +400,10 @@ function SingleParameterTable({ path, keys, label, withMargin = true }: SinglePa
         return { parsed: null, parseError: `file not found` };
       }
       return { parsed: null, parseError: `invalid ${path.split('.').pop()} syntax` };
+    }
+
+    if (pairs && pairs.length > 0) {
+      return { parsed: data, parseError: null };
     }
 
     if (keys && keys.length > 0) {
@@ -430,24 +458,65 @@ function SingleParameterTable({ path, keys, label, withMargin = true }: SinglePa
     return t === "object" || t === "array";
   });
 
-  const estHeight = estimateHeight(parsed);
-  const HEIGHT_THRESHOLD = 500;
-  const numColumns = estHeight > HEIGHT_THRESHOLD ? Math.min(Math.ceil(estHeight / HEIGHT_THRESHOLD), 3) : 1;
-  const useColumns = numColumns > 1 && topNested.length > 1;
+  const useColumns = false;
 
-  const columns = useColumns
-    ? splitIntoColumns(topNested as [string, ParameterValue][], numColumns)
-    : [topNested];
+  const columns = [topNested];
 
   const filename = path.split("/").pop() || path;
+
+  const renderPairsTable = () => {
+    if (!pairs || pairs.length === 0) return null;
+
+    return (
+      <div className="not-prose my-6 overflow-x-auto border border-border rounded-md">
+        <table className="w-full text-sm border-collapse">
+          <thead className="bg-muted/50">
+            <tr className="border-b border-border last:border-b-0">
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Parameter
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Value
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {pairs.map(({ key, label: rowLabel }) => {
+              const value = extractPath(parsed, key);
+              const type = value === undefined ? "missing" : getValueType(value);
+              const displayValue = value === undefined
+                ? "—"
+                : type === "string"
+                  ? `"${formatValue(value)}"`
+                  : formatValue(value);
+
+              return (
+                <tr key={key} className="border-b border-border last:border-b-0">
+                  <td className="px-4 py-3 align-top">{rowLabel || key}</td>
+                  <td
+                    className={cn(
+                      "px-4 py-3 align-top",
+                      type === "missing" && "text-muted-foreground"
+                    )}
+                  >
+                    {displayValue}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   const renderNestedEntry = ([key, value]: [string, ParameterValue]) => {
     const type = getValueType(value);
     if (type === "array") {
       const arr = value as ParameterValue[];
       return (
-        <div key={key} className="mb-4 last:mb-0">
-          <div className="text-[11px] font-mono text-foreground/80 uppercase tracking-widest font-semibold mb-1.5 pb-1 border-b border-border/50">
+        <div key={key} className="mb-4 last:mb-0 rounded-md border border-border/40 bg-card/30 p-2">
+          <div className="text-[11px] font-mono text-foreground/80 uppercase tracking-widest font-semibold mb-1.5 pb-1 border-b border-border/50 px-1">
             {key.replace(/_/g, " ")} [{arr.length}]
           </div>
           <div className="pl-3 ml-1 border-l border-border/40">
@@ -490,30 +559,34 @@ function SingleParameterTable({ path, keys, label, withMargin = true }: SinglePa
           {label}
         </div>
       )}
-      <div className="rounded border border-border/60 bg-card/20 p-3 overflow-hidden max-w-full">
-        {topLeaves.length > 0 && (
-          <div className={cn(topNested.length > 0 && "mb-4 pb-3 border-b border-border/30")}>
-            <ParameterGrid entries={topLeaves} />
-          </div>
-        )}
+      {pairs && pairs.length > 0 ? (
+        renderPairsTable()
+      ) : (
+        <div className="rounded border border-border/60 bg-card/20 p-3 overflow-hidden max-w-full">
+          {topLeaves.length > 0 && (
+            <div className={cn(topNested.length > 0 && "mb-4 pb-3 border-b border-border/30")}>
+              <ParameterGrid entries={topLeaves} />
+            </div>
+          )}
 
-        {useColumns ? (
-          <div
-            className="grid gap-6"
-            style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
-          >
-            {columns.map((columnEntries, colIndex) => (
-              <div key={colIndex} className={cn(
-                colIndex > 0 && "border-l border-border/30 pl-6"
-              )}>
-                {columnEntries.map(renderNestedEntry)}
-              </div>
-            ))}
-          </div>
-        ) : (
-          topNested.map(renderNestedEntry)
-        )}
-      </div>
+          {useColumns ? (
+            <div
+              className="grid gap-6"
+              style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
+            >
+              {columns.map((columnEntries, colIndex) => (
+                <div key={colIndex} className={cn(
+                  colIndex > 0 && "border-l border-border/30 pl-6"
+                )}>
+                  {columnEntries.map(renderNestedEntry)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            topNested.map(renderNestedEntry)
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -522,7 +595,7 @@ function SingleParameterTable({ path, keys, label, withMargin = true }: SinglePa
  * ParameterTable component that displays YAML/JSON config files.
  * Supports glob patterns in the path prop to show multiple files.
  */
-export function ParameterTable({ path, keys }: ParameterTableProps) {
+export function ParameterTable({ path, keys, pairs }: ParameterTableProps) {
   const { "*": routePath = "" } = useParams();
 
   // Get current directory from route
@@ -572,7 +645,7 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
 
   // If not a glob pattern, just render the single table
   if (!hasGlob) {
-    return <SingleParameterTable path={resolvedPath} keys={keys} />;
+    return <SingleParameterTable path={resolvedPath} keys={keys} pairs={pairs} />;
   }
 
   // Loading state for glob patterns
@@ -619,6 +692,7 @@ export function ParameterTable({ path, keys }: ParameterTableProps) {
             <SingleParameterTable
               path={filePath}
               keys={keys}
+              pairs={pairs}
               label={filePath.split('/').pop() || filePath}
               withMargin={false}
             />
