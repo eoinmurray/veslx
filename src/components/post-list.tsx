@@ -25,17 +25,25 @@ function formatName(name: string): string {
     .replace(/\b\w/g, c => c.toUpperCase());
 }
 
+function filePathToRoutePath(filePath: string): string {
+  // Routes without an extension are treated as directories; ContentRouter will
+  // render index/readme files automatically via IndexPost.
+  const normalized = filePath.replace(/^\/+/, '');
+  const stripped = normalized.replace(/(?:^|\/)(?:index|readme)\.mdx?$/i, '');
+  return stripped ? `/${stripped}` : '/';
+}
+
 // Helper to get link path from post
 function getLinkPath(post: PostEntry): string {
   if (post.file) {
     // Standalone MDX file
-    return `/${post.file.path}`;
+    return filePathToRoutePath(post.file.path);
   } else if (post.slides && !post.readme) {
     // Folder with only slides
     return `/${post.slides.path}`;
   } else if (post.readme) {
     // Folder with readme
-    return `/${post.readme.path}`;
+    return filePathToRoutePath(post.readme.path);
   } else {
     // Fallback to folder path
     return `/${post.path}`;

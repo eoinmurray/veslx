@@ -84,6 +84,11 @@ interface SingleParameterTableProps {
   label?: string;
   /** Whether to include vertical margin (default true) */
   withMargin?: boolean;
+  /**
+   * Whether this table should manage its own horizontal scrolling.
+   * Set false when the parent already provides a single shared scrollbar.
+   */
+  scrollable?: boolean;
   /** Compact mode for dense rendering */
   compact?: boolean;
 }
@@ -99,7 +104,14 @@ interface ParameterTableProps {
   compact?: boolean;
 }
 
-function SingleParameterTable({ path, pairs, label, withMargin = true, compact = false }: SingleParameterTableProps) {
+function SingleParameterTable({
+  path,
+  pairs,
+  label,
+  withMargin = true,
+  scrollable = true,
+  compact = false,
+}: SingleParameterTableProps) {
   const { content, loading, error } = useFileContent(path);
 
   if (!pairs || pairs.length === 0) {
@@ -163,7 +175,10 @@ function SingleParameterTable({ path, pairs, label, withMargin = true, compact =
 
   const renderPairsTable = () => {
     return (
-      <div className="not-prose my-6 overflow-x-auto border border-border rounded-md">
+      <div className={cn(
+        "border border-border rounded-md",
+        scrollable ? "overflow-x-auto" : "overflow-x-hidden"
+      )}>
         <table className={cn(
           "w-full border-collapse",
           compact ? "text-[11px]" : "text-sm"
@@ -325,14 +340,16 @@ export function ParameterTable({ path, pairs, compact = false }: ParameterTableP
 
   // Breakout width based on count
   const count = matchingPaths.length;
+  // Use translate centering (instead of negative margins) to avoid creating a tiny
+  // page-level horizontal scrollbar while still "breaking out" of prose width.
   const breakoutClass = count >= 4
-    ? 'w-[96vw] ml-[calc(-48vw+50%)]'
+    ? 'relative left-1/2 w-[96vw] -translate-x-1/2'
     : count >= 2
-      ? 'w-[75vw] ml-[calc(-37.5vw+50%)]'
+      ? 'relative left-1/2 w-[75vw] -translate-x-1/2'
       : '';
 
   return (
-    <div className={`my-6 ${breakoutClass}`}>
+    <div className={`my-6 ${breakoutClass} overflow-x-hidden`}>
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto overscroll-x-contain pb-2">
         {matchingPaths.map((filePath) => (
           <div key={filePath} className="flex-none w-[280px]">
@@ -341,6 +358,7 @@ export function ParameterTable({ path, pairs, compact = false }: ParameterTableP
               pairs={pairs}
               label={filePath.split('/').pop() || filePath}
               withMargin={false}
+              scrollable={false}
               compact={compact}
             />
           </div>
