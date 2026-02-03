@@ -132,6 +132,8 @@ export default async function serve(dir?: string) {
   const server = await createServer({
     root: veslxRoot,
     configFile,
+    // Load .env files from the user's repo (cwd), not the veslx install root
+    envDir: cwd,
     server: {
       strictPort: true,
     },

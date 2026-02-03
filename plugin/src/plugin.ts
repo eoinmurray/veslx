@@ -8,6 +8,29 @@ import matter from 'gray-matter'
 import { parseExpressionAt } from 'acorn'
 import { fileURLToPath } from 'url'
 
+function stripQueryAndHash(id: string): string {
+  // Vite module ids may include ?query and/or #hash.
+  const q = id.indexOf('?')
+  const h = id.indexOf('#')
+  const cut = q === -1 ? h : h === -1 ? q : Math.min(q, h)
+  return cut === -1 ? id : id.slice(0, cut)
+}
+
+function viteIdToFsPath(id: string): string {
+  // Handle common Vite id shapes:
+  // - /abs/path
+  // - /@fs/abs/path
+  // - file:///abs/path
+  let p = stripQueryAndHash(id)
+  if (p.startsWith('file://')) {
+    p = fileURLToPath(p)
+  }
+  if (p.startsWith('/@fs/')) {
+    p = p.slice('/@fs'.length)
+  }
+  return p
+}
+
 /**
  * Extract frontmatter from content files in a directory.
  */
@@ -612,9 +635,9 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
     load(id) {
       // Inject @source directive into index.css for Tailwind v4 content scanning
       // This must happen in load() before Tailwind processes the CSS
-      if (id.endsWith('/src/index.css')) {
-        const veslxRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
-        const cssPath = path.join(veslxRoot, 'src/index.css')
+      const normalizedId = stripQueryAndHash(id).replace(/\\/g, '/')
+      if (normalizedId.endsWith('/src/index.css')) {
+        const cssPath = viteIdToFsPath(id)
 
         try {
           const code = fs.readFileSync(cssPath, 'utf-8')

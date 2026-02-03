@@ -111,6 +111,8 @@ export default async function buildApp(dir?: string) {
     root: veslxRoot,
     configFile,
     mode: 'production',
+    // Load .env files from the user's repo (cwd), not the veslx install root
+    envDir: cwd,
     // Cache in user's project so it persists across bunx runs
     cacheDir: path.join(cwd, 'node_modules/.vite'),
     build: {
