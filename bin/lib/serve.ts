@@ -3,6 +3,7 @@ import importConfig from "./import-config.js";
 import veslxPlugin from '../../plugin/src/plugin.js'
 import path from 'path'
 import fs from 'fs'
+import net from 'net'
 import { fileURLToPath } from 'url'
 import { log } from './log.js'
 
@@ -49,6 +50,11 @@ async function listenWithFallback(server: Awaited<ReturnType<typeof createServer
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const port = startPort + attempt;
+    if (await isPortOccupiedOnLoopback(port)) {
+      log.info(`busy :${port} → :${port + 1}`);
+      continue;
+    }
+
     try {
       await server.listen(port);
       const address = server.httpServer?.address();
@@ -65,6 +71,46 @@ async function listenWithFallback(server: Awaited<ReturnType<typeof createServer
 
   log.error(`no available ports from ${startPort} to ${startPort + maxAttempts - 1}`);
   process.exit(1);
+}
+
+async function isPortOccupiedOnLoopback(port: number): Promise<boolean> {
+  const hosts = ['127.0.0.1', '::1'];
+
+  for (const host of hosts) {
+    const canListen = await canListenOnHost(port, host);
+    if (!canListen) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+async function canListenOnHost(port: number, host: string): Promise<boolean> {
+  return await new Promise((resolve) => {
+    const probe = net.createServer();
+
+    probe.once('error', (err: NodeJS.ErrnoException) => {
+      // IPv6 may be unavailable on some systems; skip that host.
+      if (err.code === 'EAFNOSUPPORT' || err.code === 'EADDRNOTAVAIL') {
+        resolve(true);
+        return;
+      }
+
+      if (err.code === 'EADDRINUSE') {
+        resolve(false);
+        return;
+      }
+
+      resolve(true);
+    });
+
+    probe.once('listening', () => {
+      probe.close(() => resolve(true));
+    });
+
+    probe.listen(port, host);
+  });
 }
 
 function resolveVeslxRoot() {

@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import * as fs from "fs";
 import * as path from "path";
+import * as net from "net";
 import { chromium, type Browser } from "playwright";
 import {
   packAndInstall,
@@ -57,6 +58,38 @@ describe("veslx CLI integration", () => {
       } finally {
         serverProcess.kill();
         ctx.serverProcess = undefined;
+      }
+    }, 60000);
+
+    test("falls back when 3000 is occupied on loopback", async () => {
+      const veslxBin = path.join(ctx.testDir, "node_modules", ".bin", "veslx");
+      const blocker = net.createServer();
+
+      await new Promise<void>((resolve, reject) => {
+        blocker.once("error", reject);
+        blocker.listen(3000, "127.0.0.1", () => resolve());
+      });
+
+      // Start the server while 3000 is already taken.
+      const serverProcess = Bun.spawn([veslxBin, "serve", "content"], {
+        cwd: ctx.testDir,
+        stdout: "pipe",
+        stderr: "pipe",
+        env: { ...process.env, VESLX_DEV: "1" },
+      });
+
+      ctx.serverProcess = serverProcess;
+
+      try {
+        const { port, url } = await waitForDevServer(serverProcess, 30000);
+        expect(port).toBeGreaterThan(3000);
+
+        const response = await fetch(url);
+        expect(response.ok).toBe(true);
+      } finally {
+        serverProcess.kill();
+        ctx.serverProcess = undefined;
+        blocker.close();
       }
     }, 60000);
 
