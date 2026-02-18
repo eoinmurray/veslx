@@ -124,7 +124,7 @@ export default function Gallery({
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="aspect-square rounded-sm bg-muted/20 relative overflow-hidden"
+              className="h-40 rounded-sm bg-muted/20 relative overflow-hidden"
             >
               <div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-muted/30 to-transparent animate-shimmer"
@@ -168,13 +168,13 @@ export default function Gallery({
     <div
       key={index}
       title={img.label}
-      className={`aspect-square overflow-hidden rounded-sm bg-muted/10 cursor-pointer group ${className || ''}`}
+      className={`overflow-hidden rounded-sm bg-muted/10 cursor-pointer group ${className || ''}`}
       onClick={() => lightbox.open(index)}
     >
       <LoadingImage
         src={img.src}
         alt={img.label}
-        className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+        className="w-full h-auto object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
       />
     </div>
   );
@@ -212,11 +212,6 @@ export default function Gallery({
               const offset = rowsToRender.slice(0, rowIndex).reduce((acc, row) => acc + row.length, 0);
               const rowSubtitle = subtitles?.[rowIndex];
               const rowWrapperClass = "max-w-[var(--gallery-width)] w-full mx-auto";
-              const placeholders = Math.max(0, maxRowColumns - rowImages.length);
-              const rowCells = [
-                ...rowImages.map((img, index) => ({ img, index })),
-                ...Array.from({ length: placeholders }, () => ({ img: null, index: -1 })),
-              ];
 
               return (
                 <div key={`${rowIndex}-${rowPaths.join("|")}`}>
@@ -225,17 +220,7 @@ export default function Gallery({
                       className="grid gap-3"
                       style={{ gridTemplateColumns: `repeat(${Math.max(1, maxRowColumns)}, minmax(0, 1fr))` }}
                     >
-                      {rowCells.map((cell, index) => {
-                        if (!cell.img) {
-                          return (
-                            <div
-                              key={`empty-${rowIndex}-${index}`}
-                              className="aspect-square rounded-sm opacity-0 pointer-events-none"
-                            />
-                          );
-                        }
-                        return imageElement(offset + cell.index, cell.img, 'w-full');
-                      })}
+                      {rowImages.map((img, index) => imageElement(offset + index, img, 'w-full'))}
                     </div>
                   </div>
 
@@ -255,22 +240,22 @@ export default function Gallery({
             <FigureCaption caption={caption} label={captionLabel} />
           </div>
         ) : isCompact ? (
-          <div className="flex gap-3">
+          <div className="flex items-start gap-3">
             {images.map((img, index) => imageElement(index, img, 'flex-1'))}
           </div>
         ) : (
-          <div ref={scrollRef} className="gallery-scroll-row flex gap-3 overflow-x-auto overscroll-x-contain pb-4">
+          <div ref={scrollRef} className="gallery-scroll-row flex items-start gap-3 overflow-x-auto overscroll-x-contain pb-4">
             {images.map((img, index) => (
               <div
                 key={index}
                 title={img.label}
-                className="flex-none w-[calc(var(--gallery-width)*0.3)] min-w-[250px] aspect-square overflow-hidden rounded-sm bg-muted/10 cursor-pointer group"
+                className="flex-none w-[calc(var(--gallery-width)*0.3)] min-w-[250px] overflow-hidden rounded-sm bg-muted/10 cursor-pointer group"
                 onClick={() => lightbox.open(index)}
               >
                 <LoadingImage
                   src={img.src}
                   alt={img.label}
-                  className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                  className="w-full h-auto object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
                 />
               </div>
             ))}
