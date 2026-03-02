@@ -7,16 +7,19 @@ interface PostListItemProps {
   title: string;
   description?: string;
   date?: Date;
-  href?: string;
-  /** Alias for href (used in MDX as linkPath) */
-  linkPath?: string;
+  href: string;
   external?: boolean;
   openInNewTab?: boolean;
   isSlides?: boolean;
 }
 
-export function PostListItem({ title, description, date, href, linkPath, external, openInNewTab = true, isSlides }: PostListItemProps) {
-  const resolvedHref = href || linkPath || '#';
+function isRouterLink(url: string): boolean {
+  return url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/raw/');
+}
+
+export function PostListItem({ title, description, date, href, external, openInNewTab, isSlides }: PostListItemProps) {
+  const useRouter = !external && isRouterLink(href) && !href.startsWith('http') && !href.startsWith('mailto:');
+  const newTab = openInNewTab ?? href.startsWith('http');
   const className = cn(
     "group block py-3 px-3 -mx-3 rounded-md",
     "transition-colors duration-150",
@@ -54,25 +57,25 @@ export function PostListItem({ title, description, date, href, linkPath, externa
     </article>
   );
 
-  if (external) {
+  if (useRouter) {
     return (
-      <a
-        href={resolvedHref}
-        target={openInNewTab ? "_blank" : undefined}
-        rel={openInNewTab ? "noopener noreferrer" : undefined}
+      <Link
+        to={href}
         className={className}
       >
         {content}
-      </a>
+      </Link>
     );
   }
 
   return (
-    <Link
-      to={resolvedHref}
+    <a
+      href={href}
+      target={newTab ? "_blank" : undefined}
+      rel={newTab ? "noopener noreferrer" : undefined}
       className={className}
     >
       {content}
-    </Link>
+    </a>
   );
 }
