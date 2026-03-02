@@ -5,11 +5,24 @@ description: "Build custom lists."
 
 <VeslxFrontMatter />
 
+# Example
+
+<div className="mb-4 p-8 border rounded">
+  <VeslxPostListItem
+    title="Getting Started"
+    description="Intro"
+    href="/docs/getting-started"
+    date={new Date("2025-01-15")}
+  />
+</div>
+
+# Usage
+
 ```mdx
 <VeslxPostListItem
   title="Getting Started"
   description="Intro"
-  linkPath="/docs/getting-started"
+  href="/docs/getting-started"
   date={new Date("2025-01-15")}
 />
 ```

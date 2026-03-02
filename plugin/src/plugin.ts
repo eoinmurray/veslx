@@ -580,6 +580,7 @@ export default function contentPlugin(contentDir: string, config?: VeslxConfig, 
             '.jpeg': 'image/jpeg',
             '.gif': 'image/gif',
             '.svg': 'image/svg+xml',
+            '.pdf': 'application/pdf',
             '.json': 'application/json',
             '.md': 'text/markdown',
             '.yaml': 'text/yaml',
@@ -692,6 +693,7 @@ export const files = import.meta.glob([
   '@content/*.gif',
   '@content/*.svg',
   '@content/*.webp',
+  '@content/*.pdf',
   '@content/*.css',
   '@content/*.yaml',
   '@content/*.yml',
@@ -708,6 +710,7 @@ export const files = import.meta.glob([
   '@content/**/*.gif',
   '@content/**/*.svg',
   '@content/**/*.webp',
+  '@content/**/*.pdf',
   '@content/**/*.css',
   '@content/**/*.yaml',
   '@content/**/*.yml',
@@ -743,7 +746,7 @@ export const modules = import.meta.glob(['@content/*.mdx', '@content/*.md', '@co
       server.watcher.add(dir)
 
       // File extensions that should trigger a full reload
-      const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.tsx', '.ts', '.jsx', '.js', '.css']
+      const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.pdf', '.tsx', '.ts', '.jsx', '.js', '.css']
 
       // Debounce reload to avoid rapid-fire refreshes when multiple files change
       let reloadTimeout: ReturnType<typeof setTimeout> | null = null
@@ -813,7 +816,7 @@ export const modules = import.meta.glob(['@content/*.mdx', '@content/*.md', '@co
       // Check if the changed file is in the content directory
       // Return empty array to prevent default HMR - we handle it in configureServer
       if (file.startsWith(dir)) {
-        const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.tsx', '.ts', '.jsx', '.js', '.css']
+        const watchedExtensions = ['.mdx', '.md', '.yaml', '.yml', '.json', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.pdf', '.tsx', '.ts', '.jsx', '.js', '.css']
         const ext = path.extname(file).toLowerCase()
         if (watchedExtensions.includes(ext)) {
           return [] // Prevent default HMR, we already handle this via watcher events

@@ -5,6 +5,21 @@ description: "Responsive image galleries."
 
 <VeslxFrontMatter />
 
+# Example
+
+{/* example of VeslxGallery in use */}
+<div className="mb-4 p-8 border rounded">
+  <VeslxGallery
+    path="images"
+    globs={["image1.png"]}
+    caption="An example image."
+    captionLabel="Figure 1"
+    size="md"
+  />
+</div>
+
+# Usage
+
 ```mdx
 <VeslxGallery
   path="images"
@@ -12,11 +27,29 @@ description: "Responsive image galleries."
   baseUrl="https://cdn.example.com/assets"
   title="Results"
   caption="Measurements at 25C"
-  captionLabel="Figure 2"
+  captionLabel="Figure 1"
 />
 ```
 
-### Size variants
+Props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| path | string | - | Relative to content root |
+| globs | string[] \| string[][] | null | Filter images (grouped arrays become rows) |
+| baseUrl | string | - | Optional CDN/base URL for image sources |
+| title | string | - | Optional title |
+| subtitle | string | - | Optional subtitle |
+| caption | string | - | Optional caption |
+| subtitles | string[] | - | Per-row subtitles when using grouped globs |
+| captionLabel | string | - | Caption prefix |
+| size | "sm" \| "md" \| "lg" | "lg" | Gallery width |
+| limit | number | null | Max images |
+| page | number | 0 | Page offset |
+| childAlign | "left" or "right" | "right" | Side content alignment |
+
+
+# Size variants
 Use `size` to control the gallery width.
 
 ```mdx
@@ -29,7 +62,7 @@ Use `size` to control the gallery width.
 <VeslxGallery path="images" globs={["image1.png"]} size="md" title="Medium" />
 <VeslxGallery path="images" globs={["image1.png"]} size="lg" title="Large" />
 
-### Full-width scroll row
+# Full-width scroll row
 When you provide more than three images, VeslxGallery renders a horizontal row that spans the screen.
 
 ```mdx
@@ -50,7 +83,7 @@ When you provide more than three images, VeslxGallery renders a horizontal row t
   captionLabel="Figure 3"
 />
 
-### Multi-row gallery
+# Multi-row gallery
 Provide a grouped `globs` array to render multiple rows, with optional per-row subtitles.
 
 ```mdx
@@ -76,20 +109,3 @@ Provide a grouped `globs` array to render multiple rows, with optional per-row s
   subtitles={["Row 1", "Row 2"]}
   caption="Grouped rows with their own subtitles."
 />
-
-Props:
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| path | string | - | Relative to content root |
-| globs | string[] \| string[][] | null | Filter images (grouped arrays become rows) |
-| baseUrl | string | - | Optional CDN/base URL for image sources |
-| title | string | - | Optional title |
-| subtitle | string | - | Optional subtitle |
-| caption | string | - | Optional caption |
-| subtitles | string[] | - | Per-row subtitles when using grouped globs |
-| captionLabel | string | - | Caption prefix |
-| size | "sm" \| "md" \| "lg" | "lg" | Gallery width |
-| limit | number | null | Max images |
-| page | number | 0 | Page offset |
-| childAlign | "left" or "right" | "right" | Side content alignment |

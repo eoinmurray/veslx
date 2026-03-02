@@ -1,5 +1,5 @@
 import type { DirectoryEntry, FileEntry } from "../../plugin/src/lib";
-import { findReadme, findSlides, findMdxFiles, findStandaloneSlides, findTsxFiles } from "../../plugin/src/client";
+import { findReadme, findSlides, findMdxFiles, findStandaloneSlides, findTsxFiles, findPdfFiles } from "../../plugin/src/client";
 
 export type PostEntry = {
   type: 'folder' | 'file';
@@ -19,6 +19,7 @@ export function directoryToPostEntries(directory: DirectoryEntry): PostEntry[] {
   const standaloneFiles = findMdxFiles(directory);
   const standaloneTsxFiles = findTsxFiles(directory);
   const standaloneSlidesFiles = findStandaloneSlides(directory);
+  const standalonePdfFiles = findPdfFiles(directory);
 
   const folderPosts: PostEntry[] = folders
     .map((folder) => ({
@@ -59,7 +60,16 @@ export function directoryToPostEntries(directory: DirectoryEntry): PostEntry[] {
     file: null,
   }));
 
-  return [...folderPosts, ...filePosts, ...tsxPosts, ...slidesPosts];
+  const pdfPosts: PostEntry[] = standalonePdfFiles.map((file) => ({
+    type: 'file' as const,
+    name: file.name.replace(/\.pdf$/i, ''),
+    path: file.path,
+    readme: null,
+    slides: null,
+    file,
+  }));
+
+  return [...folderPosts, ...filePosts, ...tsxPosts, ...slidesPosts, ...pdfPosts];
 }
 
 export function filterVisiblePosts(posts: PostEntry[]): PostEntry[] {

@@ -7,12 +7,16 @@ interface PostListItemProps {
   title: string;
   description?: string;
   date?: Date;
-  href: string;
+  href?: string;
+  /** Alias for href (used in MDX as linkPath) */
+  linkPath?: string;
   external?: boolean;
+  openInNewTab?: boolean;
   isSlides?: boolean;
 }
 
-export function PostListItem({ title, description, date, href, external, isSlides }: PostListItemProps) {
+export function PostListItem({ title, description, date, href, linkPath, external, openInNewTab = true, isSlides }: PostListItemProps) {
+  const resolvedHref = href || linkPath || '#';
   const className = cn(
     "group block py-3 px-3 -mx-3 rounded-md",
     "transition-colors duration-150",
@@ -53,9 +57,9 @@ export function PostListItem({ title, description, date, href, external, isSlide
   if (external) {
     return (
       <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={resolvedHref}
+        target={openInNewTab ? "_blank" : undefined}
+        rel={openInNewTab ? "noopener noreferrer" : undefined}
         className={className}
       >
         {content}
@@ -65,7 +69,7 @@ export function PostListItem({ title, description, date, href, external, isSlide
 
   return (
     <Link
-      to={href}
+      to={resolvedHref}
       className={className}
     >
       {content}

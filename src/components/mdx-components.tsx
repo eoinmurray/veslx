@@ -1,14 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import Gallery from '@/components/gallery'
-import { ParameterTable } from '@/components/parameter-table'
-import { ParameterBadge } from '@/components/parameter-badge'
-import { VeslxCat } from '@/components/veslx-cat'
 import { VeslxTOC } from '@/components/veslx-toc'
 import { FrontMatter } from './front-matter'
-import { HeroSlide } from './slides/hero-slide'
-import { FigureSlide } from './slides/figure-slide'
-import { TextSlide } from './slides/text-slide'
-import { SlideOutline } from './slides/slide-outline'
 import { PostList } from '@/components/post-list'
 import { PostListItem } from '@/components/post-list-item'
 import { VeslxSearch } from '@/components/veslx-search'
@@ -83,23 +76,9 @@ export const mdxComponents = {
 
   VeslxGallery: Gallery,
 
-  VeslxParameterTable: ParameterTable,
-
-  VeslxParameterBadge: ParameterBadge,
-
-  VeslxHeroSlide: HeroSlide,
-
-  VeslxFigureSlide: FigureSlide,
-
-  VeslxTextSlide: TextSlide,
-
-  VeslxSlideOutline: SlideOutline,
-
   VeslxPostList: PostList,
 
   VeslxPostListItem: PostListItem,
-
-  VeslxCat: VeslxCat,
 
   VeslxTOC: VeslxTOC,
 

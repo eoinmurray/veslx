@@ -156,22 +156,6 @@ Display images with titles, captions, and a fullscreen lightbox:
 | `captionLabel` | `string` | Label prefix (e.g., "Figure 1") |
 | `limit` | `number` | Max images to show |
 
-### VeslxParameterTable
-
-Display YAML or JSON configuration files with collapsible sections:
-
-```mdx
-<VeslxParameterTable
-  path="config.yaml"
-  keys={[".simulation.timestep", ".model.layers"]}
-/>
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `path` | `string` | Path to YAML/JSON file |
-| `keys` | `string[]` | jq-like paths to filter (optional) |
-
 ### Local Imports
 
 Import React components directly from your content directory:

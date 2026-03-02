@@ -5,9 +5,24 @@ description: "Lists pages in the current folder."
 
 <VeslxFrontMatter />
 
+# Example
+
+<div className="mb-4 p-8 border rounded">
+  <VeslxPostList globs={["example.1*", "example.2*"]} />
+</div>
+
+# Usage
+
 ```mdx
 <VeslxPostList />
 ```
+
+Props:
+
+| Prop | Type | Default | Notes |
+| --- | --- | --- | --- |
+| globs | string[] | null | Filter by file glob |
+
 
 Group content by globs (useful on a custom homepage):
 
@@ -18,9 +33,3 @@ Group content by globs (useful on a custom homepage):
 # Tutorials
 <VeslxPostList globs={["tutorials/*"]} />
 ```
-
-Props:
-
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| globs | string[] | null | Filter by file glob |

@@ -36,7 +36,11 @@ function filePathToRoutePath(filePath: string): string {
 // Helper to get link path from post
 function getLinkPath(post: PostEntry): string {
   if (post.file) {
-    // Standalone MDX file
+    // Standalone PDF file should open directly.
+    if (post.file.path.toLowerCase().endsWith('.pdf')) {
+      return `/raw/${post.file.path}`;
+    }
+    // Standalone MDX/TSX file
     return filePathToRoutePath(post.file.path);
   } else if (post.slides && !post.readme) {
     // Folder with only slides
@@ -51,7 +55,7 @@ function getLinkPath(post: PostEntry): string {
 }
 
 function isRouterPath(href: string): boolean {
-  return href.startsWith("/") && !href.startsWith("//");
+  return href.startsWith("/") && !href.startsWith("//") && !href.startsWith("/raw/");
 }
 
 export function PostList({ globs = null }: PostListProps) {
@@ -143,6 +147,7 @@ export function PostList({ globs = null }: PostListProps) {
           typeof frontmatter?.link === "string" ? frontmatter.link.trim() : "";
         const href = frontmatterLink || internalLinkPath;
         const external = !isRouterPath(href);
+        const openInNewTab = external && !href.startsWith("/raw/");
 
         return (
           <PostListItem
@@ -152,6 +157,7 @@ export function PostList({ globs = null }: PostListProps) {
             date={date}
             href={href}
             external={external}
+            openInNewTab={openInNewTab}
             isSlides={isSlides}
           />
         );

@@ -63,6 +63,16 @@ export function findTsxFiles(directory: DirectoryEntry): FileEntry[] {
   );
 }
 
+/**
+ * Find standalone PDF files in a directory.
+ */
+export function findPdfFiles(directory: DirectoryEntry): FileEntry[] {
+  return directory.children.filter((child): child is FileEntry =>
+    child.type === "file" &&
+    child.name.toLowerCase().endsWith('.pdf')
+  );
+}
+
 export function findSlides(directory: DirectoryEntry): FileEntry | null {
   // First check for standard SLIDES.mdx files
   const standardSlides = directory.children.find((child) =>
