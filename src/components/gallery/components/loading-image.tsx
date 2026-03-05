@@ -11,7 +11,7 @@ export function LoadingImage({
   const [hasError, setHasError] = useState(false);
 
   return (
-    <div className={cn("relative overflow-hidden rounded-sm bg-muted/20", wrapperClassName)}>
+    <div className={cn("relative overflow-hidden rounded-xl bg-muted/20", wrapperClassName)}>
       {isLoading && !hasError && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-muted/40 to-transparent animate-shimmer" />

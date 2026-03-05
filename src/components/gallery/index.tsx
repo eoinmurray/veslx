@@ -94,7 +94,7 @@ export default function Gallery({
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-40 rounded-sm bg-muted/20 relative overflow-hidden"
+              className="h-40 rounded-xl bg-muted/20 relative overflow-hidden"
             >
               <div
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-muted/30 to-transparent animate-shimmer"
@@ -131,7 +131,7 @@ export default function Gallery({
     <div
       key={index}
       title={img.label}
-      className={`overflow-hidden rounded-sm bg-muted/10 cursor-pointer group ${className || ''}`}
+      className={`overflow-hidden rounded-xl border border-border/30 cursor-pointer group ${className || ''}`}
       onClick={() => lightbox.open(index)}
     >
       <LoadingImage
