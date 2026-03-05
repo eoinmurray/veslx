@@ -89,7 +89,7 @@ export default function Gallery({
 
   if (isLoading) {
     return (
-      <figure className="not-prose my-8 py-6 md:py-8 border-t border-b border-border/40 bg-muted/[0.03]" style={galleryStyle}>
+      <figure className="not-prose my-8 py-6 md:py-8 border border-border/40 rounded-md px-4 md:px-6 bg-muted/10" style={galleryStyle}>
         <div className="grid grid-cols-3 gap-3 max-w-[var(--gallery-width)] mx-auto">
           {[...Array(3)].map((_, i) => (
             <div
@@ -109,7 +109,7 @@ export default function Gallery({
 
   if (isEmpty) {
     return (
-      <figure className="not-prose my-8 py-12 text-center border-t border-b border-border/40 bg-muted/[0.03]" style={galleryStyle}>
+      <figure className="not-prose my-8 py-12 text-center border border-border/40 rounded-md px-4 md:px-6 bg-muted/10" style={galleryStyle}>
         <div className="inline-flex items-center gap-2.5 text-muted-foreground/40">
           <Image className="h-3.5 w-3.5" strokeWidth={1.5} />
           <span className="font-mono text-xs uppercase tracking-widest">No images</span>
@@ -145,7 +145,7 @@ export default function Gallery({
   return (
     <>
       <figure
-        className={`not-prose relative my-8 py-6 md:py-8 border-t border-b border-border/40 bg-muted/[0.03] ${breakoutClass}`}
+        className={`not-prose relative my-8 py-6 md:py-8 border border-border/40 rounded-md px-4 md:px-6 bg-muted/10 ${breakoutClass}`}
         style={galleryStyle}
       >
         {!isSingleWithChildren && !isSingle && (
