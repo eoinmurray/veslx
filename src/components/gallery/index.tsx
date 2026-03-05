@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, type CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { Image } from "lucide-react";
 import { Lightbox, LightboxImage } from "@/components/gallery/components/lightbox";
 import { useGalleryImages } from "./hooks/use-gallery-images";
@@ -6,34 +6,6 @@ import { useLightbox } from "./hooks/use-lightbox";
 import { LoadingImage } from "./components/loading-image";
 import { FigureHeader } from "./components/figure-header";
 import { FigureCaption } from "./components/figure-caption";
-
-/**
- * Hook to prevent horizontal scroll from triggering browser back/forward gestures.
- * Captures wheel events and prevents default when at scroll boundaries.
- */
-function usePreventSwipeNavigation(ref: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      // Only handle horizontal scrolling
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
-
-      const { scrollLeft, scrollWidth, clientWidth } = el;
-      const atLeftEdge = scrollLeft <= 0;
-      const atRightEdge = scrollLeft + clientWidth >= scrollWidth - 1;
-
-      // Prevent default if trying to scroll past boundaries
-      if ((atLeftEdge && e.deltaX < 0) || (atRightEdge && e.deltaX > 0)) {
-        e.preventDefault();
-      }
-    };
-
-    el.addEventListener('wheel', handleWheel, { passive: false });
-    return () => el.removeEventListener('wheel', handleWheel);
-  }, [ref]);
-}
 
 function getImageLabel(path: string): string {
   const cleanPath = path.split(/[?#]/)[0];
@@ -98,8 +70,6 @@ export default function Gallery({
   });
 
   const lightbox = useLightbox(paths.length);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  usePreventSwipeNavigation(scrollRef);
 
   const galleryWidthMap: Record<"sm" | "md" | "lg", string> = {
     sm: "min(80vw, 18rem)",
@@ -149,19 +119,12 @@ export default function Gallery({
   }
 
   const isSingle = images.length === 1;
-  const isTwo = images.length === 2;
-  const isCompact = images.length <= 3;
   const isGroupedRows = rowsToRender.length > 1;
-  const isScrollRow = images.length > 3;
   const isSingleWithChildren = images.length === 1 && children;
   // 2+ images should break out of the content width
   const shouldBreakOut = images.length >= 2;
-  const breakoutClass = shouldBreakOut
-    ? isGroupedRows
-      ? ""
-      : isScrollRow
-        ? "gallery-breakout w-screen"
-        : "gallery-breakout w-[var(--gallery-width)] max-w-none"
+  const breakoutClass = shouldBreakOut && !isGroupedRows
+    ? "gallery-breakout w-[var(--gallery-width)] max-w-none"
     : "";
 
   const imageElement = (index: number, img: LightboxImage, className?: string) => (
@@ -239,26 +202,12 @@ export default function Gallery({
             {imageElement(0, images[0])}
             <FigureCaption caption={caption} label={captionLabel} />
           </div>
-        ) : isCompact ? (
-          <div className="flex items-start gap-3">
-            {images.map((img, index) => imageElement(index, img, 'flex-1'))}
-          </div>
         ) : (
-          <div ref={scrollRef} className="gallery-scroll-row flex items-start gap-3 overflow-x-auto overscroll-x-contain pb-4">
-            {images.map((img, index) => (
-              <div
-                key={index}
-                title={img.label}
-                className="flex-none w-[calc(var(--gallery-width)*0.3)] min-w-[250px] overflow-hidden rounded-sm bg-muted/10 cursor-pointer group"
-                onClick={() => lightbox.open(index)}
-              >
-                <LoadingImage
-                  src={img.src}
-                  alt={img.label}
-                  className="w-full h-auto object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-                />
-              </div>
-            ))}
+          <div
+            className="grid gap-3"
+            style={{ gridTemplateColumns: `repeat(${Math.min(images.length, 3)}, minmax(0, 1fr))` }}
+          >
+            {images.map((img, index) => imageElement(index, img, 'w-full'))}
           </div>
         )}
 
